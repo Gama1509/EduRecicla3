@@ -111,7 +111,7 @@ export default function DonatePage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className={`w-full bg-green-DEFAULT text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition-colors ${
+          className={`w-full bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-600 transition-colors ${
             loading ? 'opacity-50 cursor-not-allowed' : ''
           }`}
           disabled={loading}
@@ -121,7 +121,7 @@ export default function DonatePage() {
 
         {/* Status Messages */}
         {status === 'success' && (
-          <p className="mt-4 text-center text-green-600">
+          <p className="mt-4 text-center text-primary-600">
             Thank you for your generous donation!
           </p>
         )}

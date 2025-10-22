@@ -17,7 +17,7 @@ const RequestForm = () => {
   if (status === 'success') {
     return (
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-green-600">
+        <h2 className="text-3xl font-bold text-primary-600">
           {action === 'buy' ? 'Purchase Successful!' : 'Request Submitted!'}
         </h2>
         <p className="mt-4 text-lg text-gray-600">
@@ -63,7 +63,7 @@ const RequestForm = () => {
 
         <div className="mb-6">
           <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox text-blue-DEFAULT" />
+            <input type="checkbox" className="form-checkbox text-secondary" />
             <span className="ml-2 text-gray-600">Save this information for next time</span>
           </label>
         </div>
@@ -72,8 +72,8 @@ const RequestForm = () => {
           type="submit"
           className={`w-full font-bold py-3 px-6 rounded-lg text-white transition-colors ${
             action === 'buy'
-              ? 'bg-orange-DEFAULT hover:bg-orange-600'
-              : 'bg-green-DEFAULT hover:bg-green-600'
+              ? 'bg-secondary hover:bg-secondary-600'
+              : 'bg-primary hover:bg-primary-600'
           }`}
         >
           {action === 'buy' ? 'Complete Purchase' : 'Submit Request'}

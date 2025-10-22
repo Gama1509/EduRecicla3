@@ -79,7 +79,7 @@ const FilterBar = ({ filters, onFilterChange }: FilterBarProps) => {
               name="forSale"
               checked={filters.action === 'forSale'}
               onChange={handleCheckboxChange}
-              className="form-checkbox text-orange-DEFAULT"
+              className="form-checkbox text-secondary"
             />
             <span className="ml-2">For Sale</span>
           </label>
@@ -89,7 +89,7 @@ const FilterBar = ({ filters, onFilterChange }: FilterBarProps) => {
               name="forDonation"
               checked={filters.action === 'forDonation'}
               onChange={handleCheckboxChange}
-              className="form-checkbox text-green-DEFAULT"
+              className="form-checkbox text-primary"
             />
             <span className="ml-2">For Donation</span>
           </label>

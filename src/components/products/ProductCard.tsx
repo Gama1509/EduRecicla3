@@ -22,14 +22,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
           <p className="text-sm text-gray-600 mt-1 flex-grow">{product.description}</p>
           <div className="mt-4 flex justify-between items-center">
-            <span className="text-xl font-bold text-blue-DEFAULT">
+            <span className="text-xl font-bold text-secondary">
               {product.isDonation ? 'Free' : `$${product.price}`}
             </span>
             <span
               className={`px-4 py-2 rounded-lg font-semibold text-white text-sm ${
                 product.isDonation
-                  ? 'bg-green-DEFAULT'
-                  : 'bg-orange-DEFAULT'
+                  ? 'bg-primary'
+                  : 'bg-secondary'
               }`}
             >
               {product.isDonation ? 'Donation' : 'For Sale'}

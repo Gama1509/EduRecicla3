@@ -27,7 +27,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
         <p className="text-lg text-gray-600 mt-4">{product.description}</p>
 
         <div className="mt-6">
-          <span className="text-3xl font-bold text-blue-DEFAULT">
+          <span className="text-3xl font-bold text-secondary">
             {product.isDonation ? 'Free Donation' : `$${product.price}`}
           </span>
           <span className="ml-4 text-gray-500">{product.condition}</span>
@@ -52,8 +52,8 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             <div
               className={`w-full text-center py-3 px-6 rounded-lg font-bold text-white transition-colors ${
                 product.isDonation
-                  ? 'bg-green-DEFAULT hover:bg-green-600'
-                  : 'bg-orange-DEFAULT hover:bg-orange-600'
+                  ? 'bg-primary hover:bg-primary-600'
+                  : 'bg-secondary hover:bg-secondary-600'
               }`}
             >
               {product.isDonation ? 'Request Donation' : 'Buy Now'}

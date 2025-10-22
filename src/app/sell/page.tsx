@@ -128,7 +128,7 @@ export default function SellPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className={`w-full bg-orange-DEFAULT text-white font-bold py-3 px-6 rounded-lg hover:bg-orange-600 transition-colors ${
+          className={`w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-600 transition-colors ${
             loading ? 'opacity-50 cursor-not-allowed' : ''
           }`}
           disabled={loading}
@@ -138,7 +138,7 @@ export default function SellPage() {
 
         {/* Status Messages */}
         {status === 'success' && (
-          <p className="mt-4 text-center text-green-600">
+          <p className="mt-4 text-center text-primary-600">
             Thank you! Your item has been submitted for approval.
           </p>
         )}

@@ -13,7 +13,7 @@ const UserProfileCard = () => {
       />
       <h2 className="text-2xl font-semibold mt-4">John Doe</h2>
       <p className="text-gray-600">john.doe@example.com</p>
-      <button className="mt-6 bg-blue-DEFAULT text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+      <button className="mt-6 bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-secondary-600 transition-colors">
         Edit Profile
       </button>
     </div>

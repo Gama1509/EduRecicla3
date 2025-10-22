@@ -27,7 +27,7 @@ export default function AdminProposalsPage() {
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${
                       proposal.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                      proposal.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                      proposal.status === 'Approved' ? 'bg-primary-100 text-primary-800' :
                       'bg-red-100 text-red-800'
                     }`}
                   >
@@ -37,7 +37,7 @@ export default function AdminProposalsPage() {
                 <td className="py-2 px-4">
                   {proposal.status === 'Pending' && (
                     <>
-                      <button className="text-green-600 hover:underline">Approve</button>
+                      <button className="text-primary-600 hover:underline">Approve</button>
                       <button className="ml-4 text-red-600 hover:underline">Reject</button>
                     </>
                   )}
