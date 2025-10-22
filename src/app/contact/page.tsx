@@ -7,7 +7,7 @@ export default function ContactPage() {
         Have questions or feedback? We&apos;d love to hear from you.
       </p>
       <p className="text-lg text-gray-600 mt-4">
-        Email us at: <a href="mailto:contact@edurecicla.com" className="text-blue-DEFAULT hover:underline">contact@edurecicla.com</a>
+        Email us at: <a href="mailto:contact@edurecicla.com" className="text-secondary hover:underline">contact@edurecicla.com</a>
       </p>
     </div>
   );

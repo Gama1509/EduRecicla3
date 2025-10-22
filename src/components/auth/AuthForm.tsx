@@ -61,7 +61,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
 
         <button
           type="submit"
-          className="w-full bg-blue-DEFAULT text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors"
+          className="w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-600 transition-colors"
         >
           {isRegisterMode ? 'Register' : 'Login'}
         </button>
@@ -71,7 +71,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
           <button
             type="button"
             onClick={() => setIsRegisterMode(!isRegisterMode)}
-            className="ml-2 text-blue-DEFAULT font-semibold hover:underline"
+            className="ml-2 text-secondary font-semibold hover:underline"
           >
             {isRegisterMode ? 'Login' : 'Register'}
           </button>

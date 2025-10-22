@@ -104,7 +104,7 @@ const ProductForm = ({ product }: ProductFormProps) => {
       <div className="mt-8">
         <button
           type="submit"
-          className="w-full bg-blue-DEFAULT text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors"
+          className="w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-600 transition-colors"
         >
           {isEditMode ? 'Update Product' : 'Create Product'}
         </button>

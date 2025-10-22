@@ -25,9 +25,9 @@ const TransactionPanel = () => {
                 <td className="py-2 px-4">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      transaction.type === 'Sold' ? 'bg-green-100 text-green-800' :
-                      transaction.type === 'Bought' ? 'bg-orange-100 text-orange-800' :
-                      'bg-blue-100 text-blue-800'
+                      transaction.type === 'Sold' ? 'bg-primary-100 text-primary-800' :
+                      transaction.type === 'Bought' ? 'bg-secondary-100 text-secondary-800' :
+                      'bg-secondary-100 text-secondary-800'
                     }`}
                   >
                     {transaction.type}
@@ -36,7 +36,7 @@ const TransactionPanel = () => {
                 <td className="py-2 px-4">{transaction.item}</td>
                 <td className="py-2 px-4">{transaction.date}</td>
                 <td className={`py-2 px-4 text-right font-semibold ${
-                  transaction.amount > 0 ? 'text-green-600' :
+                  transaction.amount > 0 ? 'text-primary-600' :
                   transaction.amount < 0 ? 'text-red-600' :
                   'text-gray-600'
                 }`}>

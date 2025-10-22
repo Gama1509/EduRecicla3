@@ -12,7 +12,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-6 py-3 md:flex md:justify-between md:items-center">
         <div className="flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-blue-DEFAULT">
+          <Link href="/" className="text-2xl font-bold text-secondary">
             EduRecicla
           </Link>
           <div className="flex md:hidden">
@@ -34,33 +34,33 @@ const Navbar = () => {
 
         <div className={`md:flex items-center ${isOpen ? 'block' : 'hidden'}`}>
           <div className="flex flex-col md:flex-row md:mx-6">
-            <Link href="/buy" className="my-1 text-sm text-gray-700 font-medium hover:text-orange-DEFAULT md:mx-4 md:my-0">
+            <Link href="/buy" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
               Buy
             </Link>
-            <Link href="/sell" className="my-1 text-sm text-gray-700 font-medium hover:text-orange-DEFAULT md:mx-4 md:my-0">
+            <Link href="/sell" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
               Sell
             </Link>
-            <Link href="/donate" className="my-1 text-sm text-gray-700 font-medium hover:text-orange-DEFAULT md:mx-4 md:my-0">
+            <Link href="/donate" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
               Donate
             </Link>
             {isLoggedIn ? (
               <>
-                <Link href="/profile" className="my-1 text-sm text-gray-700 font-medium hover:text-orange-DEFAULT md:mx-4 md:my-0">
+                <Link href="/profile" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
                   Profile
                 </Link>
                 <button
                   onClick={logout}
-                  className="my-1 text-sm text-gray-700 font-medium hover:text-orange-DEFAULT md:mx-4 md:my-0"
+                  className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="my-1 text-sm text-gray-700 font-medium hover:text-orange-DEFAULT md:mx-4 md:my-0">
+                <Link href="/login" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
                   Login
                 </Link>
-                <Link href="/register" className="my-1 text-sm text-gray-700 font-medium hover:text-orange-DEFAULT md:mx-4 md:my-0">
+                <Link href="/register" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
                   Register
                 </Link>
               </>

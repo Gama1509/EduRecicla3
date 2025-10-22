@@ -10,13 +10,13 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} EduRecicla. All rights reserved.
           </p>
           <div className="flex space-x-4">
-            <Link href="/about" className="text-sm text-gray-600 hover:text-orange-DEFAULT">
+            <Link href="/about" className="text-sm text-gray-600 hover:text-secondary">
               About Us
             </Link>
-            <Link href="/contact" className="text-sm text-gray-600 hover:text-orange-DEFAULT">
+            <Link href="/contact" className="text-sm text-gray-600 hover:text-secondary">
               Contact
             </Link>
-            <Link href="/privacy" className="text-sm text-gray-600 hover:text-orange-DEFAULT">
+            <Link href="/privacy" className="text-sm text-gray-600 hover:text-secondary">
               Privacy Policy
             </Link>
           </div>
