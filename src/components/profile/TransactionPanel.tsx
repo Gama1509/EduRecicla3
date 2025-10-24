@@ -7,12 +7,12 @@ const transactions = [
 
 const TransactionPanel = () => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-semibold mb-4">Transaction History</h3>
+    <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-md">
+      <h3 className="text-xl font-semibold mb-4 text-text-primary-light dark:text-text-primary-dark">Transaction History</h3>
       <div className="overflow-x-auto">
-        <table className="min-w-full">
+        <table className="min-w-full text-text-primary-light dark:text-text-primary-dark">
           <thead>
-            <tr className="border-b">
+            <tr className="border-b border-border-light dark:border-border-dark">
               <th className="py-2 px-4 text-left">Type</th>
               <th className="py-2 px-4 text-left">Item</th>
               <th className="py-2 px-4 text-left">Date</th>
@@ -21,13 +21,13 @@ const TransactionPanel = () => {
           </thead>
           <tbody>
             {transactions.map((transaction) => (
-              <tr key={transaction.id} className="border-b hover:bg-gray-50">
+              <tr key={transaction.id} className="border-b border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="py-2 px-4">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      transaction.type === 'Sold' ? 'bg-primary-100 text-primary-800' :
-                      transaction.type === 'Bought' ? 'bg-secondary-100 text-secondary-800' :
-                      'bg-secondary-100 text-secondary-800'
+                      transaction.type === 'Sold' ? 'bg-primary/20 text-primary dark:bg-primary-dark/20 dark:text-primary-dark' :
+                      transaction.type === 'Bought' ? 'bg-secondary/20 text-secondary dark:bg-secondary-dark/20 dark:text-secondary-dark' :
+                      'bg-secondary/20 text-secondary dark:bg-secondary-dark/20 dark:text-secondary-dark'
                     }`}
                   >
                     {transaction.type}
@@ -36,9 +36,9 @@ const TransactionPanel = () => {
                 <td className="py-2 px-4">{transaction.item}</td>
                 <td className="py-2 px-4">{transaction.date}</td>
                 <td className={`py-2 px-4 text-right font-semibold ${
-                  transaction.amount > 0 ? 'text-primary-600' :
+                  transaction.amount > 0 ? 'text-primary dark:text-primary-dark' :
                   transaction.amount < 0 ? 'text-red-600' :
-                  'text-gray-600'
+                  'text-text-secondary-light dark:text-text-secondary-dark'
                 }`}>
                   {transaction.amount === 0 ? '-' : `$${Math.abs(transaction.amount)}`}
                 </td>

@@ -9,17 +9,17 @@ const Navbar = () => {
   const { isLoggedIn, logout } = useAuth();
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-card-light dark:bg-card-dark shadow-md">
       <div className="container mx-auto px-6 py-3 md:flex md:justify-between md:items-center">
         <div className="flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-secondary">
+          <Link href="/" className="text-2xl font-bold text-secondary dark:text-secondary-dark">
             EduRecicla
           </Link>
           <div className="flex md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="text-gray-500 hover:text-gray-600 focus:outline-none focus:text-gray-600"
+              className="text-text-secondary-light hover:text-secondary focus:outline-none focus:text-secondary dark:text-text-secondary-dark dark:hover:text-secondary-dark dark:focus:text-secondary-dark"
               aria-label="toggle menu"
             >
               <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
@@ -34,33 +34,33 @@ const Navbar = () => {
 
         <div className={`md:flex items-center ${isOpen ? 'block' : 'hidden'}`}>
           <div className="flex flex-col md:flex-row md:mx-6">
-            <Link href="/buy" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
+            <Link href="/buy" className="my-1 text-sm text-text-primary-light font-medium hover:text-secondary md:mx-4 md:my-0 dark:text-text-primary-dark dark:hover:text-secondary-dark">
               Buy
             </Link>
-            <Link href="/sell" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
+            <Link href="/sell" className="my-1 text-sm text-text-primary-light font-medium hover:text-secondary md:mx-4 md:my-0 dark:text-text-primary-dark dark:hover:text-secondary-dark">
               Sell
             </Link>
-            <Link href="/donate" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
+            <Link href="/donate" className="my-1 text-sm text-text-primary-light font-medium hover:text-secondary md:mx-4 md:my-0 dark:text-text-primary-dark dark:hover:text-secondary-dark">
               Donate
             </Link>
             {isLoggedIn ? (
               <>
-                <Link href="/profile" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
+                <Link href="/profile" className="my-1 text-sm text-text-primary-light font-medium hover:text-secondary md:mx-4 md:my-0 dark:text-text-primary-dark dark:hover:text-secondary-dark">
                   Profile
                 </Link>
                 <button
                   onClick={logout}
-                  className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0"
+                  className="my-1 text-sm text-text-primary-light font-medium hover:text-secondary md:mx-4 md:my-0 dark:text-text-primary-dark dark:hover:text-secondary-dark"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
+                <Link href="/login" className="my-1 text-sm text-text-primary-light font-medium hover:text-secondary md:mx-4 md:my-0 dark:text-text-primary-dark dark:hover:text-secondary-dark">
                   Login
                 </Link>
-                <Link href="/register" className="my-1 text-sm text-gray-700 font-medium hover:text-secondary md:mx-4 md:my-0">
+                <Link href="/register" className="my-1 text-sm text-text-primary-light font-medium hover:text-secondary md:mx-4 md:my-0 dark:text-text-primary-dark dark:hover:text-secondary-dark">
                   Register
                 </Link>
               </>

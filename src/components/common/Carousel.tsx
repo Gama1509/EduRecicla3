@@ -50,13 +50,13 @@ const Carousel = ({ items }: CarouselProps) => {
       {/* Navigation Arrows */}
       <button
         onClick={goToPrevious}
-        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white bg-opacity-50 p-2 rounded-full hover:bg-opacity-75"
+        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-card-light/50 text-text-primary-light p-2 rounded-full hover:bg-card-light/75 dark:bg-card-dark/50 dark:text-text-primary-dark dark:hover:bg-card-dark/75"
       >
         &#10094;
       </button>
       <button
         onClick={goToNext}
-        className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white bg-opacity-50 p-2 rounded-full hover:bg-opacity-75"
+        className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-card-light/50 text-text-primary-light p-2 rounded-full hover:bg-card-light/75 dark:bg-card-dark/50 dark:text-text-primary-dark dark:hover:bg-card-dark/75"
       >
         &#10095;
       </button>
@@ -68,7 +68,9 @@ const Carousel = ({ items }: CarouselProps) => {
             key={index}
             onClick={() => setCurrentIndex(index)}
             className={`w-3 h-3 rounded-full ${
-              index === currentIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+              index === currentIndex
+                ? 'bg-primary dark:bg-primary-dark'
+                : 'bg-primary/50 dark:bg-primary-dark/50'
             }`}
           ></button>
         ))}
