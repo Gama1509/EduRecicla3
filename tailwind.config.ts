@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,30 +11,42 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          '50': '#f0fdf4',
-          '100': '#dcfce7',
-          '200': '#bbf7d0',
-          '300': '#86efac',
-          '400': '#4ade80',
-          '500': '#32CD32',
-          '600': '#16a34a',
-          '700': '#15803d',
-          '800': '#166534',
-          '900': '#14532d',
+          DEFAULT: '#16A34A',
+          hover: '#15803D',
+          dark: '#22C55E',
+          'dark-hover': '#4ADE80',
         },
         secondary: {
-          '50': '#eff6ff',
-          '100': '#dbeafe',
-          '200': '#bfdbfe',
-          '300': '#93c5fd',
-          '400': '#60a5fa',
-          '500': '#1E90FF',
-          '600': '#2563eb',
-          '700': '#1d4ed8',
-          '800': '#1e40af',
-          '900': '#1e3a8a',
+          DEFAULT: '#2563EB',
+          hover: '#1D4ED8',
+          dark: '#3B82F6',
+          'dark-hover': '#60A5FA',
         },
-        neutral: "#FFFFFF",
+        background: {
+          light: '#FFFFFF',
+          dark: '#0D1117',
+        },
+        card: {
+          light: '#F5F5F5',
+          dark: '#161B22',
+        },
+        text: {
+          primary: {
+            light: '#1E1E1E',
+            dark: '#E6EDF3',
+          },
+          secondary: {
+            light: '#4B5563',
+            dark: '#9CA3AF',
+          },
+        },
+        border: {
+          light: '#E5E7EB',
+          dark: '#30363D',
+        },
+        icon: {
+          dark: '#D1D5DB',
+        },
       },
     },
   },

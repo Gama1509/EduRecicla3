@@ -19,8 +19,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-white text-gray-800`}>
+<html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.className} bg-background-light text-text-primary-light dark:bg-background-dark dark:text-text-primary-dark`}
+      >
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function applyTheme(theme) {
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                }
+                try {
+                  const savedTheme = localStorage.getItem('theme');
+                  if (savedTheme) {
+                    applyTheme(savedTheme);
+                  } else {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    applyTheme(prefersDark ? 'dark' : 'light');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <AuthProvider>
           <div className="flex flex-col min-h-screen">
             <Navbar />
