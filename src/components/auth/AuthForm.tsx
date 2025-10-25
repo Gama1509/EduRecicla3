@@ -1,7 +1,7 @@
-// @/components/auth/AuthForm.tsx
 "use client";
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface AuthFormProps {
   isRegister?: boolean;
@@ -10,13 +10,27 @@ interface AuthFormProps {
 const AuthForm = ({ isRegister = false }: AuthFormProps) => {
   const [isRegisterMode, setIsRegisterMode] = useState(isRegister);
   const { login } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Simulate auth logic
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    // Admin check
+    if (email === 'admin@example.com' && password === 'Nnt60029051+') {
+      login(); // marcar como logueado
+      alert('Admin login successful! Redirecting to admin panel...');
+      router.push('/admin');
+      return;
+    }
+
+    // Simulación de login/registro normal
     login();
     alert(`Simulating ${isRegisterMode ? 'registration' : 'login'}... Redirecting...`);
-    // In a real app, you'd redirect here
+    router.push('/'); // redirige al inicio normalmente
   };
 
   return (
@@ -32,6 +46,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
             <input
               type="text"
               id="name"
+              name="name"
               className="w-full px-4 py-2 border border-border-light rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary dark:border-border-dark dark:focus:ring-secondary-dark"
               placeholder="John Doe"
               required
@@ -43,6 +58,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
           <input
             type="email"
             id="email"
+            name="email"
             className="w-full px-4 py-2 border border-border-light rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary dark:border-border-dark dark:focus:ring-secondary-dark"
             placeholder="john.doe@example.com"
             required
@@ -53,6 +69,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
           <input
             type="password"
             id="password"
+            name="password"
             className="w-full px-4 py-2 border border-border-light rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary dark:border-border-dark dark:focus:ring-secondary-dark"
             placeholder="********"
             required

@@ -1,4 +1,3 @@
-// @/app/sell/page.tsx
 "use client";
 import { useState } from 'react';
 import { createListing, ListingFormData } from '@/services/listingService';
@@ -41,43 +40,51 @@ export default function SellPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Sell Your Tech</h1>
+    <div className="max-w-2xl mx-auto bg-background-light dark:bg-background-dark p-8 rounded-lg shadow-md transition-colors duration-300">
+      <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+        Sell Your Tech
+      </h1>
 
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md">
+      <form className="bg-card-light dark:bg-card-dark p-8 rounded-lg shadow-lg transition-colors duration-300" onSubmit={handleSubmit}>
         {/* Product Name */}
         <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">Product Name</label>
+          <label htmlFor="name" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+            Product Name
+          </label>
           <input
             type="text"
             id="name"
             name="name"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
             placeholder="e.g., Refurbished Dell Laptop"
             required
+            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           />
         </div>
 
         {/* Product Description */}
         <div className="mb-4">
-          <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">Description</label>
+          <label htmlFor="description" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+            Description
+          </label>
           <textarea
             id="description"
             name="description"
             rows={4}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
             placeholder="Provide a brief description of the item."
             required
-          ></textarea>
+            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+          />
         </div>
 
         {/* Category */}
         <div className="mb-4">
-          <label htmlFor="category" className="block text-gray-700 font-semibold mb-2">Category</label>
+          <label htmlFor="category" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+            Category
+          </label>
           <select
             id="category"
             name="category"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
+            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           >
             {categories.map((category) => (
               <option key={category} value={category}>{category}</option>
@@ -87,11 +94,13 @@ export default function SellPage() {
 
         {/* Condition */}
         <div className="mb-4">
-          <label htmlFor="condition" className="block text-gray-700 font-semibold mb-2">Condition</label>
+          <label htmlFor="condition" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+            Condition
+          </label>
           <select
             id="condition"
             name="condition"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
+            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           >
             {conditions.map((condition) => (
               <option key={condition} value={condition}>{condition}</option>
@@ -101,36 +110,38 @@ export default function SellPage() {
 
         {/* Price */}
         <div className="mb-4">
-          <label htmlFor="price" className="block text-gray-700 font-semibold mb-2">Price ($)</label>
+          <label htmlFor="price" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+            Price ($)
+          </label>
           <input
             type="number"
             id="price"
             name="price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-DEFAULT"
             placeholder="Enter a price"
             required
+            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           />
         </div>
 
         {/* Image Upload */}
         <div className="mb-6">
-          <label htmlFor="image" className="block text-gray-700 font-semibold mb-2">Upload Image</label>
+          <label htmlFor="image" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+            Upload Image
+          </label>
           <input
             type="file"
             id="image"
             name="image"
-            className="w-full"
+            className="w-full text-text-primary-light dark:text-text-primary-dark"
           />
         </div>
 
         {/* Submit Button */}
         <button
           type="submit"
-          className={`w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-600 transition-colors ${
-            loading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className={`w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-hover dark:bg-secondary-dark dark:hover:bg-secondary-dark-hover transition-colors duration-200 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={loading}
         >
           {loading ? 'Submitting...' : 'Submit for Review'}
@@ -138,7 +149,7 @@ export default function SellPage() {
 
         {/* Status Messages */}
         {status === 'success' && (
-          <p className="mt-4 text-center text-primary-600">
+          <p className="mt-4 text-center text-primary dark:text-primary-dark">
             Thank you! Your item has been submitted for approval.
           </p>
         )}

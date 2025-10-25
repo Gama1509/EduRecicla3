@@ -1,4 +1,3 @@
-// @/components/admin/ProductForm.tsx
 "use client";
 import { Product } from '@/types/product';
 import { useRouter } from 'next/navigation';
@@ -16,95 +15,102 @@ const ProductForm = ({ product }: ProductFormProps) => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Simulate form submission
     alert(`Simulating ${isEditMode ? 'updating' : 'creating'} product...`);
     router.push('/admin/products');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Product Name */}
-        <div>
-          <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">Product Name</label>
-          <input
-            type="text"
-            id="name"
-            defaultValue={product?.name}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
-            required
-          />
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-lg shadow-md transition-colors duration-300 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Product Name */}
+          <div>
+            <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+              Product Name
+            </label>
+            <input
+              type="text"
+              defaultValue={product?.name}
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              required
+            />
+          </div>
 
-        {/* Category */}
-        <div>
-          <label htmlFor="category" className="block text-gray-700 font-semibold mb-2">Category</label>
-          <select
-            id="category"
-            defaultValue={product?.category}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-        </div>
+          {/* Category */}
+          <div>
+            <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+              Category
+            </label>
+            <select
+              defaultValue={product?.category}
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            >
+              {categories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* Condition */}
-        <div>
-          <label htmlFor="condition" className="block text-gray-700 font-semibold mb-2">Condition</label>
-          <select
-            id="condition"
-            defaultValue={product?.condition}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
-          >
-            {conditions.map((condition) => (
-              <option key={condition} value={condition}>{condition}</option>
-            ))}
-          </select>
-        </div>
+          {/* Condition */}
+          <div>
+            <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+              Condition
+            </label>
+            <select
+              defaultValue={product?.condition}
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            >
+              {conditions.map((condition) => (
+                <option key={condition} value={condition}>{condition}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* Price */}
-        <div>
-          <label htmlFor="price" className="block text-gray-700 font-semibold mb-2">Price ($)</label>
-          <input
-            type="number"
-            id="price"
-            defaultValue={product?.price}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-DEFAULT"
-            required
-          />
-        </div>
+          {/* Price */}
+          <div>
+            <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+              Price ($)
+            </label>
+            <input
+              type="number"
+              defaultValue={product?.price}
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              required
+            />
+          </div>
 
-        {/* Description */}
-        <div className="md:col-span-2">
-          <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">Description</label>
-          <textarea
-            id="description"
-            rows={4}
-            defaultValue={product?.description}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
-            required
-          ></textarea>
-        </div>
+          {/* Description */}
+          <div className="md:col-span-2">
+            <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+              Description
+            </label>
+            <textarea
+              rows={3}
+              defaultValue={product?.description}
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              required
+            />
+          </div>
 
-        {/* Image URL */}
-        <div className="md:col-span-2">
-          <label htmlFor="imageUrl" className="block text-gray-700 font-semibold mb-2">Image URL</label>
-          <input
-            type="text"
-            id="imageUrl"
-            defaultValue={product?.imageUrl}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-DEFAULT"
-            required
-          />
+          {/* Image URL */}
+          <div className="md:col-span-2">
+            <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
+              Image URL
+            </label>
+            <input
+              type="text"
+              defaultValue={product?.imageUrl}
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              required
+            />
+          </div>
         </div>
       </div>
 
-      <div className="mt-8">
+      <div>
         <button
           type="submit"
-          className="w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-600 transition-colors"
+          className="w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-600 dark:bg-secondary-dark dark:hover:bg-secondary-dark-hover transition-colors duration-200"
         >
           {isEditMode ? 'Update Product' : 'Create Product'}
         </button>

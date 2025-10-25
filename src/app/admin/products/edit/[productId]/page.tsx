@@ -1,4 +1,3 @@
-// @/app/admin/products/edit/[productId]/page.tsx
 import ProductForm from '@/components/admin/ProductForm';
 import { products } from '@/data/products';
 import { Product } from '@/types/product';
@@ -22,12 +21,14 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
   const product = await getProduct(productId);
 
   if (!product) {
-    return <div className="text-center">Product not found.</div>;
+    return <div className="text-center text-text-primary-light dark:text-text-primary-dark">Product not found.</div>;
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Edit Product</h1>
+    <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-md transition-colors duration-300">
+      <h1 className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+        Edit Product
+      </h1>
       <ProductForm product={product} />
     </div>
   );

@@ -4,32 +4,39 @@ import { proposals } from '@/data/proposals';
 export default function AdminProposalsPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Manage Proposals</h1>
+      <h1 className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+        Manage Proposals
+      </h1>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-lg shadow-md transition-colors duration-300">
         <table className="min-w-full">
           <thead>
-            <tr className="border-b">
-              <th className="py-2 px-4 text-left">User</th>
-              <th className="py-2 px-4 text-left">Product</th>
-              <th className="py-2 px-4 text-left">Type</th>
-              <th className="py-2 px-4 text-left">Status</th>
-              <th className="py-2 px-4 text-left">Actions</th>
+            <tr className="border-b border-border-light dark:border-border-dark">
+              <th className="py-2 px-4 text-left text-text-primary-light dark:text-text-primary-dark">User</th>
+              <th className="py-2 px-4 text-left text-text-primary-light dark:text-text-primary-dark">Product</th>
+              <th className="py-2 px-4 text-left text-text-primary-light dark:text-text-primary-dark">Type</th>
+              <th className="py-2 px-4 text-left text-text-primary-light dark:text-text-primary-dark">Status</th>
+              <th className="py-2 px-4 text-left text-text-primary-light dark:text-text-primary-dark">Actions</th>
             </tr>
           </thead>
           <tbody>
             {proposals.map((proposal) => (
-              <tr key={proposal.id} className="border-b hover:bg-gray-50">
-                <td className="py-2 px-4">{proposal.userName}</td>
-                <td className="py-2 px-4">{proposal.productName}</td>
-                <td className="py-2 px-4">{proposal.type}</td>
+              <tr
+                key={proposal.id}
+                className="border-b border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <td className="py-2 px-4 text-text-primary-light dark:text-text-primary-dark">{proposal.userName}</td>
+                <td className="py-2 px-4 text-text-primary-light dark:text-text-primary-dark">{proposal.productName}</td>
+                <td className="py-2 px-4 text-text-primary-light dark:text-text-primary-dark">{proposal.type}</td>
                 <td className="py-2 px-4">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      proposal.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                      proposal.status === 'Approved' ? 'bg-primary-100 text-primary-800' :
-                      'bg-red-100 text-red-800'
-                    }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${proposal.status === 'Pending'
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-900'
+                      : proposal.status === 'Approved'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900'
+                        : 'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900'
+                      }`}
+
                   >
                     {proposal.status}
                   </span>
@@ -37,7 +44,7 @@ export default function AdminProposalsPage() {
                 <td className="py-2 px-4">
                   {proposal.status === 'Pending' && (
                     <>
-                      <button className="text-primary-600 hover:underline">Approve</button>
+                      <button className="text-green-600 dark:text-green-400 hover:underline">Approve</button>
                       <button className="ml-4 text-red-600 hover:underline">Reject</button>
                     </>
                   )}

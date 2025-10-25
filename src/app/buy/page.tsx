@@ -16,7 +16,9 @@ export default function BuyPage() {
 
   return (
     <div>
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Buy Products</h1>
+      <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-8">
+        Buy Products
+      </h1>
       <div className="flex flex-col gap-8">
         <FilterBar filters={filters} onFilterChange={setFilters} />
         <div className="flex-1">
