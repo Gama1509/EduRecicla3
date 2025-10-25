@@ -1,55 +1,47 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   darkMode: 'class',
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#16A34A',
-          hover: '#15803D',
-          dark: '#22C55E',
-          'dark-hover': '#4ADE80',
+          light: '#1E90FF', // Blue
+          dark: '#32CD32', // Green
         },
         secondary: {
-          DEFAULT: '#2563EB',
-          hover: '#1D4ED8',
-          dark: '#3B82F6',
-          'dark-hover': '#60A5FA',
+          light: '#32CD32', // Green
+          dark: '#1E90FF', // Blue
+        },
+        accent: {
+          light: '#FFA500', // Orange
+          dark: '#FFA500', // Orange
         },
         background: {
-          light: '#FFFFFF',
-          dark: '#0D1117',
+          light: '#E8FBD7', // Pistachio
+          dark: '#121212',
         },
         card: {
-          light: '#F5F5F5',
-          dark: '#161B22',
+          light: '#E8FBD7', // Pistachio
+          dark: '#1E1E1E',
         },
         text: {
-          primary: {
-            light: '#1E1E1E',
-            dark: '#E6EDF3',
-          },
-          secondary: {
-            light: '#4B5563',
-            dark: '#9CA3AF',
-          },
+          light: '#000000',
+          dark: '#FFFFFF',
         },
         border: {
-          light: '#E5E7EB',
-          dark: '#30363D',
-        },
-        icon: {
-          dark: '#D1D5DB',
+          light: '#E0E0E0',
+          dark: '#333333',
         },
       },
     },
   },
   plugins: [],
 };
+
 export default config;
