@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { User } from '../user/user.entity';
+import { User } from '../entities/user.entity';
 import * as argon2 from 'argon2';
-import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -13,17 +12,10 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
-    try {
-      const user = await this.userService.findByEmail(email);
-      if (user && await argon2.verify(user.password, pass)) {
-        const { password, ...result } = user;
-        return result;
-      }
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        return null;
-      }
-      throw error;
+    const user = await this.userService.findByEmail(email);
+    if (user && await argon2.verify(user.password, pass)) {
+      const { password, ...result } = user;
+      return result;
     }
     return null;
   }
@@ -35,7 +27,7 @@ export class AuthService {
     };
   }
 
-  async register(user: User) {
-    return this.userService.create(user);
+  async register(userDto: Partial<User>): Promise<User> {
+    return this.userService.create(userDto);
   }
 }

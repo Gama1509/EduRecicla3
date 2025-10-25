@@ -1,20 +1,26 @@
-import { IsEnum, IsOptional } from 'class-validator';
-import { ProductCategory, ProductCondition, ProductStatus, ProductType } from '../product.entity';
+import { IsEnum, IsOptional, IsInt, Min } from 'class-validator';
+import { ProductType, ProductStatus, ProductCategory } from '../../entities/product.entity';
 
 export class FindProductsDto {
   @IsEnum(ProductType)
   @IsOptional()
   type?: ProductType;
 
+  @IsEnum(ProductStatus)
+  @IsOptional()
+  status?: ProductStatus;
+
   @IsEnum(ProductCategory)
   @IsOptional()
   category?: ProductCategory;
 
-  @IsEnum(ProductCondition)
+  @IsInt()
+  @Min(1)
   @IsOptional()
-  condition?: ProductCondition;
+  page?: number;
 
-  @IsEnum(ProductStatus)
+  @IsInt()
+  @Min(1)
   @IsOptional()
-  status?: ProductStatus;
+  limit?: number;
 }

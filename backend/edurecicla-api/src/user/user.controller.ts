@@ -5,7 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { UserRole } from './user.entity';
+import { UserRole } from '../entities/user.entity';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)

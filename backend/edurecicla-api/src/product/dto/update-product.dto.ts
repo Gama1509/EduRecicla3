@@ -1,15 +1,14 @@
 import { IsEnum, IsOptional, IsString, IsUUID, IsNumber } from 'class-validator';
-import { ProductCategory, ProductCondition, ProductStatus, ProductType } from '../product.entity';
-import { UpdateHardwareSpecsDto } from './update-hardware-specs.dto';
+import { ProductCondition, ProductStatus, ProductType } from '../../entities/product.entity';
 
 export class UpdateProductDto {
   @IsString()
   @IsOptional()
   name?: string;
 
-  @IsEnum(ProductCategory)
+  @IsEnum(ProductType)
   @IsOptional()
-  category?: ProductCategory;
+  type?: ProductType;
 
   @IsEnum(ProductCondition)
   @IsOptional()
@@ -27,10 +26,6 @@ export class UpdateProductDto {
   @IsOptional()
   imageUrl?: string;
 
-  @IsEnum(ProductType)
-  @IsOptional()
-  type?: ProductType;
-
   @IsEnum(ProductStatus)
   @IsOptional()
   status?: ProductStatus;
@@ -38,7 +33,4 @@ export class UpdateProductDto {
   @IsUUID()
   @IsOptional()
   ownerId?: string;
-
-  @IsOptional()
-  hardwareSpecs?: UpdateHardwareSpecsDto;
 }

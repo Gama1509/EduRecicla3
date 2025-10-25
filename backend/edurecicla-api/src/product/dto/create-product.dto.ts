@@ -1,15 +1,14 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
-import { ProductCategory, ProductCondition, ProductType } from '../product.entity';
-import { CreateHardwareSpecsDto } from './create-hardware-specs.dto';
+import { ProductCondition, ProductType } from '../../entities/product.entity';
 
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsEnum(ProductCategory)
+  @IsEnum(ProductType)
   @IsNotEmpty()
-  category: ProductCategory;
+  type: ProductType;
 
   @IsEnum(ProductCondition)
   @IsNotEmpty()
@@ -27,14 +26,7 @@ export class CreateProductDto {
   @IsNotEmpty()
   imageUrl: string;
 
-  @IsEnum(ProductType)
-  @IsNotEmpty()
-  type: ProductType;
-
   @IsUUID()
   @IsNotEmpty()
   ownerId: string;
-
-  @IsOptional()
-  hardwareSpecs?: CreateHardwareSpecsDto;
 }

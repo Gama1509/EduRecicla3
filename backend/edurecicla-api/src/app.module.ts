@@ -6,8 +6,17 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
-import { ProposalModule } from './proposal/proposal.module';
-import { RequestModule } from './request/request.module';
+import { LaptopsModule } from './laptops/laptops.module';
+import { PCsModule } from './pcs/pcs.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { AdminModule } from './admin/admin.module';
+import { CompatibilityModule } from './compatibility/compatibility.module';
+import { User } from './entities/user.entity';
+import { Product } from './entities/product.entity';
+import { LaptopSpecs } from './entities/laptop-specs.entity';
+import { PCSpecs } from './entities/pc-specs.entity';
+import { Transaction } from './entities/transaction.entity';
+import { AdminAction } from './entities/admin-action.entity';
 
 @Module({
   imports: [
@@ -24,15 +33,18 @@ import { RequestModule } from './request/request.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [User, Product, LaptopSpecs, PCSpecs, Transaction, AdminAction],
         synchronize: true, // TODO: disable in production
       }),
     }),
     AuthModule,
     UserModule,
     ProductModule,
-    ProposalModule,
-    RequestModule,
+    LaptopsModule,
+    PCsModule,
+    TransactionsModule,
+    AdminModule,
+    CompatibilityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

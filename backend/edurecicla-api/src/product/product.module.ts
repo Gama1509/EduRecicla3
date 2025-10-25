@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Product } from '../entities/product.entity';
+import { LaptopSpecs } from '../entities/laptop-specs.entity';
+import { PCSpecs } from '../entities/pc-specs.entity';
 import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
-import { Product } from './product.entity';
-import { HardwareSpecs } from './hardware-specs.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, HardwareSpecs])],
+  imports: [TypeOrmModule.forFeature([Product, LaptopSpecs, PCSpecs])],
   controllers: [ProductController],
   providers: [ProductService],
 })
