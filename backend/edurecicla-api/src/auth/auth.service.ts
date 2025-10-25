@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { User } from '../user/user.entity';
 import * as argon2 from 'argon2';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -12,10 +13,17 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.userService.findByEmail(email);
-    if (user && await argon2.verify(user.password, pass)) {
-      const { password, ...result } = user;
-      return result;
+    try {
+      const user = await this.userService.findByEmail(email);
+      if (user && await argon2.verify(user.password, pass)) {
+        const { password, ...result } = user;
+        return result;
+      }
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return null;
+      }
+      throw error;
     }
     return null;
   }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -34,9 +34,16 @@ export class UserService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const hashedPassword = await argon2.hash(createUserDto.password);
-    const user = this.userRepository.create({ ...createUserDto, password: hashedPassword });
-    return this.userRepository.save(user);
+    try {
+      const hashedPassword = await argon2.hash(createUserDto.password);
+      const user = this.userRepository.create({ ...createUserDto, password: hashedPassword });
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (error.code === '23505') { // Unique constraint violation
+        throw new ConflictException('Email already exists');
+      }
+      throw error;
+    }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
