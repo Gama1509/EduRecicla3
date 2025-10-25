@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getProducts, ProductFilters } from '@/services/productService';
 import { Product } from '@/types/product';
 import ProductCard from './ProductCard';
+import { glowColors } from '@/constants/glowColors';
 
 interface ProductGridProps {
   filters: ProductFilters;
@@ -29,18 +30,13 @@ const ProductGrid = ({ filters }: ProductGridProps) => {
     fetchProducts();
   }, [filters]);
 
-  if (loading) {
-    return <div className="text-center">Loading products...</div>;
-  }
-
-  if (products.length === 0) {
-    return <div className="text-center">No products found.</div>;
-  }
+  if (loading) return <div className="text-center">Loading products...</div>;
+  if (products.length === 0) return <div className="text-center">No products found.</div>;
 
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {products.map((product, index) => (
+        <ProductCard key={product.id} product={product} glowColor={glowColors[index % glowColors.length]} />
       ))}
     </div>
   );

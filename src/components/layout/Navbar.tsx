@@ -1,12 +1,13 @@
-"use client";
+'use client';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
+import { glowColors } from '@/constants/glowColors';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -14,21 +15,69 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    if (isAdmin) router.push('/');
+    router.push('/');
   };
 
   const getLinkClasses = (href: string) => {
     if (pathname === href) {
       return 'my-1 text-sm font-bold md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark';
     }
-    return 'my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark hover:text-secondary dark:hover:text-secondary-dark hover:underline transition-all duration-200';
+    return 'my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-200';
+  };
+
+  const renderNavLink = (href: string, text: string, index: number) => {
+    const glow = glowColors[index % glowColors.length];
+    return (
+      <Link
+        key={href}
+        href={href}
+        className={`${getLinkClasses(href)} transition-all duration-300 ease-in-out transform`}
+        style={{ textShadow: "0 0 0 transparent" }}
+        onMouseEnter={(e) => {
+          const el = e.currentTarget as HTMLElement;
+          el.style.textShadow = `0 0 8px ${glow}`;
+          el.classList.add('font-bold', 'scale-105');
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget as HTMLElement;
+          el.style.textShadow = "0 0 0 transparent";
+          el.classList.remove('font-bold', 'scale-105');
+        }}
+      >
+        {text}
+      </Link>
+    );
+  };
+
+  const renderButton = (text: string, onClick: () => void, index: number) => {
+    const glow = glowColors[index % glowColors.length];
+    return (
+      <button
+        key={text}
+        onClick={onClick}
+        className="my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-300 transform cursor-pointer"
+        style={{ textShadow: "0 0 0 transparent" }}
+        onMouseEnter={(e) => {
+          const el = e.currentTarget as HTMLElement;
+          el.style.textShadow = `0 0 8px ${glow}`;
+          el.classList.add('font-bold', 'scale-105');
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget as HTMLElement;
+          el.style.textShadow = "0 0 0 transparent";
+          el.classList.remove('font-bold', 'scale-105');
+        }}
+      >
+        {text}
+      </button>
+    );
   };
 
   return (
-    <nav className="bg-card-light dark:bg-card-dark shadow-md">
+    <nav className="bg-card-light dark:bg-card-dark shadow-md border-b border-black dark:border-white">
       <div className="container mx-auto px-6 py-3 md:flex md:justify-between md:items-center">
-        <div className="flex justify-between items-center">
-          {/* Si no es admin, EduRecicla lleva al home */}
+        <div className="flex justify-between items-center w-full md:w-auto">
+          {/* Logo */}
           {isAdmin ? (
             <span className="text-2xl font-bold text-secondary dark:text-secondary-dark">
               EduRecicla
@@ -36,12 +85,24 @@ const Navbar = () => {
           ) : (
             <Link
               href="/"
-              className="text-2xl font-bold text-secondary dark:text-secondary-dark hover:underline"
+              className="text-2xl font-bold text-secondary dark:text-secondary-dark transition-all duration-300 transform hover:scale-105"
+              style={{ textShadow: "0 0 0 transparent" }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.textShadow = `0 0 8px ${glowColors[0]}`;
+                el.classList.add('font-bold', 'scale-105');
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.textShadow = "0 0 0 transparent";
+                el.classList.remove('font-bold', 'scale-105');
+              }}
             >
               EduRecicla
             </Link>
           )}
 
+          {/* Mobile toggle */}
           <div className="flex md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -59,41 +120,38 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className={`md:flex items-center ${isOpen ? 'block' : 'hidden'}`}>
-          <div className="flex flex-col md:flex-row md:mx-6">
-            {isAdmin ? (
-              isLoggedIn && (
-                <button
-                  onClick={handleLogout}
-                  className="my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark hover:text-secondary dark:hover:text-secondary-dark hover:underline transition-all duration-200"
-                >
-                  Logout
-                </button>
-              )
-            ) : (
-              <>
-                <Link href="/buy" className={getLinkClasses('/buy')}>Buy</Link>
-                <Link href="/sell" className={getLinkClasses('/sell')}>Sell</Link>
-                <Link href="/donate" className={getLinkClasses('/donate')}>Donate</Link>
-
-                {isLoggedIn ? (
-                  <>
-                    <Link href="/profile" className={getLinkClasses('/profile')}>Profile</Link>
-                    <button
-                      onClick={handleLogout}
-                      className="my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark hover:text-secondary dark:hover:text-secondary-dark hover:underline transition-all duration-200"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/login" className={getLinkClasses('/login')}>Login</Link>
-                    <Link href="/register" className={getLinkClasses('/register')}>Register</Link>
-                  </>
-                )}
-              </>
+        {/* Links */}
+        <div className={`md:flex items-center ${isOpen ? 'block' : 'hidden'} w-full md:w-auto`}>
+          <div className="flex flex-col md:flex-row md:mx-6 items-center gap-4 md:gap-0 w-full">
+            {!isAdmin && (
+              <div className="flex flex-col md:flex-row gap-4 md:gap-0 w-full">
+                {renderNavLink("/buy", "Buy", 0)}
+                {renderNavLink("/sell", "Sell", 1)}
+                {renderNavLink("/donate", "Donate", 2)}
+              </div>
             )}
+
+            <div className="flex items-center ml-auto gap-4">
+              {isLoggedIn ? (
+                <>
+                  {renderButton("Logout", handleLogout, 3)}
+                  {!isAdmin && user && (
+                    <Link href="/profile">
+                      <img
+                        src={user.avatarUrl || '/default-avatar.png'}
+                        alt={user.name}
+                        className="w-10 h-10 rounded-full border-2 border-black dark:border-white cursor-pointer"
+                      />
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  {renderNavLink("/login", "Login", 4)}
+                  {renderNavLink("/register", "Register", 5)}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

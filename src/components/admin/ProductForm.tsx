@@ -31,7 +31,8 @@ const ProductForm = ({ product }: ProductFormProps) => {
             <input
               type="text"
               defaultValue={product?.name}
-              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              placeholder="Enter product name"
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
               required
             />
           </div>
@@ -43,10 +44,15 @@ const ProductForm = ({ product }: ProductFormProps) => {
             </label>
             <select
               defaultValue={product?.category}
-              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
             >
+              <option value="" disabled>
+                Select category
+              </option>
               {categories.map((category) => (
-                <option key={category} value={category}>{category}</option>
+                <option key={category} value={category}>
+                  {category}
+                </option>
               ))}
             </select>
           </div>
@@ -58,10 +64,15 @@ const ProductForm = ({ product }: ProductFormProps) => {
             </label>
             <select
               defaultValue={product?.condition}
-              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
             >
+              <option value="" disabled>
+                Select condition
+              </option>
               {conditions.map((condition) => (
-                <option key={condition} value={condition}>{condition}</option>
+                <option key={condition} value={condition}>
+                  {condition}
+                </option>
               ))}
             </select>
           </div>
@@ -74,7 +85,8 @@ const ProductForm = ({ product }: ProductFormProps) => {
             <input
               type="number"
               defaultValue={product?.price}
-              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              placeholder="Enter price"
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
               required
             />
           </div>
@@ -87,7 +99,8 @@ const ProductForm = ({ product }: ProductFormProps) => {
             <textarea
               rows={3}
               defaultValue={product?.description}
-              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              placeholder="Enter product description"
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
               required
             />
           </div>
@@ -100,7 +113,8 @@ const ProductForm = ({ product }: ProductFormProps) => {
             <input
               type="text"
               defaultValue={product?.imageUrl}
-              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              placeholder="Enter image URL"
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
               required
             />
           </div>
@@ -110,12 +124,20 @@ const ProductForm = ({ product }: ProductFormProps) => {
       <div>
         <button
           type="submit"
-          className="w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-600 dark:bg-secondary-dark dark:hover:bg-secondary-dark-hover transition-colors duration-200"
+          className="w-full bg-secondary text-black dark:text-white font-bold py-3 px-6 rounded-lg border border-black dark:border-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_var(--glow-color)] cursor-pointer"
+          style={{ '--glow-color': '#22c55e' } as any} // glow verde fijo
         >
           {isEditMode ? 'Update Product' : 'Create Product'}
         </button>
+
+
+
+
+
       </div>
     </form>
+
+
   );
 };
 

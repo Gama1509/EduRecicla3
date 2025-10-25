@@ -1,9 +1,19 @@
-// @/app/page.tsx
+'use client';
 import Link from 'next/link';
 import Carousel from '@/components/common/Carousel';
 import { carouselItems } from '@/data/carouselItems';
+import { getGlowColor } from '@/utils/getGlowColor';
 
 export default function HomePage() {
+  const heroButtons = [
+    { text: "Explore Catalog", href: "/buy" },
+    { text: "Donate Now", href: "/donate" },
+  ];
+
+  const ctaButtons = [
+    { text: "Donate Now", href: "/donate" },
+  ];
+
   return (
     <div className="bg-background-light dark:bg-background-dark transition-colors duration-300">
 
@@ -20,13 +30,32 @@ export default function HomePage() {
         <p className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark">
           Your one-stop platform for buying, selling, and donating recycled tech for students in need.
         </p>
-        <div className="mt-8">
-          <Link
-            href="/buy"
-            className="bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-hover dark:bg-secondary-dark dark:hover:bg-secondary-dark-hover transition-colors"
-          >
-            Explore Catalog
-          </Link>
+        <div className="mt-8 flex justify-center gap-4 flex-wrap">
+          {heroButtons.map((btn, i) => {
+            const glow = getGlowColor(i);
+            return (
+              <Link
+                key={btn.text}
+                href={btn.href}
+                className="
+                  bg-primary text-text-button-light dark:text-white font-bold
+                  border border-gray-500 dark:border-white
+                  py-3 px-6 rounded-lg shadow-md
+                  transition-all duration-300 ease-in-out
+                  hover:scale-105 hover:text-lg
+                "
+                style={{ boxShadow: "0 0 0 transparent" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 0 15px ${glow}`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 transparent";
+                }}
+              >
+                {btn.text}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -36,24 +65,54 @@ export default function HomePage() {
           How It Works
         </h2>
         <div className="mt-12 grid md:grid-cols-3 gap-8 text-center">
-          <div className="p-8 border border-border-light dark:border-border-dark bg-white dark:bg-white/10 rounded-lg shadow-md backdrop-blur-sm transition-all duration-300">
-            <h3 className="text-2xl font-semibold text-primary dark:text-primary-dark">1. Donate or Sell</h3>
-            <p className="mt-2 text-text-secondary-light dark:text-text-secondary-dark">
-              Easily list your used tech equipment for donation or sale. Give your devices a second life and help a student.
-            </p>
-          </div>
-          <div className="p-8 border border-border-light dark:border-border-dark bg-white dark:bg-white/10 rounded-lg shadow-md backdrop-blur-sm transition-all duration-300">
-            <h3 className="text-2xl font-semibold text-secondary dark:text-secondary-dark">2. We Refurbish</h3>
-            <p className="mt-2 text-text-secondary-light dark:text-text-secondary-dark">
-              Our team ensures every device is in good working condition, ready for its new owner.
-            </p>
-          </div>
-          <div className="p-8 border border-border-light dark:border-border-dark bg-white dark:bg-white/10 rounded-lg shadow-md backdrop-blur-sm transition-all duration-300">
-            <h3 className="text-2xl font-semibold text-secondary dark:text-secondary-dark">3. Students Benefit</h3>
-            <p className="mt-2 text-text-secondary-light dark:text-text-secondary-dark">
-              Students get access to affordable, quality technology, empowering their education.
-            </p>
-          </div>
+          {[
+            {
+              title: "1. Donate or Sell",
+              desc: "Easily list your used tech equipment for donation or sale. Give your devices a second life and help a student.",
+              colorIndex: 0,
+              textColor: "text-primary dark:text-primary-dark",
+            },
+            {
+              title: "2. We Refurbish",
+              desc: "Our team ensures every device is in good working condition, ready for its new owner.",
+              colorIndex: 1,
+              textColor: "text-secondary dark:text-secondary-dark",
+            },
+            {
+              title: "3. Students Benefit",
+              desc: "Students get access to affordable, quality technology, empowering their education.",
+              colorIndex: 2,
+              textColor: "text-secondary dark:text-secondary-dark",
+            },
+          ].map((card, i) => {
+            const glow = getGlowColor(card.colorIndex);
+            return (
+              <div
+                key={i}
+                className="
+                  p-8 border border-gray-400 dark:border-white
+                  bg-white dark:bg-white/10
+                  rounded-lg shadow-md backdrop-blur-sm
+                  transition-all duration-300 ease-in-out
+                  hover:scale-105
+                "
+                style={{ boxShadow: "0 0 0 transparent" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 0 15px ${glow}`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 transparent";
+                }}
+              >
+                <h3 className={`text-2xl font-semibold ${card.textColor}`}>
+                  {card.title}
+                </h3>
+                <p className="mt-2 text-text-secondary-light dark:text-text-secondary-dark">
+                  {card.desc}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -65,13 +124,32 @@ export default function HomePage() {
         <p className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark">
           Join our community and contribute to a sustainable future for education.
         </p>
-        <div className="mt-8">
-          <Link
-            href="/donate"
-            className="bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover transition-colors"
-          >
-            Donate Now
-          </Link>
+        <div className="mt-8 flex justify-center gap-4 flex-wrap">
+          {ctaButtons.map((btn, i) => {
+            const glow = getGlowColor(i);
+            return (
+              <Link
+                key={btn.text}
+                href={btn.href}
+                className="
+                  bg-primary text-text-button-light dark:text-white font-bold
+                  border border-gray-500 dark:border-white
+                  py-3 px-6 rounded-lg shadow-md
+                  transition-all duration-300 ease-in-out
+                  hover:scale-105 hover:text-lg
+                "
+                style={{ boxShadow: "0 0 0 transparent" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 0 15px ${glow}`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 transparent";
+                }}
+              >
+                {btn.text}
+              </Link>
+            );
+          })}
         </div>
       </section>
 

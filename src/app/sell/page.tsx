@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { createListing, ListingFormData } from '@/services/listingService';
+import { glowColors } from '@/constants/glowColors';
 
 const categories = ['Laptop', 'Tablet', 'Monitor', 'Accessory'];
 const conditions = ['New', 'Used - Like New', 'Used - Good', 'Used - Fair'];
@@ -9,6 +10,9 @@ export default function SellPage() {
   const [price, setPrice] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [hovered, setHovered] = useState(false);
+
+  const glow = glowColors[0];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,12 +44,12 @@ export default function SellPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-background-light dark:bg-background-dark p-8 rounded-lg shadow-md transition-colors duration-300">
+    <div className="max-w-2xl mx-auto bg-background-light dark:bg-background-dark p-8 rounded-lg shadow-md transition-colors duration-300 border border-black dark:border-white">
       <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
         Sell Your Tech
       </h1>
 
-      <form className="bg-card-light dark:bg-card-dark p-8 rounded-lg shadow-lg transition-colors duration-300" onSubmit={handleSubmit}>
+      <form className="bg-card-light dark:bg-card-dark p-8 rounded-lg shadow-lg transition-colors duration-300 border border-black dark:border-white" onSubmit={handleSubmit}>
         {/* Product Name */}
         <div className="mb-4">
           <label htmlFor="name" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
@@ -57,7 +61,7 @@ export default function SellPage() {
             name="name"
             placeholder="e.g., Refurbished Dell Laptop"
             required
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           />
         </div>
 
@@ -72,7 +76,7 @@ export default function SellPage() {
             rows={4}
             placeholder="Provide a brief description of the item."
             required
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           />
         </div>
 
@@ -84,7 +88,7 @@ export default function SellPage() {
           <select
             id="category"
             name="category"
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-4 py-2 border border-black dark:border-white rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           >
             {categories.map((category) => (
               <option key={category} value={category}>{category}</option>
@@ -100,7 +104,7 @@ export default function SellPage() {
           <select
             id="condition"
             name="condition"
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-4 py-2 border border-black dark:border-white rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           >
             {conditions.map((condition) => (
               <option key={condition} value={condition}>{condition}</option>
@@ -121,7 +125,7 @@ export default function SellPage() {
             onChange={(e) => setPrice(e.target.value)}
             placeholder="Enter a price"
             required
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           />
         </div>
 
@@ -141,8 +145,11 @@ export default function SellPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className={`w-full bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-secondary-hover dark:bg-secondary-dark dark:hover:bg-secondary-dark-hover transition-colors duration-200 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={loading}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          className={`w-full py-3 px-6 rounded-lg font-bold border border-black dark:border-white transition-all duration-300 transform ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'} bg-secondary hover:bg-secondary-hover dark:bg-secondary-dark dark:hover:bg-secondary-dark-hover text-black dark:text-white cursor-pointer`}
+          style={{ boxShadow: hovered ? `0 0 15px ${glow}` : undefined }}
         >
           {loading ? 'Submitting...' : 'Submit for Review'}
         </button>

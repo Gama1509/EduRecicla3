@@ -1,7 +1,10 @@
 // @/components/products/ProductDetail.tsx
+"use client";
+import { useState } from 'react';
 import { Product } from '@/types/product';
 import Image from 'next/image';
 import Link from 'next/link';
+import { glowColors } from '@/constants/glowColors';
 
 interface ProductDetailProps {
   product: Product;
@@ -10,6 +13,8 @@ interface ProductDetailProps {
 const ProductDetail = ({ product }: ProductDetailProps) => {
   const action = product.isDonation ? 'donate' : 'buy';
   const requestUrl = `/request?action=${action}&productId=${product.id}`;
+  const [hovered, setHovered] = useState(false);
+  const glow = glowColors[0]; // Puedes rotar si quieres más efectos
 
   return (
     <div className="grid md:grid-cols-2 gap-8 text-text-primary-light dark:text-text-primary-dark">
@@ -19,12 +24,20 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
           alt={product.name}
           width={600}
           height={400}
-          className="w-full rounded-lg shadow-md"
+          className="w-full rounded-lg shadow-md transition-transform transform hover:scale-105"
         />
       </div>
+
       <div>
-        <h1 className="text-4xl font-bold">{product.name}</h1>
-        <p className="text-lg text-text-secondary-light dark:text-text-secondary-dark mt-4">{product.description}</p>
+        <h1
+          className="text-4xl font-bold transition-all duration-300"
+          style={{ textShadow: hovered ? `0 0 8px ${glow}` : undefined }}
+        >
+          {product.name}
+        </h1>
+        <p className="text-lg text-text-secondary-light dark:text-text-secondary-dark mt-4">
+          {product.description}
+        </p>
 
         <div className="mt-6">
           <span className="text-3xl font-bold text-secondary dark:text-secondary-dark">
@@ -50,11 +63,12 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
         <div className="mt-8">
           <Link href={requestUrl}>
             <div
-              className={`w-full text-center py-3 px-6 rounded-lg font-bold text-white transition-colors ${
-                product.isDonation
-                  ? 'bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover'
-                  : 'bg-secondary hover:bg-secondary-hover dark:bg-secondary-dark dark:hover:bg-secondary-dark-hover'
-              }`}
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+              className={`w-full text-center py-3 px-6 rounded-lg font-bold text-white border border-white transition-all duration-300 transform hover:scale-105 cursor-pointer`}
+              style={{
+                boxShadow: hovered ? `0 0 15px ${glow}` : undefined,
+              }}
             >
               {product.isDonation ? 'Request Donation' : 'Buy Now'}
             </div>

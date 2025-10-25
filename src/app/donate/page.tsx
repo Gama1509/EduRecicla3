@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { createListing, ListingFormData } from '@/services/listingService';
+import { glowColors } from '@/constants/glowColors';
 
 const categories = ['Laptop', 'Tablet', 'Monitor', 'Accessory'];
 const conditions = ['New', 'Used - Like New', 'Used - Good', 'Used - Fair'];
@@ -8,6 +9,8 @@ const conditions = ['New', 'Used - Like New', 'Used - Good', 'Used - Fair'];
 export default function DonatePage() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [hovered, setHovered] = useState(false);
+  const glow = glowColors[0]; // Puedes rotar entre los 9 colores si quieres
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,12 +41,20 @@ export default function DonatePage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-background-light dark:bg-background-dark p-8 rounded-lg shadow-md transition-colors duration-300">
+    <div className="max-w-2xl mx-auto p-8 rounded-lg shadow-md transition-colors duration-300
+      bg-background-light dark:bg-background-dark
+      border border-black dark:border-white"
+    >
       <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
         Donate Your Tech
       </h1>
 
-      <form className="bg-card-light dark:bg-card-dark p-8 rounded-lg shadow-lg transition-colors duration-300" onSubmit={handleSubmit}>
+      <form
+        className="p-8 rounded-lg shadow-lg transition-colors duration-300
+          bg-card-light dark:bg-card-dark
+          border border-black dark:border-white"
+        onSubmit={handleSubmit}
+      >
         {/* Product Name */}
         <div className="mb-4">
           <label htmlFor="name" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">
@@ -55,7 +66,7 @@ export default function DonatePage() {
             name="name"
             placeholder="e.g., Refurbished Dell Laptop"
             required
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           />
         </div>
 
@@ -70,7 +81,8 @@ export default function DonatePage() {
             rows={4}
             placeholder="Provide a brief description of the item."
             required
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+
           />
         </div>
 
@@ -82,7 +94,10 @@ export default function DonatePage() {
           <select
             id="category"
             name="category"
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-4 py-2 border border-black dark:border-white rounded-lg
+              bg-background-light dark:bg-background-dark
+              text-text-primary-light dark:text-text-primary-dark
+              focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           >
             {categories.map((category) => (
               <option key={category} value={category}>{category}</option>
@@ -98,7 +113,10 @@ export default function DonatePage() {
           <select
             id="condition"
             name="condition"
-            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            className="w-full px-4 py-2 border border-black dark:border-white rounded-lg
+              bg-background-light dark:bg-background-dark
+              text-text-primary-light dark:text-text-primary-dark
+              focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           >
             {conditions.map((condition) => (
               <option key={condition} value={condition}>{condition}</option>
@@ -122,11 +140,22 @@ export default function DonatePage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className={`w-full bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover transition-colors duration-200 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           disabled={loading}
+          className={`w-full py-3 px-6 rounded-lg font-bold
+    border border-black dark:border-white
+    transition-all duration-300 transform
+    ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}
+    bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
+    text-black dark:text-white
+    cursor-pointer
+  `}
+          style={{ boxShadow: hovered ? `0 0 15px ${glow}` : undefined }}
         >
           {loading ? 'Submitting...' : 'Submit Donation'}
         </button>
+
 
         {/* Status Messages */}
         {status === 'success' && (
