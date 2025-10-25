@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
+import { HardwareSpecs } from './hardware-specs.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FindProductsDto } from './dto/find-products.dto';
@@ -11,6 +12,8 @@ export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(HardwareSpecs)
+    private readonly hardwareSpecsRepository: Repository<HardwareSpecs>,
   ) {}
 
   findAll(findProductsDto: FindProductsDto): Promise<Product[]> {
@@ -36,17 +39,32 @@ export class ProductService {
   }
 
   findOne(id: string): Promise<Product> {
-    return this.productRepository.findOneBy({ id });
+    return this.productRepository.findOne({ where: { id }, relations: ['hardwareSpecs'] });
   }
 
-  create(createProductDto: CreateProductDto): Promise<Product> {
-    const product = this.productRepository.create(createProductDto);
+  async create(createProductDto: CreateProductDto): Promise<Product> {
+    const { hardwareSpecs, ...productData } = createProductDto;
+    const product = this.productRepository.create(productData);
+
+    if (hardwareSpecs) {
+      const newHardwareSpecs = this.hardwareSpecsRepository.create(hardwareSpecs);
+      await this.hardwareSpecsRepository.save(newHardwareSpecs);
+      product.hardwareSpecs = newHardwareSpecs;
+    }
+
     return this.productRepository.save(product);
   }
 
   async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
-    await this.productRepository.update(id, updateProductDto);
-    return this.productRepository.findOneBy({ id });
+    const { hardwareSpecs, ...productData } = updateProductDto;
+    const product = await this.productRepository.findOne({ where: { id }, relations: ['hardwareSpecs'] });
+
+    if (hardwareSpecs && product.hardwareSpecs) {
+      await this.hardwareSpecsRepository.update(product.hardwareSpecs.id, hardwareSpecs);
+    }
+
+    await this.productRepository.update(id, productData);
+    return this.productRepository.findOne({ where: { id }, relations: ['hardwareSpecs'] });
   }
 
   async remove(id: string): Promise<void> {
