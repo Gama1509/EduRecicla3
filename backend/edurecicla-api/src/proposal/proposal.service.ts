@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Proposal } from './proposal.entity';
@@ -16,8 +16,12 @@ export class ProposalService {
     return this.proposalRepository.find();
   }
 
-  findOne(id: string): Promise<Proposal> {
-    return this.proposalRepository.findOneBy({ id });
+  async findOne(id: string): Promise<Proposal> {
+    const proposal = await this.proposalRepository.findOneBy({ id });
+    if (!proposal) {
+      throw new NotFoundException(`Proposal with ID "${id}" not found`);
+    }
+    return proposal;
   }
 
   create(createProposalDto: CreateProposalDto): Promise<Proposal> {
@@ -26,11 +30,13 @@ export class ProposalService {
   }
 
   async update(id: string, updateProposalDto: UpdateProposalDto): Promise<Proposal> {
+    const proposal = await this.findOne(id);
     await this.proposalRepository.update(id, updateProposalDto);
-    return this.proposalRepository.findOneBy({ id });
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
+    const proposal = await this.findOne(id);
     await this.proposalRepository.delete(id);
   }
 }
