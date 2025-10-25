@@ -13,7 +13,7 @@ export default function AdminDashboardPage() {
         {/* Card 1 */}
         <div
           className="border rounded-lg shadow-lg bg-card-light dark:bg-card-dark p-6 flex flex-col items-start transition-transform transform hover:-translate-y-2 hover:shadow-[0_0_20px_var(--glow-color)] h-full"
-          style={{ "--glow-color": cardGlow } as any}
+          style={{ "--glow-color": cardGlow } as React.CSSProperties}
         >
           <h2 className="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
             Total Products
@@ -29,7 +29,7 @@ export default function AdminDashboardPage() {
         {/* Card 2 */}
         <div
           className="border rounded-lg shadow-lg bg-card-light dark:bg-card-dark p-6 flex flex-col items-start transition-transform transform hover:-translate-y-2 hover:shadow-[0_0_20px_var(--glow-color)] h-full"
-          style={{ "--glow-color": cardGlow } as any}
+          style={{ "--glow-color": cardGlow } as React.CSSProperties}
         >
           <h2 className="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
             Pending Proposals
@@ -45,7 +45,7 @@ export default function AdminDashboardPage() {
         {/* Card 3 */}
         <div
           className="border rounded-lg shadow-lg bg-card-light dark:bg-card-dark p-6 flex flex-col items-start transition-transform transform hover:-translate-y-2 hover:shadow-[0_0_20px_var(--glow-color)] h-full"
-          style={{ "--glow-color": cardGlow } as any}
+          style={{ "--glow-color": cardGlow } as React.CSSProperties}
         >
           <h2 className="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
             Open Requests

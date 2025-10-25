@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { glowColors } from '@/constants/glowColors';
+import Image from 'next/image';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -137,12 +138,15 @@ const Navbar = () => {
                   {renderButton("Logout", handleLogout, 3)}
                   {!isAdmin && user && (
                     <Link href="/profile">
-                      <img
+                      <Image
                         src={user.avatarUrl || '/default-avatar.png'}
                         alt={user.name}
-                        className="w-10 h-10 rounded-full border-2 border-black dark:border-white cursor-pointer"
+                        width={40}
+                        height={40}
+                        className="rounded-full border-2 border-black dark:border-white cursor-pointer"
                       />
                     </Link>
+
                   )}
                 </>
               ) : (

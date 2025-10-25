@@ -125,7 +125,7 @@ const ProductForm = ({ product }: ProductFormProps) => {
         <button
           type="submit"
           className="w-full bg-secondary text-black dark:text-white font-bold py-3 px-6 rounded-lg border border-black dark:border-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_var(--glow-color)] cursor-pointer"
-          style={{ '--glow-color': '#22c55e' } as any} // glow verde fijo
+          style={{ '--glow-color': '#22c55e' } as React.CSSProperties}
         >
           {isEditMode ? 'Update Product' : 'Create Product'}
         </button>

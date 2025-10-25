@@ -1,13 +1,14 @@
+// src/app/admin/products/edit/[productId]/page.tsx
 import ProductForm from '@/components/admin/ProductForm';
 import { products } from '@/data/products';
 import { Product } from '@/types/product';
 
 interface EditProductPageProps {
-  params: {
-    productId: string;
-  };
+  params: { productId: string };
+  searchParams?: { [key: string]: string | string[] }; // opcional
 }
 
+// Simula la obtención del producto (puedes reemplazarlo con fetch real)
 const getProduct = (id: number): Promise<Product | undefined> => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -21,7 +22,11 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
   const product = await getProduct(productId);
 
   if (!product) {
-    return <div className="text-center text-text-primary-light dark:text-text-primary-dark">Product not found.</div>;
+    return (
+      <div className="text-center text-text-primary-light dark:text-text-primary-dark">
+        Product not found.
+      </div>
+    );
   }
 
   return (

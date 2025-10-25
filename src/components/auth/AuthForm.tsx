@@ -67,7 +67,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
               name="name"
               placeholder="John Doe"
               required
-            className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
             />
           </div>
         )}
@@ -99,7 +99,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
         <button
           type="submit"
           className="w-full bg-secondary text-black dark:text-white font-bold py-3 px-6 rounded-lg border border-black dark:border-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_var(--glow-color)] cursor-pointer"
-          style={{ '--glow-color': glowColor } as any}
+          style={{ '--glow-color': glowColor } as React.CSSProperties} // glow dinámico
         >
           {isRegisterMode ? 'Register' : 'Login'}
         </button>
