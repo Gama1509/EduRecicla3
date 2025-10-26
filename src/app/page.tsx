@@ -24,10 +24,12 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="text-center py-20">
-        <h1 className="text-5xl font-bold text-secondary dark:text-secondary-dark">
-          Welcome to EduRecicla
+        <h1
+          className="text-5xl font-bold text-secondary dark:text-secondary-dark"
+          suppressHydrationWarning
+        >          Welcome to EduRecicla
         </h1>
-        <p className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark">
+        <p className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark" suppressHydrationWarning>
           Your one-stop platform for buying, selling, and donating recycled tech for students in need.
         </p>
         <div className="mt-8 flex justify-center gap-4 flex-wrap">
@@ -35,6 +37,7 @@ export default function HomePage() {
             const glow = getGlowColor(i);
             return (
               <Link
+              suppressHydrationWarning
                 key={btn.text}
                 href={btn.href}
                 className="
@@ -61,7 +64,7 @@ export default function HomePage() {
 
       {/* How It Works Section */}
       <section className="py-20 bg-card-light dark:bg-card-dark transition-colors duration-300">
-        <h2 className="text-3xl font-bold text-center text-text-primary-light dark:text-text-primary-dark">
+        <h2 className="text-3xl font-bold text-center text-text-primary-light dark:text-text-primary-dark" suppressHydrationWarning>
           How It Works
         </h2>
         <div className="mt-12 grid md:grid-cols-3 gap-8 text-center">

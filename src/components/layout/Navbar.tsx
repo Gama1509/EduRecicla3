@@ -1,16 +1,21 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { glowColors } from '@/constants/glowColors';
-import Image from 'next/image';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false); // ✅ Para evitar hydration mismatch
   const { isLoggedIn, user, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
 
   const isAdmin = pathname.startsWith('/admin');
 
@@ -33,7 +38,7 @@ const Navbar = () => {
         key={href}
         href={href}
         className={`${getLinkClasses(href)} transition-all duration-300 ease-in-out transform`}
-        style={{ textShadow: "0 0 0 transparent" }}
+        style={{ textShadow: '0 0 0 transparent' }}
         onMouseEnter={(e) => {
           const el = e.currentTarget as HTMLElement;
           el.style.textShadow = `0 0 8px ${glow}`;
@@ -41,11 +46,11 @@ const Navbar = () => {
         }}
         onMouseLeave={(e) => {
           const el = e.currentTarget as HTMLElement;
-          el.style.textShadow = "0 0 0 transparent";
+          el.style.textShadow = '0 0 0 transparent';
           el.classList.remove('font-bold', 'scale-105');
         }}
       >
-        {text}
+        <span suppressHydrationWarning={true}>{text}</span>
       </Link>
     );
   };
@@ -57,7 +62,7 @@ const Navbar = () => {
         key={text}
         onClick={onClick}
         className="my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-300 transform cursor-pointer"
-        style={{ textShadow: "0 0 0 transparent" }}
+        style={{ textShadow: '0 0 0 transparent' }}
         onMouseEnter={(e) => {
           const el = e.currentTarget as HTMLElement;
           el.style.textShadow = `0 0 8px ${glow}`;
@@ -65,17 +70,19 @@ const Navbar = () => {
         }}
         onMouseLeave={(e) => {
           const el = e.currentTarget as HTMLElement;
-          el.style.textShadow = "0 0 0 transparent";
+          el.style.textShadow = '0 0 0 transparent';
           el.classList.remove('font-bold', 'scale-105');
         }}
       >
-        {text}
+        <span suppressHydrationWarning={true}>{text}</span>
       </button>
     );
   };
 
+  if (!mounted) return null; // ✅ Renderiza solo en cliente
+
   return (
-    <nav className="bg-card-light dark:bg-card-dark shadow-md border-b border-black dark:border-white">
+    <nav className="bg-card-light dark:bg-card-dark shadow-md border-b border-black dark:border-white transition-colors duration-300">
       <div className="container mx-auto px-6 py-3 md:flex md:justify-between md:items-center">
         <div className="flex justify-between items-center w-full md:w-auto">
           {/* Logo */}
@@ -84,22 +91,14 @@ const Navbar = () => {
               EduRecicla
             </span>
           ) : (
-            <Link
-              href="/"
-              className="text-2xl font-bold text-secondary dark:text-secondary-dark transition-all duration-300 transform hover:scale-105"
-              style={{ textShadow: "0 0 0 transparent" }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.textShadow = `0 0 8px ${glowColors[0]}`;
-                el.classList.add('font-bold', 'scale-105');
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.textShadow = "0 0 0 transparent";
-                el.classList.remove('font-bold', 'scale-105');
-              }}
-            >
-              EduRecicla
+            <Link href="/">
+              <span
+                className="text-2xl font-bold text-secondary dark:text-secondary-dark transition-all duration-300 transform hover:scale-105"
+                style={{ textShadow: '0 0 0 transparent' }}
+                suppressHydrationWarning={true}
+              >
+                EduRecicla
+              </span>
             </Link>
           )}
 
@@ -114,7 +113,7 @@ const Navbar = () => {
               <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
                 <path
                   fillRule="evenodd"
-                  d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
+                  d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
                 ></path>
               </svg>
             </button>
@@ -126,33 +125,32 @@ const Navbar = () => {
           <div className="flex flex-col md:flex-row md:mx-6 items-center gap-4 md:gap-0 w-full">
             {!isAdmin && (
               <div className="flex flex-col md:flex-row gap-4 md:gap-0 w-full">
-                {renderNavLink("/buy", "Buy", 0)}
-                {renderNavLink("/sell", "Sell", 1)}
-                {renderNavLink("/donate", "Donate", 2)}
+                {renderNavLink('/buy', 'Buy', 0)}
+                {renderNavLink('/sell', 'Sell', 1)}
+                {renderNavLink('/donate', 'Donate', 2)}
               </div>
             )}
 
             <div className="flex items-center ml-auto gap-4">
               {isLoggedIn ? (
                 <>
-                  {renderButton("Logout", handleLogout, 3)}
+                  {renderButton('Logout', handleLogout, 3)}
                   {!isAdmin && user && (
                     <Link href="/profile">
-                      <Image
-                        src={user.avatarUrl || '/default-avatar.png'}
-                        alt={user.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full border-2 border-black dark:border-white cursor-pointer"
+                      <img
+                        src={user.avatar ? `data:image/png;base64,${user.avatar}` : '/default-avatar.png'}
+                        alt="User Avatar"
+                        className="w-20 h-12 rounded-full border border-black dark:border-white object-cover"
                       />
                     </Link>
+
 
                   )}
                 </>
               ) : (
                 <>
-                  {renderNavLink("/login", "Login", 4)}
-                  {renderNavLink("/register", "Register", 5)}
+                  {renderNavLink('/login', 'Login', 4)}
+                  {renderNavLink('/register', 'Register', 5)}
                 </>
               )}
             </div>
