@@ -7,7 +7,7 @@ import { glowColors } from '@/constants/glowColors';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false); // ✅ Para evitar hydration mismatch
+  const [mounted, setMounted] = useState(false);
   const { isLoggedIn, user, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
@@ -31,10 +31,10 @@ const Navbar = () => {
     return 'my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-200';
   };
 
-  const renderNavLink = (href: string, text: string, index: number) => {
+  const renderNavLink = (href: string, text: string, index: number, requiresAuth = false) => {
     const glow = glowColors[index % glowColors.length];
     return (
-      <Link
+      <a
         key={href}
         href={href}
         className={`${getLinkClasses(href)} transition-all duration-300 ease-in-out transform`}
@@ -49,11 +49,18 @@ const Navbar = () => {
           el.style.textShadow = '0 0 0 transparent';
           el.classList.remove('font-bold', 'scale-105');
         }}
+        onClick={(e) => {
+          if (requiresAuth && !isLoggedIn) {
+            e.preventDefault();
+            router.push('/login');
+          }
+        }}
       >
         <span suppressHydrationWarning={true}>{text}</span>
-      </Link>
+      </a>
     );
   };
+
 
   const renderButton = (text: string, onClick: () => void, index: number) => {
     const glow = glowColors[index % glowColors.length];
@@ -125,11 +132,12 @@ const Navbar = () => {
           <div className="flex flex-col md:flex-row md:mx-6 items-center gap-4 md:gap-0 w-full">
             {!isAdmin && (
               <div className="flex flex-col md:flex-row gap-4 md:gap-0 w-full">
-                {renderNavLink('/buy', 'Buy', 0)}
-                {renderNavLink('/sell', 'Sell', 1)}
-                {renderNavLink('/donate', 'Donate', 2)}
+                {renderNavLink('/buy', 'Buy', 0)}   
+                {renderNavLink('/sell', 'Sell', 1, true)} 
+                {renderNavLink('/donate', 'Donate', 2, true)}
               </div>
             )}
+
 
             <div className="flex items-center ml-auto gap-4">
               {isLoggedIn ? (

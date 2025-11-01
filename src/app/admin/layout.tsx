@@ -18,7 +18,6 @@ export default function AdminLayout({
               { href: "/admin", label: "Dashboard" },
               { href: "/admin/products", label: "Products" },
               { href: "/admin/proposals", label: "Proposals" },
-              { href: "/admin/requests", label: "Requests" },
             ].map((item, index) => {
               const glow = glowColors[index % glowColors.length];
               return (

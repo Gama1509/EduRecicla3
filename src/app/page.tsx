@@ -3,8 +3,13 @@ import Link from 'next/link';
 import Carousel from '@/components/common/Carousel';
 import { carouselItems } from '@/data/carouselItems';
 import { getGlowColor } from '@/utils/getGlowColor';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function HomePage() {
+  const router = useRouter();
+  const { isLoggedIn } = useAuth();
+
   const heroButtons = [
     { text: "Explore Catalog", href: "/buy" },
     { text: "Donate Now", href: "/donate" },
@@ -13,6 +18,15 @@ export default function HomePage() {
   const ctaButtons = [
     { text: "Donate Now", href: "/donate" },
   ];
+
+  const handleDonateClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    if (!isLoggedIn) {
+      router.push("/login");
+    } else {
+      router.push(href);
+    }
+  };
 
   return (
     <div className="bg-background-light dark:bg-background-dark transition-colors duration-300">
@@ -27,7 +41,8 @@ export default function HomePage() {
         <h1
           className="text-5xl font-bold text-secondary dark:text-secondary-dark"
           suppressHydrationWarning
-        >          Welcome to EduRecicla
+        >
+          feauRecicla
         </h1>
         <p className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark" suppressHydrationWarning>
           Your one-stop platform for buying, selling, and donating recycled tech for students in need.
@@ -37,9 +52,9 @@ export default function HomePage() {
             const glow = getGlowColor(i);
             return (
               <Link
-              suppressHydrationWarning
                 key={btn.text}
                 href={btn.href}
+                onClick={(e) => btn.text === "Donate Now" && handleDonateClick(e, btn.href)}
                 className="
                   bg-primary text-text-button-light dark:text-white font-bold
                   border border-gray-500 dark:border-white
@@ -134,6 +149,7 @@ export default function HomePage() {
               <Link
                 key={btn.text}
                 href={btn.href}
+                onClick={(e) => btn.text === "Donate Now" && handleDonateClick(e, btn.href)}
                 className="
                   bg-primary text-text-button-light dark:text-white font-bold
                   border border-gray-500 dark:border-white

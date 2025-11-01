@@ -1,7 +1,8 @@
-// @/types/user.ts
-export interface User {
-  id: number;
+interface User {
   name: string;
   email: string;
-  profileImageUrl: string;
+  role: "user" | "admin";
+  createdAt: string;
 }
+
+export default User;
