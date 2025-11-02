@@ -1,18 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { glowColors } from '@/constants/glowColors';
 import api from '@/utils/api';
-import {
-    ProductsTableDto,
-    ProductCategory,
-    ProductType,
-    ProductCondition,
-    ProductStatus,
-    RAMSize,
-    StorageType,
-    StorageCapacity,
-} from '@/types/products-table.dto';
+import { ProductsTableDto } from '@/types/products-table.dto';
+import { ProductCategory, ProductCondition, ProductStatus, ProductType, RAMSize, StorageCapacity, StorageType } from '@/types/product-details.dto';
 
 export default function AdminProductsPage() {
     const [products, setProducts] = useState<ProductsTableDto[]>([]);
@@ -104,7 +95,7 @@ export default function AdminProductsPage() {
 
                     <button
                         onClick={clearFilters}
-                        className="px-4 py-2 rounded border border-white text-white font-semibold transition-all duration-300 hover:bg-gray-200 hover:text-black hover:text-lg"
+                        className="px-4 py-2 rounded border border-gray-700 text-white font-semibold bg-gray-800 transition-all duration-300 hover:bg-gray-600 hover:text-white hover:text-lg"
                     >
                         Limpiar filtros
                     </button>
@@ -180,6 +171,8 @@ export default function AdminProductsPage() {
                                     <td className="py-2 px-4 flex gap-4">
                                         <Link
                                             href={`/admin/products/view/${product.id}?status=${product.status}`}
+
+
                                             className={`
             ${actionColor} font-semibold text-lg transition-all duration-300 transform
             hover:scale-110 hover:underline

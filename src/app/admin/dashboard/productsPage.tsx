@@ -3,13 +3,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import api from "@/utils/api";
-import {
-  DashboardProductsDto,
-  ProductCategory,
-  ProductCondition,
-  ProductStatus,
-  ProductType,
-} from "@/types/dashboard-products.dto";
+import { DashboardProductsDto } from "@/types/dashboard-products.dto";
+import { ProductCategory, ProductCondition, ProductStatus, ProductType } from "@/types/product-details.dto";
 
 interface ProductsPageProps {
   onBack: () => void;

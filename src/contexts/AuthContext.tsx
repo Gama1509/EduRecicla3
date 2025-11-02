@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
 interface User {
   uuid: string;
@@ -20,28 +20,27 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  // ⚡ Inicialización directa desde localStorage (sin useEffect)
+  const storedUser =
+    typeof window !== "undefined" ? localStorage.getItem("user") : null;
+  const storedToken =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  // ⚡ Carga usuario y token desde localStorage al montar
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
+  const initialUser = storedUser ? JSON.parse(storedUser) : null;
+  const initialToken = storedToken || null;
 
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
-      setIsLoggedIn(true);
-    }
-  }, []);
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [token, setToken] = useState<string | null>(initialToken);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!initialUser && !!initialToken
+  );
 
   const login = (userData: User, jwt: string) => {
     setUser(userData);
     setToken(jwt);
     setIsLoggedIn(true);
 
-    // Guardar en localStorage para persistencia
+    // Guardar en localStorage
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", jwt);
   };

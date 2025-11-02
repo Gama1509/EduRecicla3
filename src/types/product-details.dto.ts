@@ -1,11 +1,11 @@
-export type LaptopSpecs = {
+export type LaptopSpecsDto = {
     batteryHealth?: string;
     screenSize?: string;
     webcam?: boolean;
     keyboardType?: string;
 };
 
-export type PCSpecs = {
+export type PCSpecsDto = {
     caseType?: string;
     powerSupply?: string;
     cpuCooler?: string;
@@ -50,8 +50,8 @@ export type Product = {
     imageUrls: string[];
 
     // Especificaciones dependientes del tipo
-    laptopSpecs?: LaptopSpecs;
-    pcSpecs?: PCSpecs;
+    laptopSpecs?: LaptopSpecsDto;
+    pcSpecs?: PCSpecsDto;
 };
 
 export enum ProductType {

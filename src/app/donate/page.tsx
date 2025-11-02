@@ -5,13 +5,8 @@ import { Info } from "lucide-react";
 import { uploadImage } from "@/utils/uploadImage";
 import api from '../../utils/api';
 import Swal from "sweetalert2";
-import {
-  ProductCategory, ProductCondition,
-  RAMSize,
-  StorageType,
-  StorageCapacity,
-  CreateProductDto
-} from "@/services/listingService";
+import { ProductCategory, ProductCondition, RAMSize, StorageCapacity, StorageType } from "@/types/product-details.dto";
+import { CreateProductDto } from "@/services/listingService";
 
 
 export default function DonatePage() {

@@ -2,8 +2,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import api from "@/utils/api";
-import { Product } from "@/types/product-details.dto";
-import { ProductCategory, ProductStatus } from "@/services/listingService";
+import { Product, ProductCategory, ProductStatus } from "@/types/product-details.dto";
 
 export default function ProductViewPage() {
     const { id } = useParams();
