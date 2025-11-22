@@ -5,18 +5,18 @@ import api from "@/utils/api"; // tu instancia de axios
 import UsersPage from "./dashboard/usersPage";
 import ProductsPage from "./dashboard/productsPage";
 import TransactionsPage from "./dashboard/transactionsPage";
-import { AdminDashboard } from "@/types/admin-dashboard";
+import { AdminDashboardDto } from "@/types/admin-dashboard";
 
 export default function AdminDashboardPage() {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
-  const [dashboardData, setDashboardData] = useState<AdminDashboard | null>(null);
+  const [dashboardData, setDashboardData] = useState<AdminDashboardDto | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchDashboard() {
       try {
         setLoading(true);
-        const res = await api.get<AdminDashboard>("/admin/dashboard");
+        const res = await api.get<AdminDashboardDto>("/admin/dashboard");
         setDashboardData(res.data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);

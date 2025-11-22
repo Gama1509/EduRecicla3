@@ -25,7 +25,9 @@ export type Product = {
     condition: ProductCondition;
     price: number | null;
     description: string;
-    quantity: number;
+    stock: number;
+    reservedQuantity: number;
+    availableQuantity: number;
     status: ProductStatus;
     category: ProductCategory;
     model: string;
@@ -35,12 +37,12 @@ export type Product = {
     storageCapacity: StorageCapacity;
     motherboard?: string;
     graphicsCard?: string;
-    usbPorts?: number;
-    hdmiPorts?: number;
-    audioPorts?: number;
-    ethernetPort?: boolean;
-    wifi?: boolean;
-    bluetooth?: boolean;
+    usbPorts: number;
+    hdmiPorts: number;
+    audioPorts: number;
+    ethernetPort: boolean;
+    wifi: boolean;
+    bluetooth: boolean;
     color?: string;
     weight?: string;
     dimensions?: string;
@@ -48,6 +50,7 @@ export type Product = {
     createdAt: Date;
     updatedAt: Date;
     imageUrls: string[];
+    operatingSystem: string;
 
     // Especificaciones dependientes del tipo
     laptopSpecs?: LaptopSpecsDto;

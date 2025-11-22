@@ -176,6 +176,10 @@ export default function BuyPage() {
                 {p.graphicsCard && <p className="text-sm">GPU: {p.graphicsCard}</p>}
                 {p.screenSize && <p className="text-sm">Screen: {p.screenSize}</p>}
                 {p.color && <p className="text-sm">Color: {p.color}</p>}
+                {p.operatingSystem && <p className="text-sm">OS: {p.operatingSystem}</p>}
+                <p className="text-sm font-semibold mt-2">
+                  Disponible: {p.availableQuantity}
+                </p>
               </div>
             </Link>
           );

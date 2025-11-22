@@ -54,7 +54,7 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
 
   // Estadísticas generales (sin filtrar)
   const totalProducts = products.length;
-  const totalInventory = products.reduce((acc, p) => acc + p.quantity, 0);
+  const totalInventory = products.reduce((acc, p) => acc + p.stock, 0);
   const avgPriceByCategory = (category: ProductCategory) => {
     const filtered = products.filter((p) => p.category === category);
     if (!filtered.length) return 0;
@@ -265,7 +265,9 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
                 "Estado",
                 "Tipo",
                 "Precio",
-                "Cantidad",
+                "Stock",
+                "Cantidad Disponible",
+                "Cantidad Reservada",
                 "Propietario",
               ].map((th) => (
                 <th key={th} className="py-2 px-4 text-left border-b border-white">
@@ -297,7 +299,9 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
                 <td className="py-2 px-4 border-b border-white">{p.status}</td>
                 <td className="py-2 px-4 border-b border-white">{p.type}</td>
                 <td className="py-2 px-4 border-b border-white">${p.price}</td>
-                <td className="py-2 px-4 border-b border-white">{p.quantity}</td>
+                <td className="py-2 px-4 border-b border-white">{p.stock}</td>
+                <td className="py-2 px-4 border-b border-white">{p.availableQuantity}</td>
+                <td className="py-2 px-4 border-b border-white">{p.reservedQuantity}</td>
                 <td className="py-2 px-4 border-b border-white">{p.owner}</td>
               </tr>
             ))}

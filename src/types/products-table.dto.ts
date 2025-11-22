@@ -10,11 +10,14 @@ export interface ProductsTableDto {
     condition: ProductCondition;
     status: ProductStatus;
     price: number;
-    quantity: number;
+    stock: number;
+    reservedQuantity: number;
+    availableQuantity: number;
     ram: RAMSize;
     storageType: StorageType;
     storageCapacity: StorageCapacity;
     owner: string;
     createdAt: string;
+    operatingSystem: string
 }
 

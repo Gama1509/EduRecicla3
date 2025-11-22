@@ -8,7 +8,7 @@ export interface ProductCardDto {
   type: ProductType;
   condition: ProductCondition;
   price: number | null;
-  quantity: number;
+  availableQuantity: number;
   category: ProductCategory;
   imageUrl: string;
   processor: string;
@@ -19,4 +19,5 @@ export interface ProductCardDto {
   screenSize?: string;
   color?: string;
   createdAt: string; // ISO string para front
+  operatingSystem: string;
 }

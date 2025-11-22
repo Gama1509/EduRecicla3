@@ -112,7 +112,7 @@ export default function AdminProductsPage() {
                 <table className="min-w-full">
                     <thead>
                         <tr className="border-b border-border-light dark:border-border-dark">
-                            {['Name', 'Brand', 'Model', 'Category', 'Type', 'Condition', 'Status', 'Price', 'Quantity', 'RAM', 'Storage', 'Owner', 'Created At', 'Actions'].map((header, i, arr) => (
+                            {['Name', 'Brand', 'Model', 'Category', 'Type', 'Condition', 'Status', 'Price', 'Stock','Available Quantity','Reserved Quantity', 'RAM', 'Storage','Operating System', 'Owner', 'Created At', 'Actions'].map((header, i, arr) => (
                                 <th
                                     key={header}
                                     className={`py-2 px-4 text-left text-text-primary-light dark:text-text-primary-dark ${i !== arr.length - 1 ? 'border-r border-border-light dark:border-border-dark' : ''}`}
@@ -123,7 +123,7 @@ export default function AdminProductsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredProducts.map((product, index) => {
+                        {filteredProducts.map((product) => {
                             const statusGlow = product.status === 'Pending' ? 'yellow' : product.status === 'Approved' ? 'green' : 'red';
                             const isPending = product.status === 'Pending';
                             const actionText = isPending ? 'View & Evaluate' : 'View';
@@ -163,9 +163,13 @@ export default function AdminProductsPage() {
                                         </span>
                                     </td>
                                     <td className="py-2 px-4 border-r">{product.type === 'Donation' ? 'Donation' : `$${product.price}`}</td>
-                                    <td className="py-2 px-4 border-r">{product.quantity}</td>
+                                    <td className="py-2 px-4 border-r">{product.stock}</td>
+                                    <td className="py-2 px-4 border-r">{product.availableQuantity}</td>
+                                    <td className="py-2 px-4 border-r">{product.reservedQuantity}</td>
                                     <td className="py-2 px-4 border-r">{product.ram}</td>
                                     <td className="py-2 px-4 border-r">{product.storageType} {product.storageCapacity}</td>
+                                        <td className="py-2 px-4 border-r">{product.operatingSystem}</td>
+
                                     <td className="py-2 px-4 border-r">{product.owner}</td>
                                     <td className="py-2 px-4 border-r">{new Date(product.createdAt).toLocaleDateString()}</td>
                                     <td className="py-2 px-4 flex gap-4">

@@ -8,10 +8,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen mt-8">
       {/* Sidebar */}
-      <aside className="w-64 p-4 bg-card-light dark:bg-card-dark text-text-primary-light dark:text-text-primary-dark transition-colors duration-300">
-        <h2 className="text-2xl font-bold mb-8">Admin Panel</h2>
+      <aside className="w-72 p-4 bg-card-light dark:bg-card-dark text-text-primary-light dark:text-text-primary-dark transition-colors duration-300">
+        <h2 className="text-2xl font-bold mb-8 whitespace-nowrap">Admin Panel</h2>
         <nav>
           <ul>
             {[

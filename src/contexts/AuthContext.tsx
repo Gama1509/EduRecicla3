@@ -1,4 +1,6 @@
 "use client";
+
+import { connectSocket, disconnectSocket } from "@/utils/sockets";
 import { createContext, useContext, useState, ReactNode } from "react";
 
 interface User {
@@ -20,7 +22,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // ⚡ Inicialización directa desde localStorage (sin useEffect)
+  // ⚡ Cargar datos desde localStorage al iniciar
   const storedUser =
     typeof window !== "undefined" ? localStorage.getItem("user") : null;
   const storedToken =
@@ -35,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     !!initialUser && !!initialToken
   );
 
+  // 🟢 LOGIN — conecta socket
   const login = (userData: User, jwt: string) => {
     setUser(userData);
     setToken(jwt);
@@ -43,8 +46,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Guardar en localStorage
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", jwt);
+
+    // Conectar socket
+    connectSocket(jwt);
   };
 
+  // 🔴 LOGOUT — desconecta socket
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -52,7 +59,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+
+    // Desconectar socket
+    disconnectSocket();
   };
+
+  // 🟡 Si ya hay token guardado, conectar al iniciar (por recarga)
+  if (initialToken) {
+    connectSocket(initialToken);
+  }
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user, token, login, logout }}>

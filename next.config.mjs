@@ -8,6 +8,8 @@ const nextConfig = {
       },
     ],
   },
+  // Permitir cualquier origen en desarrollo para recursos /_next/*
+  allowedDevOrigins: [],
 };
 
 export default nextConfig;

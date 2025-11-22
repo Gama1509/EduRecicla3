@@ -8,7 +8,10 @@ export interface DashboardProductsDto {
   condition: ProductCondition;
   status: ProductStatus;
   price: number;
-  quantity: number;
+  stock: number;
+  reservedQuantity: number;
+  availableQuantity: number;
   owner: string;
   createdAt: string;
+  operatingSystem: string
 }

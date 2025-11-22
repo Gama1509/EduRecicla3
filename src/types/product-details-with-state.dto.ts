@@ -1,13 +1,23 @@
 import { LaptopSpecsDto, PCSpecsDto, ProductCategory, ProductCondition, ProductStatus, ProductType } from "./product-details.dto";
 
 export enum ProductUserState {
-  MostrarInteres = 'MostrarInteres', // puede mostrar interés
-  Pending = 'Pending',               // ya envió solicitud, esperando respuesta
-  InProgress = 'InProgress',         // transacción en proceso
-  Cancelled = 'Cancelled',           // cancelado/rechazado, esperar 15 días
+  NotLoggedIn = 'NotLoggedIn',             // Usuario no logueado
+  Owner = 'Owner',                         // Usuario es dueño del producto
+  MostrarInteres = 'MostrarInteres',       // Puede mostrar interés (incluye Completed y BuyerCancelledSoldOut*)
+  Pending = 'Pending',                     // Interés enviado, espera de aprobación
+  InProgress = 'InProgress',               // Transacción en curso
+  Cancelled = 'Cancelled',                 // Cancelado con sanción temporal
+  SoldOutTotal = 'SoldOutTotal',           // Sin stock total
+  SoldOutPartial = 'SoldOutPartial',       // Stock parcial
+  NotifyAvailableAny = 'NotifyAvailableAny',   // Espera notificación cualquier cantidad
+  NotifyAvailableFull = 'NotifyAvailableFull', // Espera notificación cantidad completa
+  Delivered = 'Delivered',                 // Producto entregado por vendedor
 }
+
+
 export interface ProductDetailsWithStateDto {
   id: string;
+  ownerId: string;
   owner_name: string;
   name: string;
   brand: string;
@@ -15,7 +25,7 @@ export interface ProductDetailsWithStateDto {
   condition: ProductCondition;
   price: number | null;
   description: string;
-  quantity: number;
+  availableQuantity: number;
   status: ProductStatus;
   category: ProductCategory;
   model: string;
@@ -25,12 +35,12 @@ export interface ProductDetailsWithStateDto {
   storageCapacity: string;
   motherboard?: string;
   graphicsCard?: string;
-  usbPorts?: number;
-  hdmiPorts?: number;
-  audioPorts?: number;
-  ethernetPort?: boolean;
-  wifi?: boolean;
-  bluetooth?: boolean;
+  usbPorts: number;
+  hdmiPorts: number;
+  audioPorts: number;
+  ethernetPort: boolean;
+  wifi: boolean;
+  bluetooth: boolean;
   color?: string;
   weight?: string;
   dimensions?: string;
@@ -38,8 +48,10 @@ export interface ProductDetailsWithStateDto {
   createdAt: string; // en front se recomienda usar string para fechas
   updatedAt: string;
   imageUrls: string[];
+  operatingSystem: string;
   laptopSpecs?: LaptopSpecsDto;
   pcSpecs?: PCSpecsDto;
   userState: ProductUserState;
   daysLeft?: number;
+  transactionId?: string;
 }

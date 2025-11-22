@@ -10,7 +10,7 @@ interface TransactionsPageProps {
 
 const COLORS = ["#FFBB28", "#00C49F", "#FF8042", "#8884d8"];
 const glowColors = ["rgba(255,255,255,0.3)", "rgba(255,255,255,0.2)", "rgba(255,255,255,0.15)", "rgba(255,255,255,0.1)"];
-const statusList: TransactionStatus[] = [TransactionStatus.PENDING, TransactionStatus.IN_PROGRESS, TransactionStatus.COMPLETED, TransactionStatus.CANCELLED];
+const statusList: TransactionStatus[] = [TransactionStatus.COMPLETED,TransactionStatus.DELIVERED,TransactionStatus.INTERESTED,TransactionStatus.INTEREST_CANCELLED,TransactionStatus.IN_PROGRESS,TransactionStatus.NOTIFY_AVAILABLE_ANY,TransactionStatus.NOTIFY_AVAILABLE_FULL,TransactionStatus.SOLD_OUT_PARTIAL,TransactionStatus.SOLD_OUT_TOTAL,TransactionStatus.TRANSACTION_CANCELLED];
 const typeList: TransactionType[] = [TransactionType.SALE, TransactionType.DONATION];
 
 export default function TransactionsPage({ onBack }: TransactionsPageProps) {
@@ -53,10 +53,6 @@ export default function TransactionsPage({ onBack }: TransactionsPageProps) {
         name: t,
         count: transactions.filter(tr => tr.type === t).length,
     }));
-
-    const latestTransactions = [...transactions]
-        .sort((a, b) => (b.date > a.date ? 1 : -1))
-        .slice(0, 3);
 
     if (loading) {
         return (
@@ -147,7 +143,7 @@ export default function TransactionsPage({ onBack }: TransactionsPageProps) {
                 <table className="min-w-full text-white">
                     <thead>
                         <tr>
-                            {["Producto", "Vendedor", "Comprador", "Estado", "Tipo", "Total", "Solicitado", "Entregado", "Fecha"].map(th => (
+                            {["Producto", "Vendedor", "Comprador", "Estado", "Tipo", "Total", "Solicitado", "Fecha"].map(th => (
                                 <th key={th} className="py-2 px-4 text-left border-b border-white">{th}</th>
                             ))}
                         </tr>
@@ -175,7 +171,6 @@ export default function TransactionsPage({ onBack }: TransactionsPageProps) {
                                 <td className="py-2 px-4 border-b border-white">{t.type}</td>
                                 <td className="py-2 px-4 border-b border-white">${t.totalPrice}</td>
                                 <td className="py-2 px-4 border-b border-white">{t.quantityRequested}</td>
-                                <td className="py-2 px-4 border-b border-white">{t.quantityDelivered}</td>
                                 <td className="py-2 px-4 border-b border-white">{t.date}</td>
                             </tr>
                         ))}

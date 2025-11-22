@@ -3,6 +3,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import api from "@/utils/api";
 import { Product, ProductCategory, ProductStatus } from "@/types/product-details.dto";
+import Swal from "sweetalert2";
 
 export default function ProductViewPage() {
     const { id } = useParams();
@@ -22,19 +23,84 @@ export default function ProductViewPage() {
         if (!product) return;
 
         try {
-            // Actualizar status en el backend
-            await api.patch(`/products/${product.id}/status`, { status: newStatus });
+            let reason: string | undefined;
 
-            // Opcional: actualizar estado local (para reflejarlo antes de irse)
+            if (newStatus === ProductStatus.REJECTED) {
+                // Si es rechazo, pedir razón obligatoria
+                const { value: inputReason } = await Swal.fire({
+                    title: 'Rechazar Producto',
+                    input: 'textarea',
+                    inputLabel: 'Escribe la razón del rechazo',
+                    inputPlaceholder: 'Motivo del rechazo...',
+                    inputAttributes: {
+                        'aria-label': 'Escribe la razón del rechazo'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Enviar',
+                    cancelButtonText: 'Cancelar',
+                    preConfirm: (text) => {
+                        if (!text || text.trim() === '') {
+                            Swal.showValidationMessage('La razón es obligatoria');
+                            return false; // Evita cerrar el modal
+                        }
+                        return text.trim();
+                    }
+                });
+
+                if (!inputReason || inputReason.trim() === '') {
+                    // Por seguridad, validar también aquí
+                    await Swal.fire('Error', 'Debes escribir una razón para el rechazo.', 'error');
+                    return;
+                }
+
+                reason = inputReason.trim();
+
+            } else if (newStatus === ProductStatus.APPROVED) {
+                // Confirmación antes de aprobar
+                const confirmResult = await Swal.fire({
+                    title: '¿Aceptar Producto?',
+                    text: '¿Estás seguro de aprobar este producto?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, aprobar',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (!confirmResult.isConfirmed) return; // Si cancelan, salir
+            }
+
+            // DTO a enviar
+            const updateDto = {
+                productId: product.id,
+                status: newStatus,
+                reason
+            };
+
+            // Enviar PATCH al backend
+            await api.patch('/products/status', updateDto);
+
+            await Swal.fire({
+                title: '¡Éxito!',
+                text: `El producto ha sido ${newStatus === ProductStatus.APPROVED ? 'aprobado' : 'rechazado'} correctamente.`,
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            });
+
+            // Actualizar estado local
             setProduct({ ...product, status: newStatus });
 
-            // Regresar a la página anterior
+            // Volver a la página anterior
             window.history.back();
+
         } catch (err) {
             console.error('Error updating status:', err);
-            alert('No se pudo actualizar el status del producto.');
+            Swal.fire('Error', 'No se pudo actualizar el status del producto.', 'error');
         }
     };
+
+
+
+
 
 
 
@@ -109,7 +175,9 @@ export default function ProductViewPage() {
                         <li><strong>Tipo:</strong> {display(product.type)}</li>
                         <li><strong>Status:</strong> {display(product.status)}</li>
                         <li><strong>Precio:</strong> {display(product.price)}</li>
-                        <li><strong>Cantidad:</strong> {display(product.quantity)}</li>
+                        <li><strong>Stock:</strong> {display(product.stock)}</li>
+                        <li><strong>Cantidad Disponible:</strong> {display(product.availableQuantity)}</li>
+                        <li><strong>Cantidad Reservada:</strong> {display(product.reservedQuantity)}</li>
                     </ul>
                     <ul className="space-y-1 text-text-secondary-light dark:text-text-secondary-dark">
                         <li><strong>Categoría:</strong> {display(product.category)}</li>
@@ -119,6 +187,8 @@ export default function ProductViewPage() {
                         <li><strong>Color:</strong> {display(product.color)}</li>
                         <li><strong>Peso:</strong> {display(product.weight)}</li>
                         <li><strong>Dimensiones:</strong> {display(product.dimensions)}</li>
+                        <li><strong>Sistema Operativo:</strong> {display(product.operatingSystem)}</li>
+
                     </ul>
                 </div>
             </div>

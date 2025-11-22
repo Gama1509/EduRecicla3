@@ -6,6 +6,9 @@ import { getGlowColor } from '@/utils/getGlowColor';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
+// ✅ Fuerza renderizado estático para evitar diferencias SSR/CSR
+export const dynamic = "force-static";
+
 export default function HomePage() {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
@@ -29,7 +32,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark transition-colors duration-300">
+    <div className="bg-background-light dark:bg-background-dark transition-colors duration-300 mt-8">
 
       {/* Carousel Section */}
       <section className="mb-12">
@@ -42,9 +45,12 @@ export default function HomePage() {
           className="text-5xl font-bold text-secondary dark:text-secondary-dark"
           suppressHydrationWarning
         >
-          feauRecicla
+          EduRecicla
         </h1>
-        <p className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark" suppressHydrationWarning>
+        <p
+          className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark"
+          suppressHydrationWarning
+        >
           Your one-stop platform for buying, selling, and donating recycled tech for students in need.
         </p>
         <div className="mt-8 flex justify-center gap-4 flex-wrap">
@@ -79,7 +85,10 @@ export default function HomePage() {
 
       {/* How It Works Section */}
       <section className="py-20 bg-card-light dark:bg-card-dark transition-colors duration-300">
-        <h2 className="text-3xl font-bold text-center text-text-primary-light dark:text-text-primary-dark" suppressHydrationWarning>
+        <h2
+          className="text-3xl font-bold text-center text-text-primary-light dark:text-text-primary-dark"
+          suppressHydrationWarning
+        >
           How It Works
         </h2>
         <div className="mt-12 grid md:grid-cols-3 gap-8 text-center">
@@ -136,10 +145,16 @@ export default function HomePage() {
 
       {/* Call to Action Section */}
       <section className="py-20 text-center">
-        <h2 className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark">
+        <h2
+          className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark"
+          suppressHydrationWarning
+        >
           Ready to Make a Difference?
         </h2>
-        <p className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark">
+        <p
+          className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark"
+          suppressHydrationWarning
+        >
           Join our community and contribute to a sustainable future for education.
         </p>
         <div className="mt-8 flex justify-center gap-4 flex-wrap">

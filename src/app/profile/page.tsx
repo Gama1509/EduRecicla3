@@ -1,37 +1,7 @@
 'use client';
 import React from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-
-// Botón reutilizable con glow y subrayado
-interface GlowingButtonProps {
-  text: string;
-  glowColor: string;
-  onClick: () => void;
-}
-
-const GlowingButton: React.FC<GlowingButtonProps> = ({ text, glowColor, onClick }) => {
-  return (
-    <button
-      onClick={onClick}
-      className="hover:scale-105 transition-all duration-300 text-text-primary-light dark:text-text-primary-dark font-semibold text-left"
-      style={{ "--glow-color": glowColor, textShadow: "0 0 0px transparent" } as React.CSSProperties}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.textShadow = `0 0 8px var(--glow-color)`;
-        el.style.textDecoration = "underline";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.textShadow = "0 0 0px transparent";
-        el.style.textDecoration = "none";
-      }}
-    >
-      {text}
-    </button>
-  );
-};
 
 const UserProfilePage = () => {
   const { user } = useAuth();
@@ -49,17 +19,17 @@ const UserProfilePage = () => {
       {/* ====================== AVATAR Y DATOS ====================== */}
       <div className="flex flex-col items-center text-center mb-8">
         <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-secondary shadow-md">
-          <Image
+          <img
             src={
-              user.avatar.startsWith("data:image")
+              user.avatar && user.avatar.startsWith("http")
                 ? user.avatar
-                : `data:image/png;base64,${user.avatar}`
+                : "/default-avatar.png"
             }
-            alt={user.name}
-            fill
-            className="object-cover"
+            alt={user.name || "User Avatar"}
+            className="w-full h-full object-cover rounded-full"
           />
         </div>
+
         <h2 className="text-2xl font-bold mt-4 text-text-primary-light dark:text-text-primary-dark">
           {user.name}
         </h2>
@@ -71,7 +41,7 @@ const UserProfilePage = () => {
         </p>
       </div>
 
-      {/* ====================== BOTONES EN 2 COLUMNAS ====================== */}
+      {/* ====================== ENLACES EN 2 COLUMNAS ====================== */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* ====================== COMPRADOR / DONADOR ====================== */}
         <div className="bg-background-light dark:bg-background-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-inner">
@@ -80,26 +50,66 @@ const UserProfilePage = () => {
           </h3>
 
           <div className="flex flex-col gap-3">
-            <GlowingButton
-              text="En los que estoy interesado"
-              glowColor="rgba(255,200,0,0.7)"
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(0,200,255,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
               onClick={() => handleNavigate("/profile/buyer/interested")}
-            />
-            <GlowingButton
-              text="Ventas / donaciones en proceso"
-              glowColor="rgba(0,200,255,0.7)"
+            >
+              En los que estoy interesado
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(255,200,0,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
               onClick={() => handleNavigate("/profile/buyer/in-progress")}
-            />
-            <GlowingButton
-              text="Completadas (recibí el artículo)"
-              glowColor="rgba(0,255,150,0.7)"
+            >
+              Ventas / donaciones en proceso
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(0,255,150,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
               onClick={() => handleNavigate("/profile/buyer/completed")}
-            />
-            <GlowingButton
-              text="Canceladas (yo como comprador)"
-              glowColor="rgba(255,100,100,0.7)"
+            >
+              Completadas (recibí el artículo)
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
               onClick={() => handleNavigate("/profile/buyer/cancelled")}
-            />
+            >
+              Canceladas (yo como comprador)
+            </span>
           </div>
         </div>
 
@@ -110,26 +120,66 @@ const UserProfilePage = () => {
           </h3>
 
           <div className="flex flex-col gap-3">
-            <GlowingButton
-              text="Gente interesada en mis productos"
-              glowColor="rgba(255,200,0,0.7)"
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(255,200,0,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
               onClick={() => handleNavigate("/profile/seller/interested")}
-            />
-            <GlowingButton
-              text="Ventas / donaciones en proceso"
-              glowColor="rgba(0,200,255,0.7)"
+            >
+              Gente interesada en mis productos
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(0,200,255,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
               onClick={() => handleNavigate("/profile/seller/in-progress")}
-            />
-            <GlowingButton
-              text="Completadas (ya entregué el artículo)"
-              glowColor="rgba(0,255,150,0.7)"
+            >
+              Ventas / donaciones en proceso
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(0,255,150,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
               onClick={() => handleNavigate("/profile/seller/completed")}
-            />
-            <GlowingButton
-              text="Canceladas (yo como vendedor)"
-              glowColor="rgba(255,100,100,0.7)"
+            >
+              Completadas (ya entregué el artículo)
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
               onClick={() => handleNavigate("/profile/seller/cancelled")}
-            />
+            >
+              Canceladas (yo como vendedor)
+            </span>
           </div>
         </div>
       </div>

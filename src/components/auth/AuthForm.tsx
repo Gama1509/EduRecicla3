@@ -129,7 +129,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-background-light dark:bg-background-dark p-8 rounded-lg shadow-md border border-black dark:border-white transition-colors duration-300">
+    <div className="max-w-md mx-auto bg-background-light dark:bg-background-dark p-8 rounded-lg shadow-md border border-black dark:border-white transition-colors duration-300 mt-8">
       <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8 text-center">
         {isRegisterMode ? 'Create an Account' : 'Welcome Back'}
       </h1>
@@ -157,7 +157,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
                   return (
                     <img
                       key={avt.id}
-                      src={`data:image/png;base64,${avt.image}`}
+                      src={avt.image}
                       alt={`Avatar ${avt.id}`}
                       className={`w-16 h-16 rounded-full cursor-pointer border-2 transition-all duration-200 hover:scale-105`}
                       style={{

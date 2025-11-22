@@ -3,10 +3,11 @@ import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bell } from 'lucide-react';
+import { Bell, MessageSquare } from 'lucide-react';
 import { glowColors } from '@/constants/glowColors';
 import api from '@/utils/api';
 import { NotificationDto } from '@/types/notification.dto';
+import { getNotificationTitle } from '@/app/notifications/views/NotificationViews';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +18,45 @@ const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+
+  function formatDate(dateString: string | null) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses empiezan en 0
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12;
+    hours = hours ? hours : 12; // el 0 debe mostrarse como 12
+
+    return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+  }
+
+  useEffect(() => {
+    if (!token || !user) return;
+
+    const checkUnread = async () => {
+      try {
+        const res = await api.get("/chat/unread");
+        setHasUnreadMessages(res.data);
+      } catch (error) {
+        console.error("Error verificando mensajes no leídos:", error);
+      }
+    };
+
+    // Ejecutar al montar
+    checkUnread();
+
+    // Repetir cada 30 segundos (por si llega algo nuevo)
+    const interval = setInterval(checkUnread, 5000);
+
+    return () => clearInterval(interval);
+  }, [token]);
 
   useEffect(() => setMounted(true), []);
 
@@ -34,7 +74,7 @@ const Navbar = () => {
     };
 
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
+    const interval = setInterval(fetchNotifications, 10000);
     return () => clearInterval(interval);
   }, [token, user]);
 
@@ -60,11 +100,17 @@ const Navbar = () => {
 
   const isAdmin = pathname.startsWith('/admin');
 
+  const avatarClasses = `
+  w-20 h-20 rounded-full border border-black dark:border-white object-cover
+  ${pathname === '/profile' ? 'ring-4 ring-green-400 shadow-[0_0_12px_rgba(0,255,0,0.8)]' : ''}
+`;
+
   const getLinkClasses = (href: string) => {
     if (pathname === href) {
-      return 'my-1 text-sm font-bold md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark underline';
+
+      return 'my-1 text-2xl font-bold md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark underline transform transition-all duration-200';
     }
-    return 'my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-200';
+    return 'my-1 text-lg font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-200';
   };
 
   const renderNavLink = (href: string, text: string, index: number, requiresAuth = false) => {
@@ -78,12 +124,12 @@ const Navbar = () => {
         onMouseEnter={(e) => {
           const el = e.currentTarget as HTMLElement;
           el.style.textShadow = `0 0 8px ${glow}`;
-          el.classList.add('font-bold', 'scale-105');
+          el.classList.add('font-bold', 'scale-130');
         }}
         onMouseLeave={(e) => {
           const el = e.currentTarget as HTMLElement;
           el.style.textShadow = '0 0 0 transparent';
-          el.classList.remove('font-bold', 'scale-105');
+          el.classList.remove('font-bold', 'scale-130');
         }}
         onClick={(e) => {
           if (requiresAuth && !isLoggedIn) {
@@ -97,34 +143,11 @@ const Navbar = () => {
     );
   };
 
-  const renderButton = (text: string, onClick: () => void, index: number) => {
-    const glow = glowColors[index % glowColors.length];
-    return (
-      <button
-        key={text}
-        onClick={onClick}
-        className="my-1 text-sm font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-300 transform cursor-pointer underline"
-        style={{ textShadow: '0 0 0 transparent' }}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget as HTMLElement;
-          el.style.textShadow = `0 0 8px ${glow}`;
-          el.classList.add('font-bold', 'scale-105');
-        }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget as HTMLElement;
-          el.style.textShadow = '0 0 0 transparent';
-          el.classList.remove('font-bold', 'scale-105');
-        }}
-      >
-        <span suppressHydrationWarning={true}>{text}</span>
-      </button>
-    );
-  };
 
   return (
-    <nav className="bg-card-light dark:bg-card-dark shadow-md border-b border-black dark:border-white transition-colors duration-300">
-      <div className="container mx-auto px-6 py-3 md:flex md:justify-between md:items-center">
-        {/* LOGO */}
+    <nav className="w-full bg-card-light dark:bg-card-dark shadow-md border-b border-black dark:border-white transition-colors duration-300">
+      <div className="mx-auto px-6 py-3 flex justify-between items-center">
+        {/* LOGO + toggle móvil */}
         <div className="flex justify-between items-center w-full md:w-auto">
           {isAdmin ? (
             <span className="text-2xl font-bold text-secondary dark:text-secondary-dark">EduRecicla</span>
@@ -132,7 +155,7 @@ const Navbar = () => {
             <Link href="/">
               <span
                 className="text-2xl font-bold text-secondary dark:text-secondary-dark transition-all duration-300 transform hover:scale-105"
-                style={{ textShadow: '0 0 0 transparent' }}
+                style={{ textShadow: "0 0 0 transparent" }}
                 suppressHydrationWarning={true}
               >
                 EduRecicla
@@ -158,33 +181,47 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* LINKS */}
-        <div className={`md:flex items-center ${isOpen ? 'block' : 'hidden'} w-full md:w-auto`}>
-          <div className="flex flex-col md:flex-row md:mx-6 items-center gap-4 md:gap-0 w-full justify-between">
-            {!isAdmin && (
-              <div className="flex flex-col md:flex-row gap-4 md:gap-0 w-full justify-between">
-                <div className="flex flex-col md:flex-row">
-                  {renderNavLink('/buy', 'Buy', 0)}
-                  {renderNavLink('/donate', 'Donate', 1, true)}
-                </div>
-                <div className="flex flex-col md:flex-row">
-                  {renderNavLink('/sell', 'Sell', 2, true)}
-                </div>
-              </div>
-            )}
+        {/* LINKS + acciones */}
+        <div className={`md:flex items-center ${isOpen ? "block" : "hidden"} w-full md:w-auto`}>
+          {/* Enlaces principales */}
+          {!isAdmin && (
+            <div className="flex flex-col md:flex-row md:space-x-6 w-full md:w-auto">
+              {renderNavLink("/buy", "Buy", 0)}
+              {renderNavLink("/donate", "Donate", 1)}
+              {renderNavLink("/sell", "Sell", 2)}
+            </div>
+          )}
 
-            <div className="flex items-center ml-auto gap-4">
-              {isLoggedIn ? (
-                <>
-                  {/* 🔔 Notificaciones */}
-                  {!isAdmin && (
-                    <div className="relative group" ref={dropdownRef}>
-                      <Bell className="w-6 h-6 text-text-primary-light dark:text-text-primary-dark group-hover:text-secondary transition-colors cursor-pointer" />
+          {/* Grupo de acciones pegado a la derecha */}
+          <div className="flex items-center ml-auto gap-4 mt-4 md:mt-0">
+            {isLoggedIn ? (
+              <>
+                {/* 🔔 Notificaciones */}
+                {!isAdmin && (
+                  <>
+                    {/* 🔔 Notificaciones */}
+                    <div
+                      className="relative"
+                      ref={dropdownRef}
+                      onMouseEnter={() => {
+                        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+                        setDropdownOpen(true);
+                      }}
+                      onMouseLeave={() => {
+                        closeTimeoutRef.current = setTimeout(() => setDropdownOpen(false), 300);
+                      }}
+                    >
+                      <Bell className="w-6 h-6 text-text-primary-light dark:text-text-primary-dark hover:text-secondary transition-colors cursor-pointer" />
                       {unreadCount > 0 && (
                         <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border border-white"></span>
                       )}
                       {/* Dropdown */}
-                      <div className="absolute right-0 mt-2 w-80 bg-black border border-white rounded shadow-lg overflow-y-auto max-h-96 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
+                      <div
+                        className={`absolute right-0 mt-2 w-80 bg-black border border-white rounded shadow-lg overflow-y-auto max-h-96 transition-all duration-200 z-50 ${dropdownOpen
+                          ? "opacity-100 translate-y-0 pointer-events-auto"
+                          : "opacity-0 -translate-y-2 pointer-events-none"
+                          }`}
+                      >
                         {notifications.length === 0 ? (
                           <div className="p-4 text-sm text-gray-300">No tienes notificaciones</div>
                         ) : (
@@ -192,59 +229,80 @@ const Navbar = () => {
                             <Link
                               key={n.id}
                               href={`/notifications/${n.id}`}
-                              className="block px-4 py-2 border-b border-gray-700 hover:bg-gray-800 transition-colors"
+                              className="block px-4 py-2 border-b border-gray-700 transition-all duration-200 hover:scale-105 relative"
                             >
                               <div className="flex justify-between items-center">
-                                <span className={`font-medium ${!n.read ? 'text-white' : 'text-gray-400'}`}>
-                                  {n.title}
+                                <span className={`font-medium ${!n.read ? "text-white" : "text-gray-400"}`}>
+                                  {getNotificationTitle(n.type)}
                                 </span>
                                 {!n.read && <span className="w-2 h-2 bg-red-500 rounded-full ml-2"></span>}
                               </div>
                               <div className="text-sm text-gray-300 truncate">{n.message}</div>
                               {n.product && (
                                 <div className="mt-1 text-xs text-gray-400">
-                                  {n.product.name} - {n.product.brand} - {n.product.price ? `$${n.product.price}` : 'N/A'}
+                                  {n.product.name} - {n.product.brand} - {n.product.price ? `$${n.product.price}` : "N/A"}
                                 </div>
                               )}
+                              <div className="mt-1 flex justify-between text-xs text-gray-400">
+                                <span>{n.seenAt ? formatDate(n.seenAt) : ""}</span>
+                                <span>{formatDate(n.createdAt)}</span>
+                              </div>
                             </Link>
                           ))
                         )}
                       </div>
                     </div>
-                  )}
 
-                  {/* Logout */}
-                  <button
-                    onClick={handleLogout}
-                    className="my-1 text-sm font-medium text-text-primary-light dark:text-text-primary-dark transition-all duration-300 transform cursor-pointer"
-                  >
-                    Logout
-                  </button>
-
-                  {/* Avatar */}
-                  {!isAdmin && user && (
-                    <Link href="/profile">
-                      <img
-                        src={user.avatar ? `data:image/png;base64,${user.avatar}` : '/default-avatar.png'}
-                        alt="User Avatar"
-                        className="rounded-full border border-black dark:border-white object-contain"
-                      />
+                    {/* 💬 Mensajes */}
+                    <Link href="/chats/" className="relative">
+                      <MessageSquare className="w-6 h-6 text-text-primary-light dark:text-text-primary-dark hover:text-secondary transition-colors cursor-pointer" />
+                      {hasUnreadMessages && (
+                        <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border border-white"></span>
+                      )}
                     </Link>
-                  )}
-                </>
-              ) : (
-                <>
-                  {renderNavLink('/login', 'Login', 4)}
-                  {renderNavLink('/register', 'Register', 5)}
-                </>
-              )}
-            </div>
+                  </>
+                )}
 
+
+                {/* Logout */}
+                <button
+                  onClick={handleLogout}
+                  className="text-lg font-medium text-text-primary-light dark:text-text-primary-dark transition-all duration-300 ease-in-out transform cursor-pointer"
+                  style={{ textShadow: "0 0 0 transparent" }}
+                >
+                  Logout
+                </button>
+
+                {/* Avatar */}
+                {!isAdmin && user && (
+                  <Link href="/profile" className="flex items-center space-x-2">
+                    <img
+                      src={
+                        user.avatar && user.avatar.startsWith("http")
+                          ? user.avatar
+                          : "https://imagenes.20minutos.es/uploads/imagenes/2024/05/15/una-imagen-creada-por-la-herramienta-imagen-3-de-google-1.jpeg"
+                      }
+                      alt="User Avatar"
+                      className={avatarClasses}
+                    />
+                    <span className="font-bold text-lg text-black dark:text-white">{user.name}</span>
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                {renderNavLink("/login", "Login", 4)}
+                {renderNavLink("/register", "Register", 5)}
+              </>
+            )}
           </div>
         </div>
       </div>
     </nav>
   );
+
+
+
 };
 
 export default Navbar;

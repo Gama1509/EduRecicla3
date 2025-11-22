@@ -1,6 +1,4 @@
 "use client";
-
-import { useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface AdminAction {

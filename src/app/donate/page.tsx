@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { glowColors } from "@/constants/glowColors";
 import { Info } from "lucide-react";
 import { uploadImage } from "@/utils/uploadImage";
@@ -7,13 +7,12 @@ import api from '../../utils/api';
 import Swal from "sweetalert2";
 import { ProductCategory, ProductCondition, RAMSize, StorageCapacity, StorageType } from "@/types/product-details.dto";
 import { CreateProductDto } from "@/services/listingService";
-
+import { useDropzone } from "react-dropzone";
 
 export default function DonatePage() {
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-
-
+  const [files, setFiles] = useState<(File & { preview: string })[]>([]);
   const [hovered, setHovered] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory>(ProductCategory.LAPTOP);
@@ -23,6 +22,32 @@ export default function DonatePage() {
   type SelectOption = string | number | { value: string | number; label: string };
 
   const glow = glowColors[0];
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      "image/png": [],
+      "image/jpeg": [],
+    },
+
+    onDrop: (acceptedFiles: File[]) => {
+      const filesWithPreview = acceptedFiles.map((file) =>
+        Object.assign(file, { preview: URL.createObjectURL(file) })
+      );
+      setFiles((prev) => [...prev, ...filesWithPreview]);
+    },
+  });
+
+  const removeFile = (file: File & { preview: string }) => {
+    URL.revokeObjectURL(file.preview);
+    setFiles((prev) => prev.filter((f) => f !== file));
+  };
+
+
+  useEffect(() => {
+    return () => {
+      files.forEach((file) => URL.revokeObjectURL(file.preview));
+    };
+  }, [files]);
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
@@ -38,11 +63,10 @@ export default function DonatePage() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const files = Array.from(formData.getAll("images") as File[]).filter(file => file.size > 0);
-
-    let imageUrls: string[] = [];
+    const imageUrls: string[] = [];
 
     try {
+      // --- Campos requeridos ---
       const requiredFields = [
         "name",
         "description",
@@ -52,7 +76,8 @@ export default function DonatePage() {
         "processor",
         "ram",
         "storageType",
-        "storageCapacity"
+        "storageCapacity",
+        "operatingSystem",
       ];
 
       for (const field of requiredFields) {
@@ -64,7 +89,8 @@ export default function DonatePage() {
         }
       }
 
-      const optionalNumberFields = ["usbPorts", "hdmiPorts", "audioPorts", "fans", "weight", "quantity"];
+      // --- Campos numéricos opcionales ---
+      const optionalNumberFields = ["fans", "weight", "stock", "usbPorts", "hdmiPorts", "audioPorts"];
       for (const field of optionalNumberFields) {
         const value = formData.get(field);
         if (value) {
@@ -77,33 +103,49 @@ export default function DonatePage() {
         }
       }
 
+      // --- Validar dimensiones ---
       const dimensions = formData.get("dimensions") as string;
-      if (dimensions && !/^\d+(\.\d+)?x\d+(\.\d+)?x\d+(\.\d+)?$/i.test(dimensions)) {
-        Swal.fire({ icon: "warning", title: "Invalid Format", text: "Dimensions must be in LxWxH format (e.g., 30x20x5)." });
+      if (
+        dimensions &&
+        !/^\d+(\.\d+)?x\d+(\.\d+)?x\d+(\.\d+)?\s?(cm|centimeters|inch|inches)?$/i.test(dimensions.trim())
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "Invalid Format",
+          text: "Dimensions must be in LxWxH format with optional units (e.g., 15x15x15 cm, 15x15x15 inches).",
+        });
         setLoading(false);
         return;
       }
 
+      // --- Validar color ---
       const color = formData.get("color") as string;
-      if (color && !/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(color) && !/^[a-zA-Z]+$/.test(color)) {
+      if (
+        color &&
+        !/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(color) &&
+        !/^[a-zA-Z]+$/.test(color)
+      ) {
         Swal.fire({ icon: "warning", title: "Invalid Color", text: "Enter a valid color name or hex code (e.g., 'red' or '#FF0000')." });
         setLoading(false);
         return;
       }
 
+      // --- Validar imágenes ---
       if (files.length === 0) {
         Swal.fire({ icon: "warning", title: "No Images", text: "Please upload at least one image of the product." });
         setLoading(false);
         return;
       }
 
+      // --- Subir imágenes ---
       for (const file of files) {
         const url = await uploadImage(file);
         if (url) imageUrls.push(url);
       }
+      if (files.length > 0 && imageUrls.length === 0)
+        throw new Error("No se pudieron subir las imágenes.");
 
-      if (files.length > 0 && imageUrls.length === 0) throw new Error("No se pudieron subir las imágenes.");
-
+      // --- Construir DTO ---
       const data: CreateProductDto = {
         name: formData.get("name") as string,
         brand: formData.get("brand") as string,
@@ -115,8 +157,9 @@ export default function DonatePage() {
         ram: formData.get("ram") as RAMSize,
         storageType: formData.get("storageType") as StorageType,
         storageCapacity: formData.get("storageCapacity") as StorageCapacity,
-        quantity: Number(formData.get("quantity") || 1),
+        stock: Number(formData.get("stock") || 1),
         imageUrls,
+        operatingSystem: formData.get("operatingSystem") as string,
 
         motherboard: formData.get("motherboard") as string,
         graphicsCard: formData.get("graphicsCard") as string,
@@ -149,14 +192,14 @@ export default function DonatePage() {
         } : undefined,
       };
 
-      console.log(data);
+      // --- Enviar a API ---
       const response = await api.post('/products/donate', data);
-      console.log(response);
       Swal.fire({
         icon: "success",
         title: "Donation Submitted for Review!",
         text: "Thank you for your generous donation!",
       }).then(() => {
+        setFiles([]);
         window.location.reload();
       });
 
@@ -167,6 +210,8 @@ export default function DonatePage() {
       setLoading(false);
     }
   };
+
+
 
 
 
@@ -272,9 +317,10 @@ export default function DonatePage() {
 
 
   return (
-    <div className="max-w-3xl mx-auto p-8 rounded-lg shadow-md transition-colors duration-300
+    <div
+      className="max-w-3xl mx-auto p-8 rounded-lg shadow-md transition-colors duration-300
     bg-background-light dark:bg-background-dark
-    border border-black dark:border-white"
+    border border-black dark:border-white mt-8"
     >
       <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
         Donate Your Tech
@@ -285,13 +331,15 @@ export default function DonatePage() {
 
       <form
         ref={formRef}
-        className="p-8 rounded-lg shadow-lg transition-colors duration-300
-  bg-card-light dark:bg-card-dark
-  border border-black dark:border-white"
         onSubmit={handleSubmit}
+        className="p-8 rounded-lg shadow-lg transition-colors duration-300
+        bg-card-light dark:bg-card-dark
+        border border-black dark:border-white"
       >
-
-        {renderInput("name", "Product Name", true)}
+        {/* Product Name */}
+        <div className="mb-4">
+          {renderInput("name", "Product Name", true)}
+        </div>
 
         {/* Category */}
         <div className="mb-4">
@@ -305,6 +353,7 @@ export default function DonatePage() {
           )}
         </div>
 
+        {/* Description */}
         <div className="mb-4">
           {renderInput(
             "description",
@@ -315,41 +364,21 @@ export default function DonatePage() {
           )}
         </div>
 
-        {/* Condition */}
+        {/* Main Grid - 2 Columns */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="mb-4">
-            {renderSelect(
-              "condition",
-              "Condition",
-              Object.values(ProductCondition),
-              true,
-              "Select the condition of the product (New, Used, Refurbished)",
-            )}
-          </div>
-
-
-
-          {/* Brand */}
-          <div className="mb-4">
-            {renderInput(
-              "brand",
-              "Brand",
-              false,
-              "Enter the product brand, e.g., Dell, Apple, Lenovo"
-            )}
-          </div>
-
-          {/* Quantity */}
-          <div className="mb-4">
-            {renderInput(
-              "quantity",
-              "Quantity",
-              true,
-              "Enter the number of items available (must be 1 or higher)",
-              "number",
-              1
-            )}
-          </div>
+          {renderSelect(
+            "condition",
+            "Condition",
+            Object.values(ProductCondition),
+            true,
+            "Select the condition of the product (New, Used, Refurbished)"
+          )}
+          {renderInput(
+            "brand",
+            "Brand",
+            false,
+            "Enter the product brand, e.g., Dell, Apple, Lenovo"
+          )}
 
           {renderInput(
             "model",
@@ -363,23 +392,20 @@ export default function DonatePage() {
             true,
             "Enter the CPU model and speed (e.g., Intel i5-1135G7)"
           )}
-          <div className="mb-4">
-            {renderSelect(
-              "ram",
-              "RAM",
-              Object.values(RAMSize),
-              true,
-              "Select the memory size (RAM) in GB",
-            )}
-          </div>
 
-
+          {renderSelect(
+            "ram",
+            "RAM",
+            Object.values(RAMSize),
+            true,
+            "Select the memory size (RAM) in GB"
+          )}
           {renderSelect(
             "storageType",
             "Storage Type",
             Object.values(StorageType),
             true,
-            "Select the type of storage (SSD, HDD)",
+            "Select the type of storage (SSD, HDD)"
           )}
 
           {renderSelect(
@@ -389,14 +415,65 @@ export default function DonatePage() {
             true,
             "Select the storage size (e.g., 256GB, 1TB)"
           )}
-          {renderInput("motherboard", "Motherboard", false, "Enter the motherboard model if known")}
-          {renderInput("graphicsCard", "Graphics Card", false, "Enter the GPU model if available")}
+          {renderInput(
+            "stock",
+            "Stock",
+            true,
+            "Enter the number of items available (must be 1 or higher)",
+            "number",
+            1
+          )}
+
+          {renderInput(
+            "operatingSystem",
+            "Operating System",
+            true,
+            "Enter the OS installed (e.g., Windows 11), or 'Without' if none"
+          )}
+
+          {/* Ethernet / WiFi / Bluetooth in one row */}
+          <div className="flex flex-row gap-4 items-center">
+            {renderInput(
+              "ethernetPort",
+              "Ethernet Port",
+              true,
+              "Check if it has an Ethernet port",
+              "checkbox"
+            )}
+            {renderInput(
+              "wifi",
+              "WiFi",
+              true,
+              "Check if WiFi is available",
+              "checkbox"
+            )}
+            {renderInput(
+              "bluetooth",
+              "Bluetooth",
+              true,
+              "Check if Bluetooth is available",
+              "checkbox"
+            )}
+          </div>
+
+          {renderInput(
+            "motherboard",
+            "Motherboard",
+            false,
+            "Enter the motherboard model if known"
+          )}
+          {renderInput(
+            "graphicsCard",
+            "Graphics Card",
+            false,
+            "Enter the GPU model if available"
+          )}
 
           {renderInput(
             "usbPorts",
             "USB Ports",
             false,
-            "Enter the number of USB ports (positive number)",
+            "Enter the number of USB ports",
             "number",
             0
           )}
@@ -404,7 +481,7 @@ export default function DonatePage() {
             "hdmiPorts",
             "HDMI Ports",
             false,
-            "Enter the number of HDMI ports (positive number)",
+            "Enter the number of HDMI ports",
             "number",
             0
           )}
@@ -412,94 +489,191 @@ export default function DonatePage() {
             "audioPorts",
             "Audio Ports",
             false,
-            "Enter the number of audio ports (positive number)",
+            "Enter the number of audio ports",
             "number",
             0
           )}
 
-          <div className="grid grid-cols-3 gap-4">
-            {renderInput("ethernetPort", "Ethernet Port", false, "Check if it has an Ethernet port", "checkbox")}
-            {renderInput("wifi", "WiFi", false, "Check if WiFi is available", "checkbox")}
-            {renderInput("bluetooth", "Bluetooth", false, "Check if Bluetooth is available", "checkbox")}
-          </div>
-
-          {renderInput("color", "Color", false, "Enter a color name or hex code (e.g., red or #FF0000)")}
-          {renderInput("weight", "Weight", false, "Enter weight in kilograms (positive number)", "number", 0)}
-        </div>
-
-        {renderInput(
-          "dimensions",
-          "Dimensions",
-          false,
-          "Enter dimensions in LxWxH format in cm (e.g., 30x20x5)"
-        )}
-
-        <div className="mb-16">
           {renderInput(
-            "notes",
-            "Notes",
+            "color",
+            "Color",
             false,
-            "Any additional information about the product",
-            "textarea"
+            "Enter a color name or hex code (e.g., red or #FF0000)"
+          )}
+          {renderInput(
+            "weight",
+            "Weight",
+            false,
+            "Enter weight in kilograms (positive number)",
+            "number",
+            0
+          )}
+          {renderInput(
+            "dimensions",
+            "Dimensions",
+            false,
+            "Enter dimensions (e.g., 15x15x15 cm or 15x15x15 inches)"
           )}
         </div>
 
-        {/* Dynamic Specs */}
-        <div className="mb-6">
-          <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
-            {selectedCategory} Specifications
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            {selectedCategory === "Laptop" && renderInput("screenSize", "Screen Size", false, "Enter screen size in inches (e.g., 15.6)")}
-            {selectedCategory === "Laptop" && renderInput("batteryHealth", "Battery Health", false, "Enter battery health percentage (e.g., 90%)")}
-            {selectedCategory === "Laptop" && renderInput("operatingSystem", "Operating System", false, "Enter the OS installed (e.g., Windows 11)")}
-            {selectedCategory === "Laptop" && renderInput("webcam", "Webcam", false, "Check if webcam is present", "checkbox")}
-            {selectedCategory === "Laptop" && renderInput("keyboardType", "Keyboard Type", false, "Enter keyboard type (e.g., QWERTY, Backlit)")}
 
-            {selectedCategory === "PC" && renderInput("caseType", "Case Type", false, "Enter case type (e.g., Mid Tower, Mini Tower)")}
-            {selectedCategory === "PC" && renderInput("powerSupply", "Power Supply", false, "Enter PSU wattage and type (e.g., 650W Bronze)")}
-            {selectedCategory === "PC" && renderInput("cpuCooler", "CPU Cooler", false, "Enter CPU cooler model")}
-            {selectedCategory === "PC" && renderInput("fans", "Fans", false, "Number of cooling fans", "number", 0)}
-            {selectedCategory === "PC" && renderInput("monitorIncluded", "Monitor Included", false, "Check if a monitor is included", "checkbox")}
-            {selectedCategory === "PC" && renderInput("keyboardIncluded", "Keyboard Included", false, "Check if a keyboard is included", "checkbox")}
-            {selectedCategory === "PC" && renderInput("mouseIncluded", "Mouse Included", false, "Check if a mouse is included", "checkbox")}
+
+        {renderInput(
+          "notes",
+          "Notes",
+          false,
+          "Any additional information about the product",
+          "textarea"
+        )}
+
+        {/* Dynamic Specs */}
+        {selectedCategory && (
+          <div className="mt-6">
+            <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
+              {selectedCategory} Specifications
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              {selectedCategory === "Laptop" && (
+                <>
+                  {renderInput(
+                    "webcam",
+                    "Webcam Included",
+                    true,
+                    "Check if the laptop includes a webcam",
+                    "checkbox"
+                  )}
+                  {renderInput(
+                    "screenSize",
+                    "Screen Size",
+                    false,
+                    "Enter screen size with units (e.g., 15.6 inches or 39.6 cm)"
+                  )}
+                  {renderInput(
+                    "batteryHealth",
+                    "Battery Health",
+                    false,
+                    "Enter battery health percentage (e.g., 90%)"
+                  )}
+                  {renderInput(
+                    "keyboardType",
+                    "Keyboard Type",
+                    false,
+                    "Enter keyboard type (e.g., QWERTY, Backlit)"
+                  )}
+                </>
+              )}
+
+              {selectedCategory === "PC" && (
+                <>
+                  {renderInput(
+                    "monitorIncluded",
+                    "Monitor Included",
+                    true,
+                    "Check if the PC includes a monitor",
+                    "checkbox"
+                  )}
+                  {renderInput(
+                    "keyboardIncluded",
+                    "Keyboard Included",
+                    true,
+                    "Check if the PC includes a keyboard",
+                    "checkbox"
+                  )}
+                  {renderInput(
+                    "mouseIncluded",
+                    "Mouse Included",
+                    true,
+                    "Check if the PC includes a mouse",
+                    "checkbox"
+                  )}
+                  {renderInput(
+                    "caseType",
+                    "Case Type",
+                    false,
+                    "Enter case type (e.g., Mid Tower, Mini Tower)"
+                  )}
+                  {renderInput(
+                    "powerSupply",
+                    "Power Supply",
+                    false,
+                    "Enter PSU wattage and type (e.g., 650W Bronze)"
+                  )}
+                  {renderInput(
+                    "cpuCooler",
+                    "CPU Cooler",
+                    false,
+                    "Enter CPU cooler model"
+                  )}
+                  {renderInput(
+                    "fans",
+                    "Fans",
+                    false,
+                    "Number of cooling fans",
+                    "number",
+                    0
+                  )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Image Upload */}
-        <div className="mb-6">
-          <label className="block mb-1 text-sm font-semibold">Upload Images</label>
-          <input
-            type="file"
-            name="images"
-            accept=".png, .jpg, .jpeg"
-            multiple
-            className="w-full"
-          />
+        <div className="mb-6 mt-6">
+          <label className="block mb-1 text-sm font-semibold">
+            Upload Images <span className="text-red-500">*</span>
+          </label>
+          <div
+            {...getRootProps()}
+            className="border-2 border-dashed border-gray-400 p-4 rounded-md text-center cursor-pointer hover:border-primary transition-colors h-48 flex items-center justify-center"
+          >
+            <input {...getInputProps()} />
+            <p>Drag & drop images here, or click to select files</p>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            {files.map((file, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={file.preview}
+                  alt={`preview-${index}`}
+                  className="w-full h-48 object-cover rounded-md"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeFile(file)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
           <p className="text-xs text-gray-500 mt-1">
-            You can upload multiple images (PNG, JPG, JPEG)
+            You can upload multiple images (PNG, JPG)
           </p>
         </div>
 
         {/* Submit */}
-        <button
-          type="submit"
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          disabled={loading}
-          className={`w-full py-3 px-6 rounded-lg font-bold
-          border border-black dark:border-white
-          transition-all duration-300 transform
-          ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
-          bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
-          text-black dark:text-white`}
-          style={{ boxShadow: hovered ? `0 0 15px ${glow}` : undefined }}
-        >
-          {loading ? "Submitting..." : "Submit Donation"}
-        </button>
-
+        <div className="flex justify-center gap-4 mt-6">
+          <button
+            type="submit"
+            disabled={loading}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            className={`py-3 px-6 rounded-lg font-bold border border-black dark:border-white
+            transition-all duration-300 transform
+            ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
+            bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
+            text-black dark:text-white`}
+            style={{ boxShadow: hovered ? `0 0 15px ${glow}` : undefined }}
+          >
+            {loading ? "Submitting..." : "Submit Donation"}
+          </button>
+        </div>
       </form>
     </div>
   );
+
 
 }

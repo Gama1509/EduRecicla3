@@ -12,22 +12,24 @@ export interface CreateProductDto {
   ram: RAMSize;
   storageType: StorageType;
   storageCapacity: StorageCapacity;
-  quantity: number;
+  stock: number;
   imageUrls: string[];
+  operatingSystem: string;
 
-  price?: number;
-  motherboard?: string;
-  graphicsCard?: string;
-  usbPorts?: number|null;
-  hdmiPorts?: number|null;
-  audioPorts?: number|null;
-  ethernetPort?: boolean;
-  wifi?: boolean;
-  bluetooth?: boolean;
-  color?: string;
-  weight?: string;
-  dimensions?: string;
-  notes?: string;
+  price?: number | null;
+  motherboard?: string | null;
+  graphicsCard?: string | null;
+  usbPorts: number;
+  hdmiPorts: number;
+  audioPorts: number;
+  ethernetPort: boolean;
+  wifi: boolean;
+  bluetooth: boolean;
+  color?: string | null;
+  weight?: string | null;
+  dimensions?: string | null;
+  notes?: string | null;
+
   laptopSpecs?: CreateLaptopSpecsDto;
   pcSpecs?: CreatePCSpecsDto;
 }
@@ -36,7 +38,7 @@ export interface CreateProductDto {
 export interface CreateLaptopSpecsDto {
   batteryHealth?: string;
   screenSize?: string;
-  webcam?: boolean;
+  webcam: boolean;
   keyboardType?: string;
 }
 
@@ -46,8 +48,8 @@ export interface CreatePCSpecsDto {
   powerSupply?: string;
   cpuCooler?: string;
   fans?: number;
-  monitorIncluded?: boolean;
-  keyboardIncluded?: boolean;
-  mouseIncluded?: boolean;
+  monitorIncluded: boolean;
+  keyboardIncluded: boolean;
+  mouseIncluded: boolean;
 }
 
