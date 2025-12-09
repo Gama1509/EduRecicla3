@@ -132,105 +132,107 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
 
 
   return (
-    <div className="max-w-md mx-auto bg-background-light dark:bg-background-dark p-8 rounded-lg shadow-md border border-black dark:border-white transition-colors duration-300 mt-8">
-      <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8 text-center">
-        {isRegisterMode ? 'Crear una cuenta' : 'Bienvenido de nuevo'}
-      </h1>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      <div className="max-w-md mx-auto bg-background-light dark:bg-background-dark p-6 sm:p-8 rounded-lg shadow-md border border-black dark:border-white transition-colors duration-300">
+        <h1 className="text-3xl sm:text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8 text-center">
+          {isRegisterMode ? 'Crear una cuenta' : 'Bienvenido de nuevo'}
+        </h1>
 
-      <form className="bg-card-light dark:bg-card-dark p-8 rounded-lg shadow-lg border border-black dark:border-white transition-colors duration-300" onSubmit={handleSubmit}>
-        {isRegisterMode && (
-          <>
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Nombre completo</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Juan Pérez"
-                required
-                className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Seleccionar avatar</label>
-              <div className="grid grid-cols-4 gap-3">
-                {avatars.map((avt, index) => {
-                  const glow = selectedAvatar === avt.id ? 'rgba(255,0,0,0.7)' : glowColors[index % glowColors.length];
-                  return (
-                    <img
-                      key={avt.id}
-                      src={avt.image}
-                      alt={`Avatar ${avt.id}`}
-                      className={`w-16 h-16 rounded-full cursor-pointer border-2 transition-all duration-200 hover:scale-105`}
-                      style={{
-                        borderColor: selectedAvatar === avt.id ? 'red' : 'transparent',
-                        boxShadow: selectedAvatar === avt.id ? `0 0 12px ${glow}` : undefined,
-                      }}
-                      onClick={() => setSelectedAvatar(avt.id)}
-                      onMouseEnter={(e) => {
-                        const el = e.currentTarget as HTMLElement;
-                        el.style.boxShadow = `0 0 12px ${glow}`;
-                      }}
-                      onMouseLeave={(e) => {
-                        const el = e.currentTarget as HTMLElement;
-                        if (selectedAvatar === avt.id) {
-                          el.style.boxShadow = `0 0 12px ${glow}`;
-                        } else {
-                          el.style.boxShadow = '';
-                        }
-                      }}
-                    />
-                  );
-                })}
+        <form className="bg-card-light dark:bg-card-dark p-6 sm:p-8 rounded-lg shadow-lg border border-black dark:border-white transition-colors duration-300" onSubmit={handleSubmit}>
+          {isRegisterMode && (
+            <>
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Nombre completo</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="Juan Pérez"
+                  required
+                  className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+                />
               </div>
-            </div>
-          </>
-        )}
 
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Correo electrónico</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="juan.perez@ejemplo.com"
-            required
-            className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
-          />
-        </div>
+              <div className="mb-4">
+                <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Seleccionar avatar</label>
+                <div className="grid grid-cols-4 gap-3">
+                  {avatars.map((avt, index) => {
+                    const glow = selectedAvatar === avt.id ? 'rgba(255,0,0,0.7)' : glowColors[index % glowColors.length];
+                    return (
+                      <img
+                        key={avt.id}
+                        src={avt.image}
+                        alt={`Avatar ${avt.id}`}
+                        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full cursor-pointer border-2 transition-all duration-200 hover:scale-105`}
+                        style={{
+                          borderColor: selectedAvatar === avt.id ? 'red' : 'transparent',
+                          boxShadow: selectedAvatar === avt.id ? `0 0 12px ${glow}` : undefined,
+                        }}
+                        onClick={() => setSelectedAvatar(avt.id)}
+                        onMouseEnter={(e) => {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.boxShadow = `0 0 12px ${glow}`;
+                        }}
+                        onMouseLeave={(e) => {
+                          const el = e.currentTarget as HTMLElement;
+                          if (selectedAvatar === avt.id) {
+                            el.style.boxShadow = `0 0 12px ${glow}`;
+                          } else {
+                            el.style.boxShadow = '';
+                          }
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
 
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="********"
-            required
-            className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
-          />
-        </div>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Correo electrónico</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="juan.perez@ejemplo.com"
+              required
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-secondary text-black dark:text-white font-bold py-3 px-6 rounded-lg border border-black dark:border-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_var(--glow-color)] cursor-pointer"
-          style={{ '--glow-color': glowColor } as React.CSSProperties}
-        >
-          {isRegisterMode ? 'Registrarse' : 'Iniciar sesión'}
-        </button>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Contraseña</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="********"
+              required
+              className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
+            />
+          </div>
 
-        <p className="mt-6 text-center text-text-secondary-light dark:text-text-secondary-dark">
-          {isRegisterMode ? '¿Ya tienes una cuenta?' : '¿No tienes una cuenta?'}
           <button
-            type="button"
-            onClick={() => setIsRegisterMode(!isRegisterMode)}
-            className="ml-2 text-secondary dark:text-secondary-dark font-semibold hover:underline transition duration-200"
+            type="submit"
+            className="w-full bg-secondary text-black dark:text-white font-bold py-3 px-6 rounded-lg border border-black dark:border-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_var(--glow-color)] cursor-pointer"
+            style={{ '--glow-color': glowColor } as React.CSSProperties}
           >
-            {isRegisterMode ? 'Iniciar sesión' : 'Registrarse'}
+            {isRegisterMode ? 'Registrarse' : 'Iniciar sesión'}
           </button>
-        </p>
-      </form>
+
+          <p className="mt-6 text-center text-text-secondary-light dark:text-text-secondary-dark">
+            {isRegisterMode ? '¿Ya tienes una cuenta?' : '¿No tienes una cuenta?'}
+            <button
+              type="button"
+              onClick={() => setIsRegisterMode(!isRegisterMode)}
+              className="ml-2 text-secondary dark:text-secondary-dark font-semibold hover:underline transition duration-200"
+            >
+              {isRegisterMode ? 'Iniciar sesión' : 'Registrarse'}
+            </button>
+          </p>
+        </form>
+      </div>
     </div>
   );
 

@@ -160,16 +160,16 @@ const Navbar = () => {
   const isAdmin = pathname.startsWith('/admin');
 
   const avatarClasses = `
-  w-20 h-20 rounded-full border border-black dark:border-white object-cover
+  w-10 h-10 md:w-12 md:h-12 rounded-full border border-black dark:border-white object-cover
   ${pathname === '/profile' ? 'ring-4 ring-green-400 shadow-[0_0_12px_rgba(0,255,0,0.8)]' : ''}
 `;
 
   const getLinkClasses = (href: string) => {
     if (pathname === href) {
 
-      return 'my-1 text-2xl font-bold md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark underline transform transition-all duration-200';
+      return 'my-2 md:my-1 text-2xl font-bold md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark underline transform transition-all duration-200 text-center';
     }
-    return 'my-1 text-lg font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-200';
+    return 'my-2 md:my-1 text-lg font-medium md:mx-4 md:my-0 text-text-primary-light dark:text-text-primary-dark transition-all duration-200 text-center';
   };
 
   const renderNavLink = (href: string, text: string, index: number, requiresAuth = false) => {
@@ -205,9 +205,8 @@ const Navbar = () => {
 
   return (
     <nav className="w-full bg-card-light dark:bg-card-dark shadow-md border-b border-black dark:border-white transition-colors duration-300">
-      <div className="mx-auto px-6 py-3 flex justify-between items-center">
-        {/* LOGO + toggle móvil */}
-        <div className="flex justify-between items-center w-full md:w-auto">
+      <div className="container mx-auto px-6 py-3 md:flex md:justify-between md:items-center">
+        <div className="flex justify-between items-center">
           {isAdmin ? (
             <span className="text-2xl font-bold text-secondary dark:text-secondary-dark">EduRecicla</span>
           ) : (
@@ -222,7 +221,7 @@ const Navbar = () => {
             </Link>
           )}
 
-          {/* Mobile toggle */}
+          {/* Mobile menu button */}
           <div className="flex md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -240,129 +239,117 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* LINKS + acciones */}
-        <div className={`md:flex items-center ${isOpen ? "block" : "hidden"} w-full md:w-auto`}>
-          {/* Enlaces principales */}
-          {!isAdmin && (
-            <div className="flex flex-col md:flex-row md:space-x-6 w-full md:w-auto">
-              {renderNavLink("/buy", "Comprar", 0)}
-              {renderNavLink("/donate", "Donar", 1)}
-              {renderNavLink("/sell", "Vender", 2)}
-            </div>
-          )}
-
-
-          {/* Grupo de acciones pegado a la derecha */}
-          <div className="flex items-center ml-auto gap-4 mt-4 md:mt-0">
-            {isLoggedIn ? (
-              <>
-                {/* 🔔 Notificaciones */}
-                {!isAdmin && (
-                  <>
-                    {/* 🔔 Notificaciones */}
-                    <div
-                      className="relative"
-                      ref={dropdownRef}
-                      onMouseEnter={() => {
-                        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-                        setDropdownOpen(true);
-                      }}
-                      onMouseLeave={() => {
-                        closeTimeoutRef.current = setTimeout(() => setDropdownOpen(false), 300);
-                      }}
-                    >
-                      <Bell className="w-6 h-6 text-text-primary-light dark:text-text-primary-dark hover:text-secondary transition-colors cursor-pointer" />
-                      {unreadCount > 0 && (
-                        <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border border-white"></span>
-                      )}
-                      {/* Dropdown */}
-                      <div
-                        className={`absolute right-0 mt-2 w-80 bg-black border border-white rounded shadow-lg overflow-y-auto max-h-96 transition-all duration-200 z-50 ${dropdownOpen
-                          ? "opacity-100 translate-y-0 pointer-events-auto"
-                          : "opacity-0 -translate-y-2 pointer-events-none"
-                          }`}
-                      >
-                        {notifications.length === 0 ? (
-                          <div className="p-4 text-sm text-gray-300">No tienes notificaciones</div>
-                        ) : (
-                          notifications.map((n) => (
-                            <Link
-                              key={n.id}
-                              href={`/notifications/${n.id}`}
-                              className="block px-4 py-2 border-b border-gray-700 transition-all duration-200 hover:scale-105 relative"
-                            >
-                              <div className="flex justify-between items-center">
-                                <span className={`font-medium ${!n.read ? "text-white" : "text-gray-400"}`}>
-                                  {getNotificationTitle(n.type)}
-                                </span>
-                                {!n.read && <span className="w-2 h-2 bg-red-500 rounded-full ml-2"></span>}
-                              </div>
-                              <div className="text-sm text-gray-300 truncate">{n.message}</div>
-                              {n.product && (
-                                <div className="mt-1 text-xs text-gray-400">
-                                  {n.product.name} - {n.product.brand} - {n.product.price ? `$${n.product.price}` : "N/A"}
-                                </div>
-                              )}
-                              <div className="mt-1 flex justify-between text-xs text-gray-400">
-                                <span>{n.seenAt ? formatDate(n.seenAt) : ""}</span>
-                                <span>{formatDate(n.createdAt)}</span>
-                              </div>
-                            </Link>
-                          ))
-                        )}
-                      </div>
-                    </div>
-
-                    {/* 💬 Mensajes */}
-                    <Link href="/chats/" className="relative">
-                      <MessageSquare className="w-6 h-6 text-text-primary-light dark:text-text-primary-dark hover:text-secondary transition-colors cursor-pointer" />
-                      {hasUnreadMessages && (
-                        <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border border-white"></span>
-                      )}
-                    </Link>
-                  </>
-                )}
-
-
-                {/* Logout */}
-                <button
-                  onClick={handleLogout}
-                  className="text-lg font-medium text-text-primary-light dark:text-text-primary-dark transition-all duration-300 ease-in-out transform cursor-pointer"
-                  style={{ textShadow: "0 0 0 transparent" }}
-                >
-                  Cerrar sesión
-                </button>
-
-                {/* Avatar */}
-                {!isAdmin && user && (
-                  <Link href="/profile" className="flex items-center space-x-2">
-                    <img
-                      src={
-                        user.avatar && user.avatar.startsWith("http")
-                          ? user.avatar
-                          : "https://imagenes.20minutos.es/uploads/imagenes/2024/05/15/una-imagen-creada-por-la-herramienta-imagen-3-de-google-1.jpeg"
-                      }
-                      alt="User Avatar"
-                      className={avatarClasses}
-                    />
-                    <span className="font-bold text-lg text-black dark:text-white">{user.name}</span>
-                  </Link>
-                )}
-              </>
-            ) : (
-              <>
-                {renderNavLink("/login", "Iniciar sesión", 4)}
-                {renderNavLink("/register", "Registrate", 5)}
-              </>
+        {/* Mobile Menu open: "block", Menu closed: "hidden" */}
+        <div className={`md:flex items-center ${isOpen ? 'block' : 'hidden'} w-full md:w-auto`}>
+          <div className="flex flex-col md:flex-row md:items-center w-full">
+            {!isAdmin && (
+              <div className="flex flex-col md:flex-row md:space-x-6 w-full md:w-auto mt-4 md:mt-0">
+                {renderNavLink("/buy", "Comprar", 0)}
+                {renderNavLink("/donate", "Donar", 1)}
+                {renderNavLink("/sell", "Vender", 2)}
+              </div>
             )}
+
+            <div className="flex flex-col md:flex-row items-center md:ml-auto gap-4 mt-4 md:mt-0">
+              {isLoggedIn ? (
+                <>
+                  {!isAdmin && (
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="relative"
+                        ref={dropdownRef}
+                        onMouseEnter={() => {
+                          if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+                          setDropdownOpen(true);
+                        }}
+                        onMouseLeave={() => {
+                          closeTimeoutRef.current = setTimeout(() => setDropdownOpen(false), 300);
+                        }}
+                      >
+                        <Bell className="w-6 h-6 text-text-primary-light dark:text-text-primary-dark hover:text-secondary transition-colors cursor-pointer" />
+                        {unreadCount > 0 && (
+                          <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border border-white"></span>
+                        )}
+                        <div
+                          className={`absolute right-0 mt-2 w-80 bg-black border border-white rounded shadow-lg overflow-y-auto max-h-96 transition-all duration-200 z-50 ${dropdownOpen
+                            ? "opacity-100 translate-y-0 pointer-events-auto"
+                            : "opacity-0 -translate-y-2 pointer-events-none"
+                            }`}
+                        >
+                          {notifications.length === 0 ? (
+                            <div className="p-4 text-sm text-gray-300">No tienes notificaciones</div>
+                          ) : (
+                            notifications.map((n) => (
+                              <Link
+                                key={n.id}
+                                href={`/notifications/${n.id}`}
+                                className="block px-4 py-2 border-b border-gray-700 transition-all duration-200 hover:scale-105 relative"
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span className={`font-medium ${!n.read ? "text-white" : "text-gray-400"}`}>
+                                    {getNotificationTitle(n.type)}
+                                  </span>
+                                  {!n.read && <span className="w-2 h-2 bg-red-500 rounded-full ml-2"></span>}
+                                </div>
+                                <div className="text-sm text-gray-300 truncate">{n.message}</div>
+                                {n.product && (
+                                  <div className="mt-1 text-xs text-gray-400">
+                                    {n.product.name} - {n.product.brand} - {n.product.price ? `$${n.product.price}` : "N/A"}
+                                  </div>
+                                )}
+                                <div className="mt-1 flex justify-between text-xs text-gray-400">
+                                  <span>{n.seenAt ? formatDate(n.seenAt) : ""}</span>
+                                  <span>{formatDate(n.createdAt)}</span>
+                                </div>
+                              </Link>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                      <Link href="/chats/" className="relative">
+                        <MessageSquare className="w-6 h-6 text-text-primary-light dark:text-text-primary-dark hover:text-secondary transition-colors cursor-pointer" />
+                        {hasUnreadMessages && (
+                          <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border border-white"></span>
+                        )}
+                      </Link>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    className="my-2 md:my-0 text-lg font-medium text-text-primary-light dark:text-text-primary-dark transition-all duration-300 ease-in-out transform cursor-pointer"
+                    style={{ textShadow: "0 0 0 transparent" }}
+                  >
+                    Cerrar sesión
+                  </button>
+
+                  {!isAdmin && user && (
+                    <Link href="/profile" className="flex flex-col md:flex-row items-center space-x-0 md:space-x-2">
+                      <img
+                        src={
+                          user.avatar && user.avatar.startsWith("http")
+                            ? user.avatar
+                            : "https://imagenes.20minutos.es/uploads/imagenes/2024/05/15/una-imagen-creada-por-la-herramienta-imagen-3-de-google-1.jpeg"
+                        }
+                        alt="User Avatar"
+                        className={avatarClasses}
+                      />
+                      <span className="font-bold text-lg text-black dark:text-white mt-2 md:mt-0">{user.name}</span>
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  {renderNavLink("/login", "Iniciar sesión", 4)}
+                  {renderNavLink("/register", "Registrate", 5)}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
     </nav>
   );
-
-
-
 };
 
 export default Navbar;

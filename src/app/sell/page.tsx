@@ -387,22 +387,22 @@ export default function SellPage() {
 
   return (
     <div
-      className="max-w-5xl mx-auto p-8 rounded-lg shadow-md transition-colors duration-300
+      className="max-w-5xl mx-auto p-4 sm:p-8 rounded-lg shadow-md transition-colors duration-300
     bg-background-light dark:bg-background-dark
     border border-black dark:border-white mt-8"
     >
-      <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
+      <h1 className="text-3xl sm:text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6 text-center">
         Vende Tu Tecnología
       </h1>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
         Los campos marcados con <span className="text-red-500">*</span> son obligatorios.
       </p>
 
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="p-8 rounded-lg shadow-lg transition-colors duration-300
+        className="p-4 sm:p-8 rounded-lg shadow-lg transition-colors duration-300
       bg-card-light dark:bg-card-dark border border-black dark:border-white"
       >
         {/* Nombre del producto */}
@@ -446,7 +446,7 @@ export default function SellPage() {
         </div>
 
         {/* Grid para campos de 2 columnas */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {renderSelect(
             "condition",
             "Condición",
@@ -483,7 +483,7 @@ export default function SellPage() {
           {renderInput("operatingSystem", "Sistema Operativo", true, "", "text")}
 
           {/* Ethernet / WiFi / Bluetooth */}
-          <div className="flex flex-row gap-4 items-center">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             {renderInput(
               "ethernetPort",
               "Puerto Ethernet",
@@ -528,7 +528,7 @@ export default function SellPage() {
             <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
               Especificaciones de la Laptop
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {renderInput(
                 "webcam",
                 "Incluye Webcam",
@@ -548,7 +548,7 @@ export default function SellPage() {
             <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
               Especificaciones de la PC
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {renderInput(
                 "monitorIncluded",
                 "Incluye Monitor",
@@ -590,7 +590,7 @@ export default function SellPage() {
             <input {...getInputProps()} />
             <p>Arrastra y suelta imágenes aquí, o haz clic para seleccionar archivos</p>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {files.map((file, index) => (
               <div key={index} className="relative">
                 <img

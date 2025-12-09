@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import Carousel from '@/components/common/Carousel';
-import { carouselItems } from '@/data/carouselItems';
 import { getGlowColor } from '@/utils/getGlowColor';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -70,20 +69,20 @@ export default function HomePage() {
       </section>
 
       {/* Sección Principal */}
-      <section className="text-center py-20">
+      <section className="text-center py-12 md:py-20">
         <h1
-          className="text-5xl font-bold text-secondary dark:text-secondary-dark"
+          className="text-4xl sm:text-5xl font-bold text-secondary dark:text-secondary-dark"
           suppressHydrationWarning
         >
           EduRecicla
         </h1>
         <p
-          className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark"
+          className="text-lg sm:text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark px-4"
           suppressHydrationWarning
         >
           Tu plataforma integral para comprar, vender y donar tecnología reciclada para estudiantes que la necesitan.
         </p>
-        <div className="mt-8 flex justify-center gap-4 flex-wrap">
+        <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 px-4">
           {heroButtons.map((btn, i) => {
             const glow = getGlowColor(i);
             return (
@@ -92,11 +91,11 @@ export default function HomePage() {
                 href={btn.href}
                 onClick={(e) => btn.text === "Donate Now" && handleDonateClick(e, btn.href)}
                 className="
-                bg-primary text-text-button-light dark:text-white font-bold
+                w-full sm:w-auto bg-primary text-text-button-light dark:text-white font-bold
                 border border-gray-500 dark:border-white
                 py-3 px-6 rounded-lg shadow-md
                 transition-all duration-300 ease-in-out
-                hover:scale-105 hover:text-lg
+                hover:scale-105 hover:text-lg text-center
               "
                 style={{ boxShadow: "0 0 0 transparent" }}
                 onMouseEnter={(e) => {
@@ -114,14 +113,14 @@ export default function HomePage() {
       </section>
 
       {/* Sección Cómo Funciona */}
-      <section className="py-20 bg-card-light dark:bg-card-dark transition-colors duration-300">
+      <section className="py-12 md:py-20 bg-card-light dark:bg-card-dark transition-colors duration-300">
         <h2
-          className="text-3xl font-bold text-center text-text-primary-light dark:text-text-primary-dark"
+          className="text-3xl sm:text-4xl font-bold text-center text-text-primary-light dark:text-text-primary-dark"
           suppressHydrationWarning
         >
           Cómo Funciona
         </h2>
-        <div className="mt-12 grid md:grid-cols-2 gap-8 text-center">
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
           {[
             {
               title: "1. Dona o Vende",
@@ -141,11 +140,11 @@ export default function HomePage() {
               <div
                 key={i}
                 className="
-                p-8 border border-gray-400 dark:border-white
+                p-6 sm:p-8 border border-gray-400 dark:border-white
                 bg-white dark:bg-white/10
                 rounded-lg shadow-md backdrop-blur-sm
                 transition-all duration-300 ease-in-out
-                hover:scale-105
+                hover:scale-105 text-center
               "
                 style={{ boxShadow: "0 0 0 transparent" }}
                 onMouseEnter={(e) => {
@@ -168,20 +167,20 @@ export default function HomePage() {
       </section>
 
       {/* Sección Llamado a la Acción */}
-      <section className="py-20 text-center">
+      <section className="py-12 md:py-20 text-center">
         <h2
-          className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark"
+          className="text-3xl sm:text-4xl font-bold text-text-primary-light dark:text-text-primary-dark"
           suppressHydrationWarning
         >
           ¿Listo para Hacer la Diferencia?
         </h2>
         <p
-          className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark"
+          className="text-lg sm:text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark px-4"
           suppressHydrationWarning
         >
           Únete a nuestra comunidad y contribuye a un futuro sostenible para la educación.
         </p>
-        <div className="mt-8 flex justify-center gap-4 flex-wrap">
+        <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 px-4">
           {ctaButtons.map((btn, i) => {
             const glow = getGlowColor(i);
             return (
@@ -190,11 +189,11 @@ export default function HomePage() {
                 href={btn.href}
                 onClick={(e) => btn.text === "Donate Now" && handleDonateClick(e, btn.href)}
                 className="
-                bg-primary text-text-button-light dark:text-white font-bold
+                w-full sm:w-auto bg-primary text-text-button-light dark:text-white font-bold
                 border border-gray-500 dark:border-white
                 py-3 px-6 rounded-lg shadow-md
                 transition-all duration-300 ease-in-out
-                hover:scale-105 hover:text-lg
+                hover:scale-105 hover:text-lg text-center
               "
                 style={{ boxShadow: "0 0 0 transparent" }}
                 onMouseEnter={(e) => {

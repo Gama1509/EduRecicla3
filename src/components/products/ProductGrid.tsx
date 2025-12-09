@@ -30,11 +30,11 @@ const ProductGrid = ({ filters }: ProductGridProps) => {
     fetchProducts();
   }, [filters]);
 
-  if (loading) return <div className="text-center">Loading products...</div>;
-  if (products.length === 0) return <div className="text-center">No products found.</div>;
+  if (loading) return <div className="text-center">Cargando productos...</div>;
+  if (products.length === 0) return <div className="text-center">No se encontraron productos.</div>;
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
       {products.map((product, index) => (
         <ProductCard key={product.id} product={product} glowColor={glowColors[index % glowColors.length]} />
       ))}

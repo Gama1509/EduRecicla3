@@ -14,11 +14,11 @@ const UserProfilePage = () => {
   if (!user) return null; // Evitar errores si no hay sesión
 
   return (
-    <div className="max-w-4xl mx-auto bg-card-light dark:bg-card-dark p-8 rounded-2xl shadow-lg border border-black dark:border-white transition-colors duration-300 space-y-8 mt-8">
+    <div className="max-w-4xl mx-auto bg-card-light dark:bg-card-dark p-4 sm:p-8 rounded-2xl shadow-lg border border-black dark:border-white transition-colors duration-300 space-y-8 mt-8">
 
       {/* ====================== AVATAR Y DATOS ====================== */}
       <div className="flex flex-col items-center text-center mb-8">
-        <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-secondary shadow-md">
+        <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-secondary shadow-md">
           <img
             src={
               user.avatar && user.avatar.startsWith("http")
@@ -30,13 +30,13 @@ const UserProfilePage = () => {
           />
         </div>
 
-        <h2 className="text-2xl font-bold mt-4 text-text-primary-light dark:text-text-primary-dark">
+        <h2 className="text-xl sm:text-2xl font-bold mt-4 text-text-primary-light dark:text-text-primary-dark">
           {user.name}
         </h2>
-        <p className="text-text-secondary-light dark:text-text-secondary-dark">
+        <p className="text-sm sm:text-base text-text-secondary-light dark:text-text-secondary-dark">
           {user.email}
         </p>
-        <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
+        <p className="text-xs sm:text-sm mt-1 text-gray-500 dark:text-gray-400">
           Rol: <span className="font-semibold capitalize">{user.role}</span>
         </p>
       </div>
@@ -44,8 +44,8 @@ const UserProfilePage = () => {
       {/* ====================== ENLACES EN 2 COLUMNAS ====================== */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* ====================== COMPRADOR / DONADOR ====================== */}
-        <div className="bg-background-light dark:bg-background-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-inner">
-          <h3 className="text-lg font-semibold mb-4 text-text-primary-light dark:text-text-primary-dark">
+        <div className="bg-background-light dark:bg-background-dark p-4 sm:p-5 rounded-xl border border-border-light dark:border-border-dark shadow-inner">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 text-text-primary-light dark:text-text-primary-dark">
             🛒 Como comprador / donador
           </h3>
 
@@ -53,7 +53,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(0,200,255,0.8)';
@@ -68,7 +68,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(255,200,0,0.8)';
@@ -84,7 +84,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(0,255,150,0.8)';
@@ -100,7 +100,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(0,255,150,0.8)';
@@ -115,7 +115,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
@@ -130,7 +130,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
@@ -145,7 +145,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
@@ -161,8 +161,8 @@ const UserProfilePage = () => {
         </div>
 
         {/* ====================== VENDEDOR / DONADOR ====================== */}
-        <div className="bg-background-light dark:bg-background-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-inner">
-          <h3 className="text-lg font-semibold mb-4 text-text-primary-light dark:text-text-primary-dark">
+        <div className="bg-background-light dark:bg-background-dark p-4 sm:p-5 rounded-xl border border-border-light dark:border-border-dark shadow-inner">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 text-text-primary-light dark:text-text-primary-dark">
             💼 Como vendedor / donador
           </h3>
 
@@ -170,7 +170,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(255,200,0,0.8)';
@@ -185,7 +185,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(0,200,255,0.8)';
@@ -201,7 +201,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(0,255,150,0.8)';
@@ -217,7 +217,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(0,255,150,0.8)';
@@ -233,7 +233,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
@@ -248,7 +248,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
@@ -264,7 +264,7 @@ const UserProfilePage = () => {
             <span
               role="link"
               tabIndex={0}
-              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              className="block cursor-pointer text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
               style={{ textShadow: '0 0 0px transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
@@ -282,7 +282,7 @@ const UserProfilePage = () => {
       <div
         role="link"
         tabIndex={0}
-        className="mt-6 bg-background-light dark:bg-background-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-inner col-span-2 text-center cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+        className="mt-6 bg-background-light dark:bg-background-dark p-4 sm:p-5 rounded-xl border border-border-light dark:border-border-dark shadow-inner md:col-span-2 text-center cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
         style={{ textShadow: "0 0 0px transparent" }}
         onMouseEnter={(e) => {
           e.currentTarget.style.textShadow = "0 0 8px rgba(255,100,100,0.8)";
@@ -292,7 +292,7 @@ const UserProfilePage = () => {
         }}
         onClick={() => handleNavigate("/profile/my-products")}
       >
-        <h3 className="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+        <h3 className="text-base sm:text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
           📦 Mis productos
         </h3>
       </div>
