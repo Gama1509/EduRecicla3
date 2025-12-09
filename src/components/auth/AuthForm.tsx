@@ -117,6 +117,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
         });
 
         router.push(data.role === 'admin' ? '/admin' : '/');
+        setLoading(false);
       }
     } catch (err: any) {
       Swal.fire({
