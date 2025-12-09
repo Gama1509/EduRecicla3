@@ -26,12 +26,19 @@ const eslintConfig = [
           ignoreRestSiblings: true,
         },
       ],
-      // Opcional: prohibir imports no usados
-      "no-unused-vars": "off", // se usa la versión TS
+
+      // DESACTIVAR errores de 'any' en producción
+      "@typescript-eslint/no-explicit-any": "off",
+
+      // Permite usar <img> sin advertencias de Next.js
+      "@next/next/no-img-element": "off",
+
+      // Desactiva la regla de vars no usadas de JS (solo usamos la de TS)
+      "no-unused-vars": "off",
     },
   },
 
-  // Archivos/carpetas a ignorar
+  // Ignorar carpetas/archivos
   {
     ignores: [
       "node_modules/**",

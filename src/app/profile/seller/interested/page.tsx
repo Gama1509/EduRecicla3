@@ -263,6 +263,7 @@ export default function ProductViewPage() {
                                                                         handleAcceptInterest(
                                                                             transaction.buyer_id,
                                                                             transaction.id,
+                                                                            setLoading,
                                                                         )
                                                                     }
                                                                     className="text-green-500 font-semibold hover:underline transition-colors"
@@ -276,6 +277,7 @@ export default function ProductViewPage() {
                                                                         handleRejectInterest(
                                                                             transaction.buyer_id,
                                                                             transaction.id,
+                                                                            setLoading,
                                                                         )
                                                                     }
                                                                     className="text-red-500 font-semibold hover:underline transition-colors"
