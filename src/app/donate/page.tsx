@@ -367,21 +367,21 @@ export default function DonatePage() {
 
   return (
     <div
-      className="max-w-3xl mx-auto p-8 rounded-lg shadow-md transition-colors duration-300
+      className="max-w-3xl mx-auto p-4 sm:p-8 rounded-lg shadow-md transition-colors duration-300
   bg-background-light dark:bg-background-dark
   border border-black dark:border-white mt-8"
     >
-      <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+      <h1 className="text-3xl sm:text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 text-center">
         Dona Tu Tecnología
       </h1>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
         Los campos marcados con <span className="text-red-500">*</span> son obligatorios.
       </p>
 
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="p-8 rounded-lg shadow-lg transition-colors duration-300
+        className="p-4 sm:p-8 rounded-lg shadow-lg transition-colors duration-300
       bg-card-light dark:bg-card-dark
       border border-black dark:border-white"
       >
@@ -413,8 +413,8 @@ export default function DonatePage() {
           )}
         </div>
 
-        {/* Grid principal - 2 columnas */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Grid principal - 1 o 2 columnas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {renderSelect(
             "condition",
             "Condición",
@@ -429,7 +429,7 @@ export default function DonatePage() {
           {renderInput(
             "brand",
             "Marca",
-            false,
+            true,
             "Ingresa la marca del producto, por ejemplo: Dell, Apple, Lenovo"
           )}
 
@@ -485,7 +485,7 @@ export default function DonatePage() {
           )}
 
           {/* Ethernet / WiFi / Bluetooth en una fila */}
-          <div className="flex flex-row gap-4 items-center">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             {renderInput(
               "ethernetPort",
               "Puerto Ethernet",
@@ -525,7 +525,7 @@ export default function DonatePage() {
           {renderInput(
             "usbPorts",
             "Puertos USB",
-            false,
+            true,
             "Ingresa la cantidad de puertos USB",
             "number",
             0
@@ -533,7 +533,7 @@ export default function DonatePage() {
           {renderInput(
             "hdmiPorts",
             "Puertos HDMI",
-            false,
+            true,
             "Ingresa la cantidad de puertos HDMI",
             "number",
             0
@@ -541,7 +541,7 @@ export default function DonatePage() {
           {renderInput(
             "audioPorts",
             "Puertos de audio",
-            false,
+            true,
             "Ingresa la cantidad de puertos de audio",
             "number",
             0
@@ -583,7 +583,7 @@ export default function DonatePage() {
             <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
               Especificaciones de {selectedCategory}
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {selectedCategory === "Laptop" && (
                 <>
                   {renderInput(
@@ -682,7 +682,7 @@ export default function DonatePage() {
             <p>Arrastra y suelta imágenes aquí, o haz clic para seleccionar archivos</p>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {files.map((file, index) => (
               <div key={index} className="relative">
                 <img

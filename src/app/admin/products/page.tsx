@@ -61,9 +61,9 @@ export default function AdminProducts() {
     };
 
     return (
-        <div className="p-6 w-full max-w-6xl mx-auto">
+        <div className="p-4 sm:p-6 w-full max-w-7xl mx-auto">
             <div className="flex flex-col items-center mb-8 gap-6">
-                <h1 className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark text-center">
+                <h1 className="text-2xl sm:text-3xl font-bold text-text-primary-light dark:text-text-primary-dark text-center">
                     Gestionar Productos
                 </h1>
 
@@ -84,17 +84,17 @@ export default function AdminProducts() {
 
                 {/* Filtros */}
                 <div className="flex flex-wrap justify-center gap-2 w-full max-w-5xl">
-                    <SelectFilter value={filterCategory} onChange={setFilterCategory} options={ProductCategory} label="Todas las categorías" />
-                    <SelectFilter value={filterType} onChange={setFilterType} options={ProductType} label="Todos los tipos" labelsMap={productTypeLabels} />
-                    <SelectFilter value={filterCondition} onChange={setFilterCondition} options={ProductCondition} label="Todas las condiciones" labelsMap={productConditionLabels} />
-                    <SelectFilter value={filterStatus} onChange={setFilterStatus} options={ProductStatus} label="Todos los estados" labelsMap={productStatusLabels} />
-                    <SelectFilter value={filterRAM} onChange={setFilterRAM} options={RAMSize} label="Todas las RAM" />
-                    <SelectFilter value={filterStorageType} onChange={setFilterStorageType} options={StorageType} label="Todos los tipos de almacenamiento" />
-                    <SelectFilter value={filterStorageCapacity} onChange={setFilterStorageCapacity} options={StorageCapacity} label="Todas las capacidades" />
+                    <SelectFilter value={filterCategory} onChange={setFilterCategory} options={ProductCategory} label="Categorías" />
+                    <SelectFilter value={filterType} onChange={setFilterType} options={ProductType} label="Tipos" labelsMap={productTypeLabels} />
+                    <SelectFilter value={filterCondition} onChange={setFilterCondition} options={ProductCondition} label="Condiciones" labelsMap={productConditionLabels} />
+                    <SelectFilter value={filterStatus} onChange={setFilterStatus} options={ProductStatus} label="Estados" labelsMap={productStatusLabels} />
+                    <SelectFilter value={filterRAM} onChange={setFilterRAM} options={RAMSize} label="RAM" />
+                    <SelectFilter value={filterStorageType} onChange={setFilterStorageType} options={StorageType} label="Almacenamiento" />
+                    <SelectFilter value={filterStorageCapacity} onChange={setFilterStorageCapacity} options={StorageCapacity} label="Capacidad" />
 
                     <button
                         onClick={clearFilters}
-                        className="px-4 py-2 rounded border border-gray-700 text-white font-semibold bg-gray-800 transition-all duration-300 hover:bg-gray-600 hover:text-white hover:text-lg"
+                        className="px-4 py-2 rounded border border-gray-700 text-white font-semibold bg-gray-800 transition-all duration-300 hover:bg-gray-600 hover:text-white"
                     >
                         Limpiar filtros
                     </button>
@@ -106,130 +106,135 @@ export default function AdminProducts() {
                 Productos que coinciden: {filteredProducts.length}
             </p>
 
-            <div className="w-full max-w-screen overflow-x-auto bg-black/80 rounded shadow p-4 border border-white hover:shadow-[0_0_15px_white] transition-all">
-                <table className="table-auto min-w-max">
+            {/* Vista de Tabla para Escritorio */}
+            <div className="hidden md:block w-full overflow-x-auto bg-black/80 rounded shadow p-4 border border-white hover:shadow-[0_0_15px_white] transition-all">
+                <table className="w-full table-auto">
                     <thead>
                         <tr className="border-b border-border-light dark:border-border-dark">
                             {[
-                                "Nombre",
-                                "Marca",
-                                "Categoría",
-                                "Tipo",
-                                "Condición",
-                                "Estado",
-                                "Precio",
-                                "Stock",
-                                "Cantidad Disponible",
-                                "Cantidad Reservada",
-                                "Propietario",
-                                "Modelo",
-                                "RAM",
-                                "Tipo de Almacenamiento",
-                                "Capacidad de Almacenamiento",
-                                "Sistema Operativo",
-                                "Procesador",
-                                "Tarjeta gráfica",
-                                "Razón de rechazo",
-                                "Fecha de creación",
-                                "Fecha de última actualización",
-                                "Acciones",
-                            ].map((header, i, arr) => (
-                                <th
-                                    key={header}
-                                    className={`py-2 px-4 text-center text-text-primary-light dark:text-text-primary-dark ${i !== arr.length - 1 ? 'border-r border-border-light dark:border-border-dark' : ''
-                                        }`}
-                                >
+                                "Nombre", "Marca", "Categoría", "Tipo", "Condición", "Estado", "Precio", "Stock", "Propietario", "Acciones"
+                            ].map((header, i) => (
+                                <th key={i} className="py-3 px-4 text-center text-text-primary-light dark:text-text-primary-dark border-r border-border-light dark:border-border-dark last:border-r-0">
                                     {header}
                                 </th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredProducts.map((product) => {
-                            const statusGlow = product.status === 'Pending' ? 'yellow' : product.status === 'Approved' ? 'green' : 'red';
-                            const isPending = product.status === 'Pending';
-                            const actionText = isPending ? 'Ver y Evaluar' : 'Ver';
-                            const actionColor = isPending ? 'text-yellow-400' : product.status === 'Approved' ? 'text-green-500' : 'text-red-500';
-
-                            return (
-                                <tr
-                                    key={product.id}
-                                    className="border-b border-border-light dark:border-border-dark transition-all duration-300 transform cursor-pointer"
-                                    onMouseEnter={(e) => {
-                                        const el = e.currentTarget as HTMLElement;
-                                        el.style.boxShadow = `0 0 15px ${statusGlow}`;
-                                        el.style.transform = 'scale(1.02)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        const el = e.currentTarget as HTMLElement;
-                                        el.style.boxShadow = '';
-                                        el.style.transform = '';
-                                    }}
-                                >
-                                    <td className="py-2 px-4 border-r text-center">{product.name}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.brand}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.category}</td>
-                                    <td className="py-2 px-4 border-r text-center">{productTypeLabels[product.type]}</td>
-                                    <td className="py-2 px-4 border-r text-center">{productConditionLabels[product.condition]}</td>
-                                    <td className="py-2 px-4 border-r text-center">
-                                        <span
-                                            className={`px-2 py-1 rounded-full text-xs font-semibold ${product.status === 'Pending'
-                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-900'
-                                                : product.status === 'Approved'
-                                                    ? 'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900'
-                                                    : 'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900'
-                                                }`}
-                                        >
-                                            {productStatusLabels[product.status]}
-                                        </span>
-                                    </td>
-                                    <td className="py-2 px-4 border-r text-center">
-                                        {product.type === 'Donation'
-                                            ? 'Donación'
-                                            : product.price != null
-                                                ? `$${product.price}`
-                                                : 'Sin precio'}
-                                    </td>
-                                    <td className="py-2 px-4 border-r text-center">{product.stock}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.availableQuantity}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.reservedQuantity}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.owner}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.model}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.ram}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.storageType}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.storageCapacity}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.operatingSystem}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.processor}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.graphicsCard ?? "No tiene"}</td>
-                                    <td className="py-2 px-4 border-r text-center">{product.rejectionReason ?? "Este producto no ha sido rechazado"}</td>
-                                    <td className="py-2 px-4 border-r text-center">{new Date(product.createdAt).toLocaleDateString()}</td>
-                                    <td className="py-2 px-4 border-r text-center">{new Date(product.updatedAt).toLocaleDateString()}</td>
-                                    <td className="py-2 px-4 flex justify-center gap-4">
-                                        <Link
-                                            href={`/admin/products/view/${product.id}?status=${product.status}`}
-                                            className={`${actionColor} font-semibold text-lg transition-all duration-300 transform hover:scale-110 hover:underline`}
-                                            style={{ textShadow: '0 0 0 transparent' }}
-                                            onMouseEnter={(e) => {
-                                                const el = e.currentTarget as HTMLElement;
-                                                el.style.textShadow = `0 0 8px ${getComputedStyle(el).color}`;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                const el = e.currentTarget as HTMLElement;
-                                                el.style.textShadow = '0 0 0 transparent';
-                                            }}
-                                        >
-                                            {actionText}
-                                        </Link>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                        {filteredProducts.map((product) => (
+                            <ProductRow key={product.id} product={product} />
+                        ))}
                     </tbody>
                 </table>
-
             </div>
 
-        </div >
+            {/* Vista de Tarjetas para Móvil */}
+            <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+// Componente para Fila de Producto (usado en tabla)
+function ProductRow({ product }: { product: ProductsTableDto }) {
+    const statusGlow = product.status === 'Pending' ? 'yellow' : product.status === 'Approved' ? 'green' : 'red';
+    const isPending = product.status === 'Pending';
+    const actionText = isPending ? 'Ver y Evaluar' : 'Ver';
+    const actionColor = isPending ? 'text-yellow-400' : product.status === 'Approved' ? 'text-green-500' : 'text-red-500';
+
+    return (
+        <tr
+            className="border-b border-border-light dark:border-border-dark transition-all duration-300 transform cursor-pointer"
+            onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 15px ${statusGlow}`;
+                e.currentTarget.style.transform = 'scale(1.02)';
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '';
+                e.currentTarget.style.transform = '';
+            }}
+        >
+            <td className="py-2 px-4 border-r text-center">{product.name}</td>
+            <td className="py-2 px-4 border-r text-center">{product.brand}</td>
+            <td className="py-2 px-4 border-r text-center">{product.category}</td>
+            <td className="py-2 px-4 border-r text-center">{productTypeLabels[product.type]}</td>
+            <td className="py-2 px-4 border-r text-center">{productConditionLabels[product.condition]}</td>
+            <td className="py-2 px-4 border-r text-center">
+                <StatusLabel status={product.status} />
+            </td>
+            <td className="py-2 px-4 border-r text-center">
+                {product.type === 'Donation' ? 'Donación' : product.price != null ? `$${product.price}` : 'N/A'}
+            </td>
+            <td className="py-2 px-4 border-r text-center">{product.stock}</td>
+            <td className="py-2 px-4 border-r text-center">{product.owner}</td>
+            <td className="py-2 px-4 flex justify-center gap-4">
+                <Link
+                    href={`/admin/products/view/${product.id}?status=${product.status}`}
+                    className={`${actionColor} font-semibold text-lg transition-all duration-300 transform hover:scale-110 hover:underline`}
+                    style={{ textShadow: '0 0 0 transparent' }}
+                    onMouseEnter={(e) => {
+                        const el = e.currentTarget;
+                        el.style.textShadow = `0 0 8px ${getComputedStyle(el).color}`;
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.textShadow = '0 0 0 transparent';
+                    }}
+                >
+                    {actionText}
+                </Link>
+            </td>
+        </tr>
+    );
+}
+
+// Componente para Tarjeta de Producto (usado en móvil)
+function ProductCard({ product }: { product: ProductsTableDto }) {
+    const isPending = product.status === 'Pending';
+    const actionText = isPending ? 'Ver y Evaluar' : 'Ver';
+    const actionColor = isPending ? 'text-yellow-400' : product.status === 'Approved' ? 'text-green-500' : 'text-red-500';
+
+    return (
+        <div className="bg-black/80 border border-white rounded-lg shadow-md p-4 flex flex-col justify-between">
+            <div>
+                <h3 className="text-lg font-bold text-white">{product.name}</h3>
+                <p className="text-sm text-gray-300">{product.brand}</p>
+                <div className="my-2">
+                    <StatusLabel status={product.status} />
+                </div>
+                <div className="text-sm text-gray-400 mt-2">
+                    <p><strong>Categoría:</strong> {product.category}</p>
+                    <p><strong>Tipo:</strong> {productTypeLabels[product.type]}</p>
+                    <p><strong>Precio:</strong> {product.type === 'Donation' ? 'Donación' : product.price != null ? `$${product.price}` : 'N/A'}</p>
+                    <p><strong>Stock:</strong> {product.stock}</p>
+                    <p><strong>Propietario:</strong> {product.owner}</p>
+                </div>
+            </div>
+            <div className="mt-4 flex justify-end">
+                <Link
+                    href={`/admin/products/view/${product.id}?status=${product.status}`}
+                    className={`${actionColor} font-semibold text-lg transition-all duration-300 transform hover:scale-110 hover:underline`}
+                >
+                    {actionText}
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+// Componente para Etiqueta de Estado
+function StatusLabel({ status }: { status: ProductStatus }) {
+    const statusClasses = {
+        Pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-900',
+        Approved: 'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900',
+        Rejected: 'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900',
+    };
+    return (
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusClasses[status]}`}>
+            {productStatusLabels[status]}
+        </span>
     );
 }
 
@@ -239,7 +244,7 @@ export function SelectFilter({ value, onChange, options, label, labelsMap }: { v
         <select
             value={value}
             onChange={e => onChange(e.target.value)}
-            className="px-4 py-2 rounded bg-black/80 border border-white text-white"
+            className="px-4 py-2 rounded bg-black/80 border border-white text-white text-sm"
         >
             <option value="">{label}</option>
             {Object.values(options).map((opt) => (
