@@ -36,8 +36,6 @@ function ChatsPage() {
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
   const currentUserRef = useRef<UserSummary | null>(null);
   const router = useRouter();
-  console.log("params:", params);
-  console.log("chatIdFromUrl:", chatIdFromUrl);
   // --- Socket ---
   const socket = getSocket();
   const { user, logout } = useAuth();

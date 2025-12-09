@@ -64,14 +64,12 @@ export default function MyProducts() {
 
     const handleEditProduct = async (product: ProductsTableDto) => {
         try {
-            console.log("Entrando a handleEditProduct");
             setLoading(true);
 
             // Llamar al endpoint que verifica transacciones pendientes
             const res = await api.get<{ havePendingTransactions: boolean }>(
                 `/products/verify-pending-transactions/${product.id}`
             );
-            console.log("Respuesta de verificacion de transacciones pendientes:", res.data);
             if (res.data.havePendingTransactions) {
                 await Swal.fire({
                     icon: "warning",

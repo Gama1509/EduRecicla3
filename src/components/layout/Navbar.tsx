@@ -94,7 +94,6 @@ const Navbar = () => {
     const handleUnreadMessage = (data: { hasUnreadMessages: boolean }) => {
       setHasUnreadMessages(data.hasUnreadMessages);
     };
-    console.log("Los mensajes no leídos son:", hasUnreadMessages);
 
     socket.on("message:unread", handleUnreadMessage);
 

@@ -68,7 +68,6 @@ export default function ProductViewPage() {
             try {
                 const res = await api.get<TransactionsProfileDto[]>(`/transactions/getInterestCancelledTransactionsBySeller`);
                 setTransactions(res.data);
-                console.log(res.data);
             } catch (error) {
                 console.error('Error fetching product:', error);
             } finally {

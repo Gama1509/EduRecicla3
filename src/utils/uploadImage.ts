@@ -20,7 +20,6 @@ export async function uploadImage(file: File): Promise<string | null> {
     }
 
     const data = await response.json();
-    console.log("Image uploaded successfully:", data.secure_url);
     return data.secure_url;
   } catch (error) {
     console.error("Error uploading image:", error);

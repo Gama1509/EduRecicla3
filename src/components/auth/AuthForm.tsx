@@ -22,7 +22,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
 
   const [avatars, setAvatars] = useState<Avatar[]>([]);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(false);
   // Traer avatares desde backend solo si estamos en modo registro
   useEffect(() => {
     if (isRegisterMode) {
@@ -51,7 +51,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-
+    setLoading(true);
     try {
       let response;
       let data;
@@ -95,7 +95,6 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
 
         router.push(data.role === 'admin' ? '/admin' : '/');
       } else {
-        console.log("entro a login");
         // Login
         response = await api.post('/auth/login', { email, password });
         data = response.data;
@@ -116,7 +115,6 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
           title: 'Inicio de sesión exitoso',
           confirmButtonColor: '#2563eb',
         });
-        console.log("El rol es: " + data.role);
 
         router.push(data.role === 'admin' ? '/admin' : '/');
       }
@@ -124,9 +122,15 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: err.response?.data?.message || err.message || 'Error desconocido',
+        text:
+          err.response?.status === 400
+            ? 'Correo o contraseña incorrectos'
+            : err.response?.data?.message || err.message || 'Error desconocido',
         confirmButtonColor: '#2563eb',
       });
+    } finally {
+      setLoading(false);
+
     }
   };
 
@@ -226,6 +230,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
             <button
               type="button"
               onClick={() => setIsRegisterMode(!isRegisterMode)}
+              disabled={loading}
               className="ml-2 text-secondary dark:text-secondary-dark font-semibold hover:underline transition duration-200"
             >
               {isRegisterMode ? 'Iniciar sesión' : 'Registrarse'}

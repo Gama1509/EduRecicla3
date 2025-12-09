@@ -42,7 +42,6 @@ export default function HomePage() {
       try {
         // Usando api.get como en tu ejemplo
         const res = await api.get<{ data: TopProduct[] }>("/products/top-selling");
-        console.log(res.data);
         setCarouselItems(res.data.data); // actualizamos el state
       } catch (err) {
         console.error("Error fetching top products:", err);

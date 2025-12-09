@@ -31,7 +31,6 @@ export default function TransactionsPage({ onBack }: TransactionsPageProps) {
         const fetchTransactions = async () => {
             try {
                 const res = await api.get<DashboardTransactionsDto[]>("/transactions/dashboard");
-                console.log(res.data);
                 setTransactions(res.data);
             } catch (error) {
                 console.error("Error cargando transacciones:", error);

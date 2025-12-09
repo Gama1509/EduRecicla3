@@ -18,7 +18,6 @@ export const useApiInterceptor = () => {
 
                 // 🔴 Si es error 401 o 500 => cerrar sesión
                 if (status === 401 || status === 500) {
-                    console.log('Error 401 o 500');
                     Swal.fire({
                         icon: 'warning',
                         title: 'Sesión finalizada',

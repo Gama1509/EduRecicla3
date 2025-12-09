@@ -767,7 +767,6 @@ export function InterestAcceptedView({ notification }: { notification: InterestA
 
 // ---------- INTEREST_REJECTED ----------
 export function InterestRejectedView({ notification }: { notification: InterestRejectedNotification }) {
-    console.log(notification);
     return (
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
@@ -1080,7 +1079,6 @@ export function SoldOutTotalView({ notification }: { notification: SoldOutTotalN
 
 // ---------- SOLD_OUT_PARTIAL ----------
 export function SoldOutPartialView({ notification }: { notification: SoldOutPartialNotification }) {
-    console.log(notification);
     const [loading, setLoading] = useState(false);
 
     return (

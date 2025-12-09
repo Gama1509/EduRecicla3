@@ -219,10 +219,8 @@ export default function ProductPage() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                console.log("id del producto", productId);
                 const res = await api.get<ProductDetailsWithStateDto>(`/products/with-state/${productId}`);
                 setProduct(res.data);
-                console.log(res.data);
             } catch (error) {
                 console.error('Error fetching product:', error);
             } finally {

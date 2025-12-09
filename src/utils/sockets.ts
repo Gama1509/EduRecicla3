@@ -10,7 +10,6 @@ export const connectSocket = (token: string) => {
     reconnectionAttempts: 5,
     reconnectionDelay: 2000,
   });
-  console.log("🔌 Socket conectado");
   return socket;
 };
 
@@ -18,7 +17,6 @@ export const disconnectSocket = () => {
   if (socket) {
     socket.disconnect();
     socket = null;
-    console.log("❌ Socket desconectado");
   }
 };
 

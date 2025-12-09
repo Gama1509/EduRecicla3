@@ -22,7 +22,6 @@ export default function UsersPage({ onBack }: UsersPageProps) {
       setLoading(true);
       try {
         const res = await api.get("/users"); // api es instancia de axios
-        console.log(res.data);
         setUsers(res.data); // los datos están en res.data
       } catch (error) {
         console.error("Error fetching users:", error);
