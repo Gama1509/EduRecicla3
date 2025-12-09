@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 interface UsersPageProps {
   onBack: () => void;
 }
+export const roleLabels: Record<string, string> = {
+  user: "Usuario",
+  admin: "Administrador",
+};
 
 const glowColors = ["rgba(255,255,255,0.3)", "rgba(255,255,255,0.2)", "rgba(255,255,255,0.15)"];
 
@@ -64,7 +68,12 @@ export default function UsersPage({ onBack }: UsersPageProps) {
           <thead>
             <tr>
               {["Nombre", "Email", "Rol", "Creado"].map((th) => (
-                <th key={th} className="py-2 px-4 text-left border-b border-white">{th}</th>
+                <th
+                  key={th}
+                  className="py-2 px-4 text-center border-b border-white"
+                >
+                  {th}
+                </th>
               ))}
             </tr>
           </thead>
@@ -84,16 +93,19 @@ export default function UsersPage({ onBack }: UsersPageProps) {
                   el.style.transform = "";
                 }}
               >
-                <td className="py-2 px-4 border-b border-white">{user.name}</td>
-                <td className="py-2 px-4 border-b border-white">{user.email}</td>
-                <td className="py-2 px-4 border-b border-white">{user.role}</td>
-                <td className="py-2 px-4 border-b border-white">
+                <td className="py-2 px-4 border-b border-white text-center">{user.name}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{user.email}</td>
+                <td className="py-2 px-4 border-b border-white text-center">
+                  {roleLabels[user.role] || user.role}
+                </td>
+                <td className="py-2 px-4 border-b border-white text-center">
                   {new Date(user.createdAt).toLocaleDateString('es-MX')}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
       </div>
 
 

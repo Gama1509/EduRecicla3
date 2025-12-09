@@ -60,19 +60,19 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
         if (!selectedAvatar) {
           return Swal.fire({
             icon: 'error',
-            title: 'Select an avatar',
-            text: 'Please choose an avatar before registering.',
+            title: 'Selecciona un avatar',
+            text: 'Por favor elige un avatar antes de registrarte.',
             confirmButtonColor: '#2563eb',
           });
         }
 
-        const response = await api.post('/auth/register', {
+        response = await api.post('/auth/register', {
           name,
           email,
           password,
           avatarId: selectedAvatar, // enviamos solo el id
         });
-        const data = response.data;
+        data = response.data;
 
         // Éxito: mostrar mensaje
         await Swal.fire({
@@ -95,6 +95,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
 
         router.push(data.role === 'admin' ? '/admin' : '/');
       } else {
+        console.log("entro a login");
         // Login
         response = await api.post('/auth/login', { email, password });
         data = response.data;
@@ -112,9 +113,10 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
 
         await Swal.fire({
           icon: 'success',
-          title: 'Logged in successfully',
+          title: 'Inicio de sesión exitoso',
           confirmButtonColor: '#2563eb',
         });
+        console.log("El rol es: " + data.role);
 
         router.push(data.role === 'admin' ? '/admin' : '/');
       }
@@ -122,35 +124,36 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: err.response?.data?.message || err.message || 'Unknown error',
+        text: err.response?.data?.message || err.message || 'Error desconocido',
         confirmButtonColor: '#2563eb',
       });
     }
   };
 
+
   return (
     <div className="max-w-md mx-auto bg-background-light dark:bg-background-dark p-8 rounded-lg shadow-md border border-black dark:border-white transition-colors duration-300 mt-8">
       <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8 text-center">
-        {isRegisterMode ? 'Create an Account' : 'Welcome Back'}
+        {isRegisterMode ? 'Crear una cuenta' : 'Bienvenido de nuevo'}
       </h1>
 
       <form className="bg-card-light dark:bg-card-dark p-8 rounded-lg shadow-lg border border-black dark:border-white transition-colors duration-300" onSubmit={handleSubmit}>
         {isRegisterMode && (
           <>
             <div className="mb-4">
-              <label htmlFor="name" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Full Name</label>
+              <label htmlFor="name" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Nombre completo</label>
               <input
                 type="text"
                 id="name"
                 name="name"
-                placeholder="John Doe"
+                placeholder="Juan Pérez"
                 required
                 className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
               />
             </div>
 
             <div className="mb-4">
-              <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Select Avatar</label>
+              <label className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Seleccionar avatar</label>
               <div className="grid grid-cols-4 gap-3">
                 {avatars.map((avt, index) => {
                   const glow = selectedAvatar === avt.id ? 'rgba(255,0,0,0.7)' : glowColors[index % glowColors.length];
@@ -172,7 +175,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
                       onMouseLeave={(e) => {
                         const el = e.currentTarget as HTMLElement;
                         if (selectedAvatar === avt.id) {
-                          el.style.boxShadow = `0 0 12px ${glow}`; // mantiene el rojo si está seleccionado
+                          el.style.boxShadow = `0 0 12px ${glow}`;
                         } else {
                           el.style.boxShadow = '';
                         }
@@ -181,25 +184,24 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
                   );
                 })}
               </div>
-
             </div>
           </>
         )}
 
         <div className="mb-4">
-          <label htmlFor="email" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Email Address</label>
+          <label htmlFor="email" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Correo electrónico</label>
           <input
             type="email"
             id="email"
             name="email"
-            placeholder="john.doe@example.com"
+            placeholder="juan.perez@ejemplo.com"
             required
             className="w-full px-3 py-1.5 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           />
         </div>
 
         <div className="mb-6">
-          <label htmlFor="password" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Password</label>
+          <label htmlFor="password" className="block text-text-primary-light dark:text-text-primary-dark font-semibold mb-2">Contraseña</label>
           <input
             type="password"
             id="password"
@@ -215,22 +217,23 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
           className="w-full bg-secondary text-black dark:text-white font-bold py-3 px-6 rounded-lg border border-black dark:border-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_var(--glow-color)] cursor-pointer"
           style={{ '--glow-color': glowColor } as React.CSSProperties}
         >
-          {isRegisterMode ? 'Register' : 'Login'}
+          {isRegisterMode ? 'Registrarse' : 'Iniciar sesión'}
         </button>
 
         <p className="mt-6 text-center text-text-secondary-light dark:text-text-secondary-dark">
-          {isRegisterMode ? 'Already have an account?' : "Don't have an account?"}
+          {isRegisterMode ? '¿Ya tienes una cuenta?' : '¿No tienes una cuenta?'}
           <button
             type="button"
             onClick={() => setIsRegisterMode(!isRegisterMode)}
             className="ml-2 text-secondary dark:text-secondary-dark font-semibold hover:underline transition duration-200"
           >
-            {isRegisterMode ? 'Login' : 'Register'}
+            {isRegisterMode ? 'Iniciar sesión' : 'Registrarse'}
           </button>
         </p>
       </form>
     </div>
   );
+
 };
 
 export default AuthForm;

@@ -9,7 +9,7 @@ export interface ProductsTableDto {
     type: ProductType;
     condition: ProductCondition;
     status: ProductStatus;
-    price: number;
+    price?: number;
     stock: number;
     reservedQuantity: number;
     availableQuantity: number;
@@ -18,6 +18,10 @@ export interface ProductsTableDto {
     storageCapacity: StorageCapacity;
     owner: string;
     createdAt: string;
-    operatingSystem: string
+    operatingSystem: string;
+    processor: string;
+    graphicsCard?: string;
+    updatedAt: string;
+    rejectionReason?: string;
 }
 

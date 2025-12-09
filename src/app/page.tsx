@@ -5,41 +5,71 @@ import { carouselItems } from '@/data/carouselItems';
 import { getGlowColor } from '@/utils/getGlowColor';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import api from '@/utils/api';
 
 // ✅ Fuerza renderizado estático para evitar diferencias SSR/CSR
 export const dynamic = "force-static";
 
+interface TopProduct {
+  id: string;
+  imageUrl: string;
+}
+
 export default function HomePage() {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
+  const [carouselItems, setCarouselItems] = useState<TopProduct[]>([]);
 
   const heroButtons = [
-    { text: "Explore Catalog", href: "/buy" },
-    { text: "Donate Now", href: "/donate" },
+    { text: "Explorar catálogo", href: "/buy" },
+    { text: "Donar Ahora", href: "/donate" },
   ];
 
   const ctaButtons = [
-    { text: "Donate Now", href: "/donate" },
+    { text: "Donar Ahora", href: "/donate" },
   ];
 
   const handleDonateClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     if (!isLoggedIn) {
-      router.push("/login");
+      router.push("/");
     } else {
       router.push(href);
     }
   };
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      try {
+        // Usando api.get como en tu ejemplo
+        const res = await api.get<{ data: TopProduct[] }>("/products/top-selling");
+        console.log(res.data);
+        setCarouselItems(res.data.data); // actualizamos el state
+      } catch (err) {
+        console.error("Error fetching top products:", err);
+      }
+    };
+
+    fetchTopProducts();
+  }, []);
+
+  // Transformamos carouselItems en el formato que tu Carousel espera
+  const formattedCarouselItems = carouselItems.map(p => ({
+    id: p.id,
+    image: p.imageUrl,
+    onClick: () => router.push(`/buy/${p.id}`),
+  }));
+
 
   return (
     <div className="bg-background-light dark:bg-background-dark transition-colors duration-300 mt-8">
 
-      {/* Carousel Section */}
+      {/* Sección del Carrusel */}
       <section className="mb-12">
-        <Carousel items={carouselItems} />
+        <Carousel items={formattedCarouselItems} />
       </section>
 
-      {/* Hero Section */}
+      {/* Sección Principal */}
       <section className="text-center py-20">
         <h1
           className="text-5xl font-bold text-secondary dark:text-secondary-dark"
@@ -51,7 +81,7 @@ export default function HomePage() {
           className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark"
           suppressHydrationWarning
         >
-          Your one-stop platform for buying, selling, and donating recycled tech for students in need.
+          Tu plataforma integral para comprar, vender y donar tecnología reciclada para estudiantes que la necesitan.
         </p>
         <div className="mt-8 flex justify-center gap-4 flex-wrap">
           {heroButtons.map((btn, i) => {
@@ -62,12 +92,12 @@ export default function HomePage() {
                 href={btn.href}
                 onClick={(e) => btn.text === "Donate Now" && handleDonateClick(e, btn.href)}
                 className="
-                  bg-primary text-text-button-light dark:text-white font-bold
-                  border border-gray-500 dark:border-white
-                  py-3 px-6 rounded-lg shadow-md
-                  transition-all duration-300 ease-in-out
-                  hover:scale-105 hover:text-lg
-                "
+                bg-primary text-text-button-light dark:text-white font-bold
+                border border-gray-500 dark:border-white
+                py-3 px-6 rounded-lg shadow-md
+                transition-all duration-300 ease-in-out
+                hover:scale-105 hover:text-lg
+              "
                 style={{ boxShadow: "0 0 0 transparent" }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLElement).style.boxShadow = `0 0 15px ${glow}`;
@@ -76,38 +106,32 @@ export default function HomePage() {
                   (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 transparent";
                 }}
               >
-                {btn.text}
+                {btn.text === "Donate Now" ? "Donar Ahora" : btn.text}
               </Link>
             );
           })}
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* Sección Cómo Funciona */}
       <section className="py-20 bg-card-light dark:bg-card-dark transition-colors duration-300">
         <h2
           className="text-3xl font-bold text-center text-text-primary-light dark:text-text-primary-dark"
           suppressHydrationWarning
         >
-          How It Works
+          Cómo Funciona
         </h2>
-        <div className="mt-12 grid md:grid-cols-3 gap-8 text-center">
+        <div className="mt-12 grid md:grid-cols-2 gap-8 text-center">
           {[
             {
-              title: "1. Donate or Sell",
-              desc: "Easily list your used tech equipment for donation or sale. Give your devices a second life and help a student.",
+              title: "1. Dona o Vende",
+              desc: "Muestra fácilmente tus equipos tecnológicos usados para donación o venta. Dale una segunda vida a tus dispositivos y ayuda a un estudiante.",
               colorIndex: 0,
               textColor: "text-primary dark:text-primary-dark",
             },
             {
-              title: "2. We Refurbish",
-              desc: "Our team ensures every device is in good working condition, ready for its new owner.",
-              colorIndex: 1,
-              textColor: "text-secondary dark:text-secondary-dark",
-            },
-            {
-              title: "3. Students Benefit",
-              desc: "Students get access to affordable, quality technology, empowering their education.",
+              title: "2. Beneficio para Estudiantes",
+              desc: "Los estudiantes obtienen acceso a tecnología de calidad y asequible, potenciando su educación.",
               colorIndex: 2,
               textColor: "text-secondary dark:text-secondary-dark",
             },
@@ -117,12 +141,12 @@ export default function HomePage() {
               <div
                 key={i}
                 className="
-                  p-8 border border-gray-400 dark:border-white
-                  bg-white dark:bg-white/10
-                  rounded-lg shadow-md backdrop-blur-sm
-                  transition-all duration-300 ease-in-out
-                  hover:scale-105
-                "
+                p-8 border border-gray-400 dark:border-white
+                bg-white dark:bg-white/10
+                rounded-lg shadow-md backdrop-blur-sm
+                transition-all duration-300 ease-in-out
+                hover:scale-105
+              "
                 style={{ boxShadow: "0 0 0 transparent" }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLElement).style.boxShadow = `0 0 15px ${glow}`;
@@ -143,19 +167,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Call to Action Section */}
+      {/* Sección Llamado a la Acción */}
       <section className="py-20 text-center">
         <h2
           className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark"
           suppressHydrationWarning
         >
-          Ready to Make a Difference?
+          ¿Listo para Hacer la Diferencia?
         </h2>
         <p
           className="text-xl mt-4 text-text-secondary-light dark:text-text-secondary-dark"
           suppressHydrationWarning
         >
-          Join our community and contribute to a sustainable future for education.
+          Únete a nuestra comunidad y contribuye a un futuro sostenible para la educación.
         </p>
         <div className="mt-8 flex justify-center gap-4 flex-wrap">
           {ctaButtons.map((btn, i) => {
@@ -166,12 +190,12 @@ export default function HomePage() {
                 href={btn.href}
                 onClick={(e) => btn.text === "Donate Now" && handleDonateClick(e, btn.href)}
                 className="
-                  bg-primary text-text-button-light dark:text-white font-bold
-                  border border-gray-500 dark:border-white
-                  py-3 px-6 rounded-lg shadow-md
-                  transition-all duration-300 ease-in-out
-                  hover:scale-105 hover:text-lg
-                "
+                bg-primary text-text-button-light dark:text-white font-bold
+                border border-gray-500 dark:border-white
+                py-3 px-6 rounded-lg shadow-md
+                transition-all duration-300 ease-in-out
+                hover:scale-105 hover:text-lg
+              "
                 style={{ boxShadow: "0 0 0 transparent" }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLElement).style.boxShadow = `0 0 15px ${glow}`;
@@ -180,7 +204,7 @@ export default function HomePage() {
                   (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 transparent";
                 }}
               >
-                {btn.text}
+                {btn.text === "Donate Now" ? "Donar Ahora" : btn.text}
               </Link>
             );
           })}
@@ -189,4 +213,5 @@ export default function HomePage() {
 
     </div>
   );
+
 }

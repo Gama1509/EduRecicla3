@@ -4,8 +4,9 @@ import Link from 'next/link';
 import api from '@/utils/api';
 import { ProductsTableDto } from '@/types/products-table.dto';
 import { ProductCategory, ProductCondition, ProductStatus, ProductType, RAMSize, StorageCapacity, StorageType } from '@/types/product-details.dto';
+import { productTypeLabels, productConditionLabels, productStatusLabels } from '@/constants/productLabels';
 
-export default function AdminProductsPage() {
+export default function AdminProducts() {
     const [products, setProducts] = useState<ProductsTableDto[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -60,12 +61,10 @@ export default function AdminProductsPage() {
     };
 
     return (
-        <div className="p-6">
-            {/* Header */}
+        <div className="p-6 w-full max-w-6xl mx-auto">
             <div className="flex flex-col items-center mb-8 gap-6">
-                {/* Título */}
                 <h1 className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark text-center">
-                    Manage Products & Proposals
+                    Gestionar Productos
                 </h1>
 
                 {/* Barra de búsqueda */}
@@ -85,13 +84,13 @@ export default function AdminProductsPage() {
 
                 {/* Filtros */}
                 <div className="flex flex-wrap justify-center gap-2 w-full max-w-5xl">
-                    <SelectFilter value={filterCategory} onChange={setFilterCategory} options={ProductCategory} label="All Categories" />
-                    <SelectFilter value={filterType} onChange={setFilterType} options={ProductType} label="All Types" />
-                    <SelectFilter value={filterCondition} onChange={setFilterCondition} options={ProductCondition} label="All Conditions" />
-                    <SelectFilter value={filterStatus} onChange={setFilterStatus} options={ProductStatus} label="All Status" />
-                    <SelectFilter value={filterRAM} onChange={setFilterRAM} options={RAMSize} label="All RAM" />
-                    <SelectFilter value={filterStorageType} onChange={setFilterStorageType} options={StorageType} label="All Storage Types" />
-                    <SelectFilter value={filterStorageCapacity} onChange={setFilterStorageCapacity} options={StorageCapacity} label="All Storage Capacities" />
+                    <SelectFilter value={filterCategory} onChange={setFilterCategory} options={ProductCategory} label="Todas las categorías" />
+                    <SelectFilter value={filterType} onChange={setFilterType} options={ProductType} label="Todos los tipos" labelsMap={productTypeLabels} />
+                    <SelectFilter value={filterCondition} onChange={setFilterCondition} options={ProductCondition} label="Todas las condiciones" labelsMap={productConditionLabels} />
+                    <SelectFilter value={filterStatus} onChange={setFilterStatus} options={ProductStatus} label="Todos los estados" labelsMap={productStatusLabels} />
+                    <SelectFilter value={filterRAM} onChange={setFilterRAM} options={RAMSize} label="Todas las RAM" />
+                    <SelectFilter value={filterStorageType} onChange={setFilterStorageType} options={StorageType} label="Todos los tipos de almacenamiento" />
+                    <SelectFilter value={filterStorageCapacity} onChange={setFilterStorageCapacity} options={StorageCapacity} label="Todas las capacidades" />
 
                     <button
                         onClick={clearFilters}
@@ -107,15 +106,38 @@ export default function AdminProductsPage() {
                 Productos que coinciden: {filteredProducts.length}
             </p>
 
-            {/* Tabla */}
-            <div className="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-lg shadow-md transition-colors duration-300 overflow-x-auto">
-                <table className="min-w-full">
+            <div className="w-full max-w-screen overflow-x-auto bg-black/80 rounded shadow p-4 border border-white hover:shadow-[0_0_15px_white] transition-all">
+                <table className="table-auto min-w-max">
                     <thead>
                         <tr className="border-b border-border-light dark:border-border-dark">
-                            {['Name', 'Brand', 'Model', 'Category', 'Type', 'Condition', 'Status', 'Price', 'Stock','Available Quantity','Reserved Quantity', 'RAM', 'Storage','Operating System', 'Owner', 'Created At', 'Actions'].map((header, i, arr) => (
+                            {[
+                                "Nombre",
+                                "Marca",
+                                "Categoría",
+                                "Tipo",
+                                "Condición",
+                                "Estado",
+                                "Precio",
+                                "Stock",
+                                "Cantidad Disponible",
+                                "Cantidad Reservada",
+                                "Propietario",
+                                "Modelo",
+                                "RAM",
+                                "Tipo de Almacenamiento",
+                                "Capacidad de Almacenamiento",
+                                "Sistema Operativo",
+                                "Procesador",
+                                "Tarjeta gráfica",
+                                "Razón de rechazo",
+                                "Fecha de creación",
+                                "Fecha de última actualización",
+                                "Acciones",
+                            ].map((header, i, arr) => (
                                 <th
                                     key={header}
-                                    className={`py-2 px-4 text-left text-text-primary-light dark:text-text-primary-dark ${i !== arr.length - 1 ? 'border-r border-border-light dark:border-border-dark' : ''}`}
+                                    className={`py-2 px-4 text-center text-text-primary-light dark:text-text-primary-dark ${i !== arr.length - 1 ? 'border-r border-border-light dark:border-border-dark' : ''
+                                        }`}
                                 >
                                     {header}
                                 </th>
@@ -126,7 +148,7 @@ export default function AdminProductsPage() {
                         {filteredProducts.map((product) => {
                             const statusGlow = product.status === 'Pending' ? 'yellow' : product.status === 'Approved' ? 'green' : 'red';
                             const isPending = product.status === 'Pending';
-                            const actionText = isPending ? 'View & Evaluate' : 'View';
+                            const actionText = isPending ? 'Ver y Evaluar' : 'Ver';
                             const actionColor = isPending ? 'text-yellow-400' : product.status === 'Approved' ? 'text-green-500' : 'text-red-500';
 
                             return (
@@ -144,13 +166,12 @@ export default function AdminProductsPage() {
                                         el.style.transform = '';
                                     }}
                                 >
-                                    <td className="py-2 px-4 border-r">{product.name}</td>
-                                    <td className="py-2 px-4 border-r">{product.brand}</td>
-                                    <td className="py-2 px-4 border-r">{product.model}</td>
-                                    <td className="py-2 px-4 border-r">{product.category}</td>
-                                    <td className="py-2 px-4 border-r">{product.type}</td>
-                                    <td className="py-2 px-4 border-r">{product.condition}</td>
-                                    <td className="py-2 px-4 border-r">
+                                    <td className="py-2 px-4 border-r text-center">{product.name}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.brand}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.category}</td>
+                                    <td className="py-2 px-4 border-r text-center">{productTypeLabels[product.type]}</td>
+                                    <td className="py-2 px-4 border-r text-center">{productConditionLabels[product.condition]}</td>
+                                    <td className="py-2 px-4 border-r text-center">
                                         <span
                                             className={`px-2 py-1 rounded-full text-xs font-semibold ${product.status === 'Pending'
                                                 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-900'
@@ -159,31 +180,35 @@ export default function AdminProductsPage() {
                                                     : 'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900'
                                                 }`}
                                         >
-                                            {product.status}
+                                            {productStatusLabels[product.status]}
                                         </span>
                                     </td>
-                                    <td className="py-2 px-4 border-r">{product.type === 'Donation' ? 'Donation' : `$${product.price}`}</td>
-                                    <td className="py-2 px-4 border-r">{product.stock}</td>
-                                    <td className="py-2 px-4 border-r">{product.availableQuantity}</td>
-                                    <td className="py-2 px-4 border-r">{product.reservedQuantity}</td>
-                                    <td className="py-2 px-4 border-r">{product.ram}</td>
-                                    <td className="py-2 px-4 border-r">{product.storageType} {product.storageCapacity}</td>
-                                        <td className="py-2 px-4 border-r">{product.operatingSystem}</td>
-
-                                    <td className="py-2 px-4 border-r">{product.owner}</td>
-                                    <td className="py-2 px-4 border-r">{new Date(product.createdAt).toLocaleDateString()}</td>
-                                    <td className="py-2 px-4 flex gap-4">
+                                    <td className="py-2 px-4 border-r text-center">
+                                        {product.type === 'Donation'
+                                            ? 'Donación'
+                                            : product.price != null
+                                                ? `$${product.price}`
+                                                : 'Sin precio'}
+                                    </td>
+                                    <td className="py-2 px-4 border-r text-center">{product.stock}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.availableQuantity}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.reservedQuantity}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.owner}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.model}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.ram}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.storageType}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.storageCapacity}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.operatingSystem}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.processor}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.graphicsCard ?? "No tiene"}</td>
+                                    <td className="py-2 px-4 border-r text-center">{product.rejectionReason ?? "Este producto no ha sido rechazado"}</td>
+                                    <td className="py-2 px-4 border-r text-center">{new Date(product.createdAt).toLocaleDateString()}</td>
+                                    <td className="py-2 px-4 border-r text-center">{new Date(product.updatedAt).toLocaleDateString()}</td>
+                                    <td className="py-2 px-4 flex justify-center gap-4">
                                         <Link
                                             href={`/admin/products/view/${product.id}?status=${product.status}`}
-
-
-                                            className={`
-            ${actionColor} font-semibold text-lg transition-all duration-300 transform
-            hover:scale-110 hover:underline
-        `}
-                                            style={{
-                                                textShadow: '0 0 0 transparent',
-                                            }}
+                                            className={`${actionColor} font-semibold text-lg transition-all duration-300 transform hover:scale-110 hover:underline`}
+                                            style={{ textShadow: '0 0 0 transparent' }}
                                             onMouseEnter={(e) => {
                                                 const el = e.currentTarget as HTMLElement;
                                                 el.style.textShadow = `0 0 8px ${getComputedStyle(el).color}`;
@@ -196,20 +221,20 @@ export default function AdminProductsPage() {
                                             {actionText}
                                         </Link>
                                     </td>
-
-
                                 </tr>
                             );
                         })}
                     </tbody>
                 </table>
+
             </div>
-        </div>
+
+        </div >
     );
 }
 
 // Componente reutilizable para selects de filtro
-function SelectFilter({ value, onChange, options, label }: { value: string; onChange: (v: string) => void; options: any; label: string }) {
+export function SelectFilter({ value, onChange, options, label, labelsMap }: { value: string; onChange: (v: string) => void; options: any; label: string; labelsMap?: Record<string, string> }) {
     return (
         <select
             value={value}
@@ -218,9 +243,10 @@ function SelectFilter({ value, onChange, options, label }: { value: string; onCh
         >
             <option value="">{label}</option>
             {Object.values(options).map((opt) => (
-                <option key={String(opt)} value={String(opt)}>{String(opt)}</option>
+                <option key={String(opt)} value={String(opt)}>
+                    {labelsMap ? labelsMap[opt as string] : String(opt)}
+                </option>
             ))}
-
         </select>
     );
 }

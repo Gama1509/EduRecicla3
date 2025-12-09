@@ -36,25 +36,24 @@ export default function AdminDashboardPage() {
         return <ProductsPage onBack={() => setSelectedSection(null)} />;
       case "transactions":
         return <TransactionsPage onBack={() => setSelectedSection(null)} />;
-
       default:
         return null;
     }
   };
 
-  if (loading) return <p className="text-center mt-8">Cargando dashboard...</p>;
+  if (loading) return <p className="text-center mt-8">Cargando el panel de administración...</p>;
   if (!dashboardData) return <p className="text-center mt-8">No se pudo cargar la información.</p>;
 
   const dashboardCards = [
-    { title: "Total Users", value: dashboardData.totalUsers, key: "users" },
-    { title: "Total Products", value: dashboardData.totalProducts, key: "products" },
-    { title: "Total Transactions", value: dashboardData.totalTransactions, key: "transactions" },
+    { title: "Usuarios totales", value: dashboardData.totalUsers, key: "users" },
+    { title: "Productos totales", value: dashboardData.totalProducts, key: "products" },
+    { title: "Transacciones totales", value: dashboardData.totalTransactions, key: "transactions" },
   ];
 
   return (
     <div>
       <h1 className="text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 text-center">
-        Admin Dashboard
+        Panel de Administración
       </h1>
       <h2 className="text-2xl text-text-primary-light dark:text-text-primary-dark mb-8 text-center">
         Resumen general
@@ -80,7 +79,7 @@ export default function AdminDashboardPage() {
                   {card.value}
                 </p>
                 <span className="mt-6 px-3 py-1 rounded-full text-white text-sm font-semibold bg-secondary dark:bg-secondary-dark">
-                  Stats
+                  Estadísticas
                 </span>
               </div>
             );

@@ -9,12 +9,375 @@ import api from "@/utils/api";
 import { RejectInterestDto } from "@/types/notifications/reject-interest.dto";
 import { AcceptInterestDto } from "@/types/notifications/accept-interest.dto";
 import { useState } from "react";
+import { cancelInterestAction } from "@/app/buy/[productId]/page";
 
 type UserInfoCardProps = {
     user_name: string;
     avatarUrl?: string | null;
     role: "buyer" | "seller";
 };
+
+export const confirmDeliveryAction = async ({
+    transactionId,
+    setLoadingAction,
+}: {
+    transactionId: string;
+    setLoadingAction: (loading: boolean) => void;
+}) => {
+
+    // Confirmación inicial
+    const confirm = await Swal.fire({
+        title: "Confirmar entrega",
+        text: "¿Confirmas que recibiste el producto correctamente?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, confirmar",
+        cancelButtonText: "No",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+        setLoadingAction(true);
+
+        // Llamada a API
+        await api.patch(`/transactions/${transactionId}/confirm-delivery`);
+
+        await Swal.fire(
+            "Entrega confirmada",
+            "Has confirmado la entrega correctamente.",
+            "success"
+        );
+
+        window.location.reload();
+
+    } catch (error) {
+        Swal.fire("Error", "No se pudo confirmar la entrega.", "error");
+    } finally {
+        setLoadingAction(false);
+    }
+};
+
+
+export const confirmAndContinueAction = async ({
+    transactionId,
+    setLoadingAction,
+}: {
+    transactionId: string;
+    setLoadingAction: (loading: boolean) => void;
+}) => {
+
+    // Confirmación inicial
+    const confirm = await Swal.fire({
+        title: "Confirmar y continuar",
+        text: "¿Deseas confirmar y continuar con el proceso?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, continuar",
+        cancelButtonText: "Cancelar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+        setLoadingAction(true);
+
+        // Llamada al backend
+        await api.post(`/transactions/confirm-and-continue`, {
+            transactionId: transactionId
+        });
+
+        Swal.fire(
+            "Confirmado",
+            "La acción se completó correctamente.",
+            "success"
+        ).then(() => window.location.reload());
+
+    } catch (error) {
+        console.error(error);
+        Swal.fire("Error", "No se pudo completar la acción.", "error");
+    } finally {
+        setLoadingAction(false);
+    }
+};
+
+
+export const adjustQuantityRequestedAction = async ({
+    transactionId,
+    available,
+    setLoadingAction,
+}: {
+    transactionId: string;
+    available: number;
+    setLoadingAction: (loading: boolean) => void;
+}) => {
+
+    // Paso 1 — pedir nueva cantidad
+    const newQty = await Swal.fire({
+        title: "Cantidad insuficiente",
+        text: `La cantidad disponible cambió y ahora es menor a la solicitada. Actualmente hay ${available} unidades disponibles. Ingresa cuántas deseas solicitar ahora.`,
+        input: "number",
+        inputAttributes: {
+            min: "1",
+            max: String(available),
+        },
+        showCancelButton: true,
+        confirmButtonText: "Aceptar",
+    });
+
+    if (!newQty.isConfirmed || !newQty.value) return;
+
+    // Paso 2 — Confirmación final
+    const secondConfirm = await Swal.fire({
+        title: "Confirmar cantidad",
+        text: `¿Deseas solicitar ${newQty.value} unidades?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí",
+    });
+
+    if (!secondConfirm.isConfirmed) return;
+
+    try {
+        setLoadingAction(true);
+
+        const res = await api.post(
+            `/transactions/${transactionId}/adjust-quantity`,
+            { quantity: Number(newQty.value) }
+        );
+
+        if (!res || (res.status !== 200 && res.status !== 201)) {
+            return Swal.fire("Error", "No se pudo ajustar la cantidad.", "error");
+        }
+
+        Swal.fire(
+            "Cantidad actualizada",
+            "La cantidad solicitada fue ajustada.",
+            "success"
+        ).then(() => window.location.reload());
+
+    } catch (e) {
+        Swal.fire("Error", "No se pudo ajustar la cantidad.", "error");
+    } finally {
+        setLoadingAction(false);
+    }
+};
+
+export const notifyAnyIncreaseAction = async ({
+    transactionId,
+    setLoadingAction,
+}: {
+    transactionId: string;
+    setLoadingAction: (loading: boolean) => void;
+}) => {
+
+    const confirm = await Swal.fire({
+        title: "¿Recibir aviso?",
+        text: "Te notificaremos cuando la cantidad disponible aumente, aunque sea en una sola unidad.",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Aceptar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+        setLoadingAction(true);
+
+        await api.post(`transactions/notify/available-any/${transactionId}`);
+
+        Swal.fire(
+            "Proceso exitoso",
+            "Se le notificará cuando la cantidad disponible aumente.",
+            "success"
+        ).then(() => window.location.reload());
+
+    } catch (error) {
+        Swal.fire("Error", "No se pudo registrar la notificación.", "error");
+    } finally {
+        setLoadingAction(false);
+    }
+};
+
+export const notifyUntilFullAction = async ({
+    transactionId,
+    setLoadingAction,
+}: {
+    transactionId: string;
+    setLoadingAction: (loading: boolean) => void;
+}) => {
+
+    const confirm = await Swal.fire({
+        title: "¿Recibir aviso?",
+        text: "Te notificaremos cuando la cantidad disponible alcance la cantidad que solicitaste originalmente.",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Aceptar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+        setLoadingAction(true);
+
+        await api.post(`transactions/notify/available-full/${transactionId}`);
+
+        Swal.fire(
+            "Proceso exitoso",
+            "Se le notificará cuando la cantidad disponible alcance la cantidad completa que solicitaste.",
+            "success"
+        ).then(() => window.location.reload());
+
+    } catch (error) {
+        Swal.fire("Error", "No se pudo registrar la notificación.", "error");
+    } finally {
+        setLoadingAction(false);
+    }
+};
+
+export const handleCancelInterestSoldOut = async (
+    transactionId: string,
+    setLoadingAction: (value: boolean) => void
+) => {
+    const confirm = await Swal.fire({
+        title: "¿Cancelar tu interés?",
+        text: "No recibirás la sanción habitual de 15 días por esta cancelación.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, cancelar",
+        cancelButtonText: "No",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+        setLoadingAction(true);
+
+        await api.post(`/transactions/interest/${transactionId}/cancel-sold-out`);
+
+        Swal.fire("Interés cancelado", "Tu interés fue cancelado correctamente.", "success")
+            .then(() => window.location.reload());
+    } catch (error) {
+        Swal.fire("Error", "No se pudo cancelar el interés.", "error");
+    } finally {
+        setLoadingAction(false);
+    }
+};
+
+export const handleRejectInterest = async (
+    buyerId: string,
+    transactionId: string,
+    setLoadingAction: (loading: boolean) => void
+) => {
+
+    // 1️⃣ Confirmación inicial
+    const { isConfirmed } = await Swal.fire({
+        title: 'Rechazar interés',
+        text: '¿Estás seguro de que quieres rechazar este interés?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, rechazar',
+        cancelButtonText: 'Cancelar',
+    });
+
+    if (!isConfirmed) return;
+
+    // 2️⃣ Pedir razón del rechazo
+    const { value: reason } = await Swal.fire({
+        title: 'Motivo del rechazo',
+        input: 'text',
+        inputLabel: 'Escribe la razón por la que rechazas este interés',
+        inputPlaceholder: 'Motivo...',
+        showCancelButton: true,
+        inputValidator: (value) => {
+            if (!value) return 'Debes escribir una razón';
+            return null;
+        },
+    });
+
+    if (!reason) return;
+
+    try {
+        setLoadingAction(true); // ⏳ Activar loading
+
+        // 3️⃣ Construir DTO
+        const dto: RejectInterestDto = {
+            buyerId,
+            transactionId,
+            rejectedReason: reason,
+        };
+
+        const response = await api.post('/products/interest/reject', dto);
+
+        if (response?.data?.success) {
+            await Swal.fire(
+                'Rechazado',
+                'El interés ha sido rechazado correctamente',
+                'success'
+            );
+            window.location.reload();
+        } else {
+            Swal.fire('Error', 'No se pudo rechazar el interés', 'error');
+        }
+
+    } catch (error) {
+        console.error(error);
+        Swal.fire('Error', 'No se pudo rechazar el interés', 'error');
+    } finally {
+        setLoadingAction(false); // ⏳ Desactivar loading
+    }
+};
+
+export const handleAcceptInterest = async (
+    buyerId: string,
+    transactionId: string,
+    setLoadingAction: (loading: boolean) => void
+) => {
+
+    const result = await Swal.fire({
+        title: "Aceptar interés",
+        text: "¿Seguro que quieres aceptar este interés?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, aceptar",
+        cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        setLoadingAction(true); // 🔵 Bloquea los botones
+
+        const dto: AcceptInterestDto = {
+            transactionId,
+            buyerId,
+        };
+
+        await api.post("/products/interest/accept", dto);
+
+        await Swal.fire({
+            icon: "success",
+            title: "Interés aceptado",
+            html: `
+                Se ha notificado al comprador correctamente.<br>
+                Ahora puedes comunicarte con él/ella en los chats.
+            `,
+            confirmButtonText: "Entendido",
+        });
+
+        window.location.reload();
+
+    } catch (err) {
+        console.error(err);
+        Swal.fire("Error", "No se pudo aceptar el interés.", "error");
+    } finally {
+        setLoadingAction(false); // 🔵 Siempre desbloquea
+    }
+};
+
+
+
+
 
 export function UserInfoCard({ user_name, avatarUrl, role }: UserInfoCardProps) {
     return (
@@ -166,9 +529,11 @@ function NotificationWrapper({
     title,
     message,
     children,
+    //interactionMessage,
 }: {
     title: string;
     message: string;
+    //interactionMessage: string;
     children: React.ReactNode;
 }) {
     return (
@@ -176,6 +541,9 @@ function NotificationWrapper({
             <h2 className="text-3xl font-bold text-center mb-4 text-secondary dark:text-secondary-dark">
                 {title}
             </h2>
+            {/*<p className="text-center mb-4 text-sm text-blue-600 dark:text-blue-400">
+                {interactionMessage}
+            </p>*/}
             <p className="text-center mb-6 text-text-secondary-light dark:text-text-secondary-dark">
                 {message}
             </p>
@@ -196,6 +564,7 @@ export function ProductAcceptedView({
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
         >
             <ProductTable product={notification.product!} />
 
@@ -219,17 +588,32 @@ export function ProductRejectedView({
 }: {
     notification: ProductRejectedNotification;
 }) {
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleEditClick = () => {
-        if (!notification.product) return;
-        router.push(`/edit/${notification.product.id}?source=rejected`);
+        if (!notification.product) {
+            Swal.fire("Error", "No hay producto para editar", "error");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            router.push(`/edit/${notification.product.id}`);
+        } catch (e) {
+            Swal.fire("Error", "No se pudo editar el producto", "error");
+        } finally {
+            setLoading(false); // SIEMPRE se ejecuta
+        }
     };
+
 
     return (
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             {/* 🔹 Razón del rechazo */}
             <p className="text-red-500 mb-4 text-center font-medium">
@@ -248,6 +632,7 @@ export function ProductRejectedView({
                 <button
                     onClick={handleEditClick}
                     className="mt-4 w-full py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:scale-105 transition duration-300"
+                    disabled={loading}
                 >
                     Editar producto
                 </button>
@@ -265,106 +650,15 @@ export function InterestMarkedView({
 }: {
     notification: InterestMarkedNotification;
 }) {
+    const [loading, setLoading] = useState(false);
 
-
-    const handleRejectInterest = async (notification: InterestMarkedNotification) => {
-        // 1️⃣ Pedir confirmación
-        const { isConfirmed } = await Swal.fire({
-            title: 'Rechazar interés',
-            text: '¿Estás seguro de que quieres rechazar este interés?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, rechazar',
-            cancelButtonText: 'Cancelar',
-        });
-
-        if (!isConfirmed) return;
-
-        // 2️⃣ Pedir razón del rechazo
-        const { value: reason } = await Swal.fire({
-            title: 'Motivo del rechazo',
-            input: 'text',
-            inputLabel: 'Escribe la razón por la que rechazas este interés',
-            inputPlaceholder: 'Motivo...',
-            showCancelButton: true,
-            inputValidator: (value) => {
-                if (!value) return 'Debes escribir una razón';
-                return null;
-            },
-        });
-
-        if (!reason) return;
-
-        try {
-            // 3️⃣ Construir DTO
-            const dto: RejectInterestDto = {
-                buyerId: notification.buyerInfo?.id!,
-                transactionId: notification.transactionId!,
-                rejectedReason: reason,
-            };
-
-            const response = await api.post('/products/interest/reject', dto);
-
-            if (response?.data?.success) {
-                Swal.fire('Rechazado', 'El interés ha sido rechazado correctamente', 'success')
-                    .then(() => window.location.reload());
-            } else {
-                Swal.fire('Error', 'No se pudo rechazar el interés', 'error');
-            }
-        } catch (error) {
-            console.error(error);
-            Swal.fire('Error', 'No se pudo rechazar el interés', 'error');
-        }
-    };
-
-    const handleAcceptInterest = async (notification: InterestMarkedNotification) => {
-        const result = await Swal.fire({
-            title: "Aceptar interés",
-            text: "¿Seguro que quieres aceptar este interés?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Sí, aceptar",
-            cancelButtonText: "Cancelar",
-        });
-
-        if (!result.isConfirmed) return;
-
-        try {
-
-            // Construir payload
-            const dto: AcceptInterestDto = {
-                transactionId: notification.transactionId!,
-                buyerId: notification.buyerInfo?.id!,
-            };
-
-
-            // Enviar al backend
-            await api.post("/products/interest/accept", dto);
-
-            // Confirmación al usuario y recarga
-            Swal.fire({
-                icon: "success",
-                title: "Interés aceptado",
-                html: `
-        Se ha notificado al comprador correctamente.<br>
-        Ahora puedes comunicarte con él/ella en los chats.
-    `,
-                confirmButtonText: "Entendido",
-            }).then((res) => {
-                if (res.isConfirmed) window.location.reload();
-            });
-
-
-        } catch (err) {
-            console.error(err);
-            Swal.fire("Error", "No se pudo aceptar el interés.", "error");
-        }
-    }
 
     return (
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="buyer"
@@ -391,16 +685,29 @@ export function InterestMarkedView({
             {notification.canInteract && (
                 <div className="mt-4 flex gap-4">
                     <button
-                        onClick={() => handleAcceptInterest(notification)}
+                        //onClick={() => handleAcceptInterest(notification.buyerInfo.id, notification.transactionId!)}
+                        onClick={() => handleAcceptInterest(
+                            notification.buyerInfo.id,
+                            notification.transactionId!,
+                            setLoading
+                        )}
                         className="flex-1 py-2 bg-green-500 text-white rounded-lg font-semibold hover:scale-105 transition duration-300"
+                        disabled={loading}
                     >
                         Aceptar interés
                     </button>
 
 
                     <button
-                        onClick={() => handleRejectInterest(notification)}
+                        onClick={() =>
+                            handleRejectInterest(
+                                notification.buyerInfo.id,
+                                notification.transactionId!,
+                                setLoading
+                            )
+                        }
                         className="flex-1 py-2 bg-red-500 text-white rounded-lg font-semibold hover:scale-105 transition duration-300"
+                        disabled={loading}
                     >
                         Rechazar interés
                     </button>
@@ -428,6 +735,8 @@ export function InterestAcceptedView({ notification }: { notification: InterestA
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="seller"
@@ -463,6 +772,8 @@ export function InterestRejectedView({ notification }: { notification: InterestR
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="seller"
@@ -493,6 +804,8 @@ export function InterestCancelledView({ notification }: { notification: Interest
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="buyer"
@@ -518,6 +831,8 @@ export function SellerCancelledTransactionView({ notification }: { notification:
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="seller"
@@ -543,6 +858,8 @@ export function BuyerCancelledTransactionView({ notification }: { notification: 
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="buyer"
@@ -564,7 +881,7 @@ export function BuyerCancelledTransactionView({ notification }: { notification: 
 
 // ---------- DELIVERY_MARKED ----------
 export function DeliveryMarkedView({ notification }: { notification: DeliveryMarkedNotification }) {
-    const [confirmingDelivery, setConfirmingDelivery] = useState(false);
+    const [loading, setLoading] = useState(false);
     const handleConfirmDelivery = async (transactionId: string) => {
         // Paso 1: confirmación con Swal
         const confirm = await Swal.fire({
@@ -579,7 +896,7 @@ export function DeliveryMarkedView({ notification }: { notification: DeliveryMar
         if (!confirm.isConfirmed) return;
 
         try {
-            setConfirmingDelivery(true);
+            setLoading(true);
             // Paso 2: simular llamada a API
             await api.patch(`/transactions/${transactionId}/confirm-delivery`);
 
@@ -596,7 +913,7 @@ export function DeliveryMarkedView({ notification }: { notification: DeliveryMar
             Swal.fire("Error", "No se pudo confirmar la entrega.", "error");
         } finally {
             // Desbloquear
-            setConfirmingDelivery(false);
+            setLoading(false);
         }
     };
 
@@ -604,6 +921,8 @@ export function DeliveryMarkedView({ notification }: { notification: DeliveryMar
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="seller"
@@ -617,7 +936,7 @@ export function DeliveryMarkedView({ notification }: { notification: DeliveryMar
             {notification.canInteract && (
                 <button
                     onClick={() => handleConfirmDelivery(notification.transactionId)}
-                    disabled={confirmingDelivery}
+                    disabled={loading}
                     className="mt-6 w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:scale-105 transition duration-300"
                 >
                     Confirmar de recibido
@@ -644,6 +963,8 @@ export function CompletionConfirmedSellerView({
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="buyer"
@@ -670,6 +991,8 @@ export function CompletionConfirmedBuyerView({
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="seller"
@@ -691,64 +1014,13 @@ export function CompletionConfirmedBuyerView({
 
 // ---------- SOLD_OUT_TOTAL ----------
 export function SoldOutTotalView({ notification }: { notification: SoldOutTotalNotification }) {
-
-    const handleCancelInterest = async () => {
-        const confirm = await Swal.fire({
-            title: "¿Cancelar tu interés?",
-            text: "No recibirás la sanción habitual de 15 días por esta cancelación.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, cancelar",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        try {
-            const res = await api.post(`/transactions/interest/${notification.transactionId}/cancel-sold-out`);
-            Swal.fire("Interés cancelado", "Tu interés fue cancelado correctamente.", "success")
-                .then(() => window.location.reload());
-        } catch (error) {
-            Swal.fire("Error", "No se pudo cancelar el interés.", "error");
-
-        }
-
-    };
-
-    const handleNotifyAnyIncrease = async () => {
-        const confirm = await Swal.fire({
-            title: "¿Recibir aviso?",
-            text: "Te notificaremos cuando la cantidad disponible aumente.",
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonText: "Aceptar",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        await fetch(`/api/notifications/available-any/${notification.product!.id}`, { method: "POST" });
-        window.location.reload();
-    };
-
-    const handleNotifyUntilFull = async () => {
-        const confirm = await Swal.fire({
-            title: "¿Recibir aviso?",
-            text: "Te notificaremos cuando la cantidad disponible alcance la cantidad que solicitaste originalmente.",
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonText: "Aceptar",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        await fetch(`/api/notifications/available-full/${notification.product!.id}`, { method: "POST" });
-        window.location.reload();
-    };
-
+    const [loading, setLoading] = useState(false);
     return (
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <ProductTable product={notification.product!} />
 
@@ -762,15 +1034,24 @@ export function SoldOutTotalView({ notification }: { notification: SoldOutTotalN
 
                     {/* Cancelar interés */}
                     <button
-                        onClick={handleCancelInterest}
-                        className="w-full py-3 bg-red-500 text-white rounded-lg font-semibold hover:scale-105 transition"
+                        disabled={loading}
+                        onClick={() =>
+                            handleCancelInterestSoldOut(notification.transactionId!, setLoading)
+                        } className="w-full py-3 bg-red-500 text-white rounded-lg font-semibold hover:scale-105 transition"
                     >
                         Cancelar interés (sin sanción)
                     </button>
 
                     {/* Aviso al aumentar cantidad disponible */}
                     <button
-                        onClick={handleNotifyAnyIncrease}
+                        disabled={loading}
+                        onClick={() =>
+                            notifyAnyIncreaseAction({
+                                transactionId: notification.transactionId!,
+                                setLoadingAction: setLoading
+                            })
+                        }
+
                         className="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:scale-105 transition"
                     >
                         Avisarme si la cantidad disponible aumenta
@@ -778,7 +1059,14 @@ export function SoldOutTotalView({ notification }: { notification: SoldOutTotalN
 
                     {/* Aviso hasta llegar a la cantidad solicitada */}
                     <button
-                        onClick={handleNotifyUntilFull}
+                        disabled={loading}
+                        onClick={() =>
+                            notifyUntilFullAction({
+                                transactionId: notification.transactionId!,
+                                setLoadingAction: setLoading
+                            })
+                        }
+
                         className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:scale-105 transition"
                     >
                         Avisarme cuando haya suficiente cantidad
@@ -793,104 +1081,14 @@ export function SoldOutTotalView({ notification }: { notification: SoldOutTotalN
 // ---------- SOLD_OUT_PARTIAL ----------
 export function SoldOutPartialView({ notification }: { notification: SoldOutPartialNotification }) {
     console.log(notification);
-    const handleCancelInterest = async () => {
-        const confirm = await Swal.fire({
-            title: "¿Cancelar tu interés?",
-            text: "No recibirás la sanción habitual de 15 días por esta cancelación.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, cancelar",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        try {
-            const res = await api.post(`/transactions/interest/${notification.transactionId}/cancel-sold-out`);
-            Swal.fire("Interés cancelado", "Tu interés fue cancelado correctamente.", "success")
-                .then(() => window.location.reload());
-        } catch (error) {
-            Swal.fire("Error", "No se pudo cancelar el interés.", "error");
-
-        }
-
-    };
-
-
-    const handleAdjustQuantity = async () => {
-        const available = notification.product!.availableQuantity;
-
-        const newQty = await Swal.fire({
-            title: "Cantidad insuficiente",
-            text: `La cantidad disponible cambió y ahora es menor a la solicitada. Actualmente hay ${available} unidades disponibles. Ingresa cuántas deseas solicitar ahora.`,
-            input: "number",
-            inputAttributes: {
-                min: "1",
-                max: String(available),
-            },
-            showCancelButton: true,
-            confirmButtonText: "Aceptar",
-        });
-
-        if (!newQty.isConfirmed || !newQty.value) return;
-
-        const secondConfirm = await Swal.fire({
-            title: "Confirmar cantidad",
-            text: `¿Deseas solicitar ${newQty.value} unidades?`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Sí",
-        });
-
-        if (!secondConfirm.isConfirmed) return;
-
-        const res = await api.post(
-            `/transactions/${notification.transactionId}/adjust-quantity`,
-            { quantity: Number(newQty.value) }
-        );
-
-        if (!res || res.status !== 201 && res.status !== 200) {
-            return Swal.fire("Error", "No se pudo ajustar la cantidad.", "error");
-        }
-
-        Swal.fire("Cantidad actualizada", "La cantidad solicitada fue ajustada.", "success")
-            .then(() => window.location.reload());
-    };
-
-    const handleNotifyAnyIncrease = async () => {
-        const confirm = await Swal.fire({
-            title: "¿Recibir aviso?",
-            text: "Te notificaremos cuando la cantidad disponible aumente, aunque sea en una sola unidad.",
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonText: "Aceptar",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        await fetch(`/api/notifications/available-any/${notification.product!.id}`, { method: "POST" });
-        window.location.reload();
-    };
-
-    const handleNotifyUntilFull = async () => {
-        const confirm = await Swal.fire({
-            title: "¿Recibir aviso?",
-            text: "Te notificaremos cuando la cantidad disponible alcance la cantidad que solicitaste originalmente.",
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonText: "Aceptar",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        await fetch(`/api/notifications/available-full/${notification.product!.id}`, { method: "POST" });
-        window.location.reload();
-    };
+    const [loading, setLoading] = useState(false);
 
     return (
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <ProductTable product={notification.product!} />
 
@@ -903,28 +1101,55 @@ export function SoldOutPartialView({ notification }: { notification: SoldOutPart
                 <div className="mt-6 space-y-3">
 
                     <button
-                        onClick={handleCancelInterest}
+                        disabled={loading}
+                        onClick={() =>
+                            handleCancelInterestSoldOut(
+                                notification.transactionId!,
+                                setLoading
+                            )
+                        }
+
+
                         className="w-full py-3 bg-red-500 text-white rounded-lg font-semibold hover:scale-105 transition"
                     >
                         Cancelar interés (sin sanción)
                     </button>
 
                     <button
-                        onClick={handleAdjustQuantity}
+                        disabled={loading}
+                        onClick={() =>
+                            adjustQuantityRequestedAction({
+                                transactionId: notification.transactionId!,
+                                available: notification.product!.availableQuantity,
+                                setLoadingAction: setLoading
+                            })
+                        }
                         className="w-full py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:scale-105 transition"
                     >
                         Modificar cantidad solicitada
                     </button>
 
                     <button
-                        onClick={handleNotifyAnyIncrease}
+                        disabled={loading}
+                        onClick={() =>
+                            notifyAnyIncreaseAction({
+                                transactionId: notification.transactionId!,
+                                setLoadingAction: setLoading
+                            })
+                        }
                         className="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:scale-105 transition"
                     >
                         Avisarme si la cantidad disponible aumenta
                     </button>
 
                     <button
-                        onClick={handleNotifyUntilFull}
+                        disabled={loading}
+                        onClick={() =>
+                            notifyUntilFullAction({
+                                transactionId: notification.transactionId!,
+                                setLoadingAction: setLoading
+                            })
+                        }
                         className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:scale-105 transition"
                     >
                         Avisarme cuando haya suficiente cantidad
@@ -942,117 +1167,14 @@ export function NotifyAvailableAnyView({
 }: {
     notification: AvailableAnyNotification;
 }) {
+    const [loading, setLoading] = useState(false);
 
-    // ============================================
-    // CANCELAR PETICIÓN
-    // ============================================
-    const handleCancelRequest = async () => {
-        const confirm = await Swal.fire({
-            title: "Cancelar petición",
-            text: "¿Estás seguro de que deseas cancelar tu petición? No habrá sanción por esta cancelación.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, cancelar",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        const res = await fetch(`/api/interest/${notification.transactionId}/cancel`, {
-            method: "POST"
-        });
-
-        if (!res.ok) {
-            return Swal.fire("Error", "No se pudo cancelar la petición.", "error");
-        }
-
-        Swal.fire("Cancelada", "Tu petición fue cancelada correctamente.", "success")
-            .then(() => window.location.reload());
-    };
-
-    // ============================================
-    // AJUSTAR CANTIDAD (2 pasos)
-    // ============================================
-    const handleAdjustToAvailableStock = async () => {
-        const available = notification.product!.availableQuantity;
-
-        // Paso 1: pedir la nueva cantidad
-        const newQty = await Swal.fire({
-            title: "Ajustar cantidad",
-            text: `La cantidad disponible cambió. Actualmente hay ${available} unidades disponibles. Ingresa cuántas deseas solicitar ahora.`,
-            input: "number",
-            inputAttributes: {
-                min: "1",
-                max: String(available),
-            },
-            showCancelButton: true,
-            confirmButtonText: "Aceptar",
-        });
-
-        if (!newQty.isConfirmed || !newQty.value) return;
-
-        const finalQty = Number(newQty.value);
-
-        // Paso 2: confirmar
-        const confirm = await Swal.fire({
-            title: "Confirmar cantidad",
-            text: `¿Deseas solicitar ${finalQty} unidades?`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Sí",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        const res = await fetch(`/api/interest/${notification.transactionId}/adjust-quantity`, {
-            method: "POST",
-            body: JSON.stringify({ quantity: finalQty }),
-            headers: { "Content-Type": "application/json" },
-        });
-
-        if (!res.ok) {
-            return Swal.fire("Error", "No se pudo ajustar la cantidad.", "error");
-        }
-
-        Swal.fire("Cantidad actualizada", "La cantidad solicitada fue ajustada correctamente.", "success")
-            .then(() => window.location.reload());
-    };
-
-    // ============================================
-    // ESPERAR HASTA CANTIDAD COMPLETA
-    // ============================================
-    const handleWaitForFullStock = async () => {
-        const confirm = await Swal.fire({
-            title: "Esperar cantidad completa",
-            text: "¿Deseas mantener tu petición activa hasta que haya suficiente cantidad disponible para tu pedido completo?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Sí, esperar",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        const res = await fetch(`/api/interest/${notification.transactionId}/wait-full`, {
-            method: "POST"
-        });
-
-        if (!res.ok) {
-            return Swal.fire("Error", "No se pudo actualizar la petición.", "error");
-        }
-
-        Swal.fire("Actualizado", "Esperarás hasta que haya cantidad suficiente.", "success")
-            .then(() => window.location.reload());
-    };
-
-    // ============================================
-    // RENDER
-    // ============================================
     return (
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="seller"
@@ -1070,21 +1192,40 @@ export function NotifyAvailableAnyView({
                 <div className="mt-6 flex flex-col gap-3">
 
                     <button
-                        onClick={handleCancelRequest}
+                        disabled={loading}
+                        onClick={() =>
+                            cancelInterestAction({
+                                transactionId: notification.transactionId,
+                                setLoadingAction: setLoading,
+                            })
+                        }
                         className="w-full rounded bg-red-500 px-4 py-2 font-semibold text-white hover:bg-red-600"
                     >
                         Cancelar petición
                     </button>
 
                     <button
-                        onClick={handleAdjustToAvailableStock}
+                        disabled={loading}
+                        onClick={() =>
+                            adjustQuantityRequestedAction({
+                                transactionId: notification.transactionId!,
+                                available: notification.product!.availableQuantity,
+                                setLoadingAction: setLoading
+                            })
+                        }
                         className="w-full rounded bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600"
                     >
                         Ajustar cantidad solicitada
                     </button>
 
                     <button
-                        onClick={handleWaitForFullStock}
+                        disabled={loading}
+                        onClick={() =>
+                            notifyUntilFullAction({
+                                transactionId: notification.transactionId!,
+                                setLoadingAction: setLoading
+                            })
+                        }
                         className="w-full rounded bg-gray-600 px-4 py-2 font-semibold text-white hover:bg-gray-700"
                     >
                         Esperar cantidad completa
@@ -1102,73 +1243,14 @@ export function NotifyAvailableFullView({
 }: {
     notification: AvailableFullNotification;
 }) {
+    const [loading, setLoading] = useState(false);
 
-    // ============================================
-    // CANCELAR PETICIÓN
-    // ============================================
-    const handleCancelRequest = async () => {
-        const confirm = await Swal.fire({
-            title: "Cancelar petición",
-            text: "¿Estás seguro de que deseas cancelar tu petición? No habrá sanción por esta cancelación.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, cancelar",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        const res = await fetch(`/api/interest/${notification.transactionId}/cancel`, {
-            method: "POST"
-        });
-
-        if (!res.ok) {
-            return Swal.fire("Error", "No se pudo cancelar la petición.", "error");
-        }
-
-        Swal.fire("Cancelada", "Tu petición fue cancelada correctamente.", "success")
-            .then(() => window.location.reload());
-    };
-
-    // ============================================
-    // CONFIRMAR Y CONTINUAR
-    // ============================================
-    const handleContinueConfirm = async () => {
-        const fullQty = notification.product!.availableQuantity;
-
-        const confirm = await Swal.fire({
-            title: "Confirmar pedido",
-            text: `¿Esta seguro que desea continuar?`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Sí, continuar",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        const res = await fetch(`/api/interest/${notification.transactionId}/confirm-full`, {
-            method: "POST"
-        });
-
-        if (!res.ok) {
-            return Swal.fire("Error", "No se pudo confirmar el pedido.", "error");
-        }
-
-        Swal.fire(
-            "Confirmado",
-            "Tu interés sobre elpedido fue confirmado con la cantidad completa que solicitaste originalmente, el vendedor revisara tu caso y se te notificara su decision.",
-            "success"
-        ).then(() => window.location.reload());
-    };
-
-    // ============================================
-    // RENDER
-    // ============================================
     return (
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="seller"
@@ -1188,7 +1270,13 @@ export function NotifyAvailableFullView({
 
                     {/* Cancelar petición */}
                     <button
-                        onClick={handleCancelRequest}
+                        disabled={loading}
+                        onClick={() =>
+                            cancelInterestAction({
+                                transactionId: notification.transactionId,
+                                setLoadingAction: setLoading,
+                            })
+                        }
                         className="w-full rounded bg-red-500 px-4 py-2 font-semibold text-white hover:bg-red-600"
                     >
                         Cancelar petición
@@ -1196,8 +1284,13 @@ export function NotifyAvailableFullView({
 
                     {/* Confirmar y continuar */}
                     <button
-                        onClick={handleContinueConfirm}
-                        className="w-full rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+                        disabled={loading}
+                        onClick={() =>
+                            confirmAndContinueAction({
+                                transactionId: notification.transactionId!,
+                                setLoadingAction: setLoading,
+                            })
+                        }
                     >
                         Confirmar y continuar
                     </button>
@@ -1214,6 +1307,8 @@ export function BuyerWaitAnyView({ notification }: { notification: BuyerWaitAnyN
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="buyer"
@@ -1235,6 +1330,8 @@ export function BuyerWaitFullView({ notification }: { notification: BuyerWaitFul
         <NotificationWrapper
             title={getNotificationTitle(notification.type)}
             message={notification.message}
+        //interactionMessage={notification.interactionMessage}
+
         >
             <UserInfoCard
                 role="buyer"

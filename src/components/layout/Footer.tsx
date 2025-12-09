@@ -7,17 +7,17 @@ const Footer = () => {
       <div className="mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-            &copy; {new Date().getFullYear()} EduRecicla. All rights reserved.
+            &copy; {new Date().getFullYear()} EduRecicla. Todos los derechos reservados.
           </p>
           <div className="flex space-x-4">
             <Link href="/about" className="text-sm text-text-secondary-light hover:text-secondary dark:text-text-secondary-dark dark:hover:text-secondary-dark">
-              About Us
+              Acerca de nosotros
             </Link>
             <Link href="/contact" className="text-sm text-text-secondary-light hover:text-secondary dark:text-text-secondary-dark dark:hover:text-secondary-dark">
-              Contact
+              Contacto
             </Link>
             <Link href="/privacy" className="text-sm text-text-secondary-light hover:text-secondary dark:text-text-secondary-dark dark:hover:text-secondary-dark">
-              Privacy Policy
+              Política de privacidad
             </Link>
           </div>
         </div>

@@ -14,7 +14,7 @@ const UserProfilePage = () => {
   if (!user) return null; // Evitar errores si no hay sesión
 
   return (
-    <div className="max-w-4xl mx-auto bg-card-light dark:bg-card-dark p-8 rounded-2xl shadow-lg border border-black dark:border-white transition-colors duration-300 space-y-8">
+    <div className="max-w-4xl mx-auto bg-card-light dark:bg-card-dark p-8 rounded-2xl shadow-lg border border-black dark:border-white transition-colors duration-300 space-y-8 mt-8">
 
       {/* ====================== AVATAR Y DATOS ====================== */}
       <div className="flex flex-col items-center text-center mb-8">
@@ -80,6 +80,23 @@ const UserProfilePage = () => {
             >
               Ventas / donaciones en proceso
             </span>
+
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(0,255,150,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
+              onClick={() => handleNavigate("/profile/buyer/delivered")}
+            >
+              Recibidos (ya recibí el artículo)
+            </span>
+
             <span
               role="link"
               tabIndex={0}
@@ -93,7 +110,7 @@ const UserProfilePage = () => {
               }}
               onClick={() => handleNavigate("/profile/buyer/completed")}
             >
-              Completadas (recibí el artículo)
+              Completadas (ya marque de recibido)
             </span>
             <span
               role="link"
@@ -106,9 +123,39 @@ const UserProfilePage = () => {
               onMouseLeave={(e) => {
                 e.currentTarget.style.textShadow = '0 0 0px transparent';
               }}
-              onClick={() => handleNavigate("/profile/buyer/cancelled")}
+              onClick={() => handleNavigate("/profile/buyer/cancelled-in-progress")}
             >
-              Canceladas (yo como comprador)
+              Canceladas (yo cancele como comprador cuando estaba en progreso)
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
+              onClick={() => handleNavigate("/profile/buyer/cancelled-interested")}
+            >
+              Canceladas (yo cancele mi interés en el producto)
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
+              onClick={() => handleNavigate("/profile/buyer/rejected")}
+            >
+              Rechazadas (rechazaron mi interés)
             </span>
           </div>
         </div>
@@ -150,6 +197,23 @@ const UserProfilePage = () => {
             >
               Ventas / donaciones en proceso
             </span>
+
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(0,255,150,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
+              onClick={() => handleNavigate("/profile/seller/delivered")}
+            >
+              Entregadas (ya entregué el artículo)
+            </span>
+
             <span
               role="link"
               tabIndex={0}
@@ -163,8 +227,9 @@ const UserProfilePage = () => {
               }}
               onClick={() => handleNavigate("/profile/seller/completed")}
             >
-              Completadas (ya entregué el artículo)
+              Completadas (el comprador ya marco de recibido)
             </span>
+
             <span
               role="link"
               tabIndex={0}
@@ -178,11 +243,60 @@ const UserProfilePage = () => {
               }}
               onClick={() => handleNavigate("/profile/seller/cancelled")}
             >
-              Canceladas (yo como vendedor)
+              Canceladas (yo he cancelado como vendedor)
+            </span>
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
+              onClick={() => handleNavigate("/profile/seller/rejected")}
+            >
+              Rechazadas (yo rechace interesados)
+            </span>
+
+            <span
+              role="link"
+              tabIndex={0}
+              className="block cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+              style={{ textShadow: '0 0 0px transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textShadow = '0 0 8px rgba(255,100,100,0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textShadow = '0 0 0px transparent';
+              }}
+              onClick={() => handleNavigate("/profile/seller/cancelled-interested")}
+            >
+              Gente que ha cancelado su interes en mis productos
             </span>
           </div>
         </div>
       </div>
+      <div
+        role="link"
+        tabIndex={0}
+        className="mt-6 bg-background-light dark:bg-background-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-inner col-span-2 text-center cursor-pointer font-semibold text-white transition-all duration-300 hover:underline hover:font-bold hover:scale-105"
+        style={{ textShadow: "0 0 0px transparent" }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.textShadow = "0 0 8px rgba(255,100,100,0.8)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.textShadow = "0 0 0px transparent";
+        }}
+        onClick={() => handleNavigate("/profile/my-products")}
+      >
+        <h3 className="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+          📦 Mis productos
+        </h3>
+      </div>
+
     </div>
   );
 };

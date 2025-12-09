@@ -5,6 +5,7 @@ import { NotificationType } from "./notification-type.enum";
 // Base de todas las notificaciones
 export interface NotificationBase {
   id: string;
+  user_see_id: string;
   type: NotificationType;
   message: string;
   read: boolean;
@@ -12,6 +13,8 @@ export interface NotificationBase {
   seenAt?: Date;
   product: ProductSummaryForNotification;
   canViewProduct: boolean;
+  interactionMessage: string;
+
 }
 
 

@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ApiInterceptorProvider from "@/components/common/ApiInterceptorProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-<html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.className} bg-background-light text-text-primary-light dark:bg-background-dark dark:text-text-primary-dark`}
       >
@@ -48,6 +49,7 @@ export default function RootLayout({
           }}
         />
         <AuthProvider>
+          <ApiInterceptorProvider />
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <main className="flex-grow container mx-auto px-6">

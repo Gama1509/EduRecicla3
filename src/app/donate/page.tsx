@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { ProductCategory, ProductCondition, RAMSize, StorageCapacity, StorageType } from "@/types/product-details.dto";
 import { CreateProductDto } from "@/services/listingService";
 import { useDropzone } from "react-dropzone";
+import { productConditionLabels } from "@/constants/productLabels";
 
 export default function DonatePage() {
   const [loading, setLoading] = useState(false);
@@ -67,6 +68,7 @@ export default function DonatePage() {
 
     try {
       // --- Campos requeridos ---
+      // --- Campos requeridos ---
       const requiredFields = [
         "name",
         "description",
@@ -78,32 +80,65 @@ export default function DonatePage() {
         "storageType",
         "storageCapacity",
         "operatingSystem",
-      ];
+      ] as const;
+
+      // --- Mapeo de campos a nombres en español ---
+      const fieldNames = {
+        name: "Nombre",
+        description: "Descripción",
+        category: "Categoría",
+        condition: "Condición",
+        model: "Modelo",
+        processor: "Procesador",
+        ram: "RAM",
+        storageType: "Tipo de almacenamiento",
+        storageCapacity: "Capacidad de almacenamiento",
+        operatingSystem: "Sistema operativo",
+      };
 
       for (const field of requiredFields) {
         const value = formData.get(field);
         if (!value || (typeof value === "string" && value.trim() === "")) {
-          Swal.fire({ icon: "warning", title: "Missing Field", text: `Please fill the ${field} field.` });
+          Swal.fire({
+            icon: "warning",
+            title: "Campo faltante",
+            text: `Por favor, completa el campo ${fieldNames[field]}.`
+          });
           setLoading(false);
           return;
         }
       }
 
+
       // --- Campos numéricos opcionales ---
-      const optionalNumberFields = ["fans", "weight", "stock", "usbPorts", "hdmiPorts", "audioPorts"];
+      const optionalNumberFields = ["fans", "weight", "stock", "usbPorts", "hdmiPorts", "audioPorts"] as const;
+
+      // Mapeo de nombres de campos a español
+      const optionalFieldNames = {
+        fans: "Ventiladores",
+        weight: "Peso",
+        stock: "Stock",
+        usbPorts: "Puertos USB",
+        hdmiPorts: "Puertos HDMI",
+        audioPorts: "Puertos de audio",
+      } as const;
+
       for (const field of optionalNumberFields) {
         const value = formData.get(field);
         if (value) {
           const numberValue = Number(value);
           if (isNaN(numberValue) || numberValue < 0) {
-            Swal.fire({ icon: "warning", title: "Invalid Value", text: `${field} must be a positive number.` });
+            Swal.fire({
+              icon: "warning",
+              title: "Valor inválido",
+              text: `${optionalFieldNames[field as keyof typeof optionalFieldNames]} debe ser un número positivo.`,
+            });
             setLoading(false);
             return;
           }
         }
       }
 
-      // --- Validar dimensiones ---
       const dimensions = formData.get("dimensions") as string;
       if (
         dimensions &&
@@ -111,13 +146,15 @@ export default function DonatePage() {
       ) {
         Swal.fire({
           icon: "warning",
-          title: "Invalid Format",
-          text: "Dimensions must be in LxWxH format with optional units (e.g., 15x15x15 cm, 15x15x15 inches).",
+          title: "Formato inválido",
+          text: "Las dimensiones deben estar en formato LxAxH con unidades opcionales (por ejemplo: 15x15x15 cm, 15x15x15 inches).",
         });
         setLoading(false);
         return;
       }
 
+
+      // --- Validar color ---
       // --- Validar color ---
       const color = formData.get("color") as string;
       if (
@@ -125,14 +162,21 @@ export default function DonatePage() {
         !/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(color) &&
         !/^[a-zA-Z]+$/.test(color)
       ) {
-        Swal.fire({ icon: "warning", title: "Invalid Color", text: "Enter a valid color name or hex code (e.g., 'red' or '#FF0000')." });
+        Swal.fire({
+          icon: "warning",
+          title: "Color inválido",
+          text: "Ingresa un nombre de color válido o un código hexadecimal (por ejemplo: 'rojo' o '#FF0000').",
+        });
         setLoading(false);
         return;
       }
 
-      // --- Validar imágenes ---
       if (files.length === 0) {
-        Swal.fire({ icon: "warning", title: "No Images", text: "Please upload at least one image of the product." });
+        Swal.fire({
+          icon: "warning",
+          title: "Sin imágenes",
+          text: "Por favor, sube al menos una imagen del producto.",
+        });
         setLoading(false);
         return;
       }
@@ -196,16 +240,21 @@ export default function DonatePage() {
       const response = await api.post('/products/donate', data);
       Swal.fire({
         icon: "success",
-        title: "Donation Submitted for Review!",
-        text: "Thank you for your generous donation!",
+        title: "¡Donación enviada para revisión!",
+        text: "¡Gracias por tu generosa donación!",
       }).then(() => {
         setFiles([]);
         window.location.reload();
       });
 
+
     } catch (error: any) {
       console.error("Error creating donation:", error);
-      Swal.fire({ icon: "error", title: "Error", text: error.message || "Something went wrong. Please try again." });
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Algo salió mal. Por favor, intenta de nuevo.",
+      });
     } finally {
       setLoading(false);
     }
@@ -319,78 +368,82 @@ export default function DonatePage() {
   return (
     <div
       className="max-w-3xl mx-auto p-8 rounded-lg shadow-md transition-colors duration-300
-    bg-background-light dark:bg-background-dark
-    border border-black dark:border-white mt-8"
+  bg-background-light dark:bg-background-dark
+  border border-black dark:border-white mt-8"
     >
       <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
-        Donate Your Tech
+        Dona Tu Tecnología
       </h1>
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-        Fields marked with <span className="text-red-500">*</span> are required.
+        Los campos marcados con <span className="text-red-500">*</span> son obligatorios.
       </p>
 
       <form
         ref={formRef}
         onSubmit={handleSubmit}
         className="p-8 rounded-lg shadow-lg transition-colors duration-300
-        bg-card-light dark:bg-card-dark
-        border border-black dark:border-white"
+      bg-card-light dark:bg-card-dark
+      border border-black dark:border-white"
       >
-        {/* Product Name */}
+        {/* Nombre del producto */}
         <div className="mb-4">
-          {renderInput("name", "Product Name", true)}
+          {renderInput("name", "Nombre del producto", true)}
         </div>
 
-        {/* Category */}
+        {/* Categoría */}
         <div className="mb-4">
           {renderSelect(
             "category",
-            "Category",
+            "Categoría",
             Object.values(ProductCategory),
             true,
-            "Select the type of product",
+            "Selecciona el tipo de producto",
             handleCategoryChange
           )}
         </div>
 
-        {/* Description */}
+        {/* Descripción */}
         <div className="mb-4">
           {renderInput(
             "description",
-            "Description",
+            "Descripción",
             true,
-            "Include relevant details like brand, model, and condition.",
+            "Incluye detalles relevantes como marca, modelo y condición.",
             "textarea"
           )}
         </div>
 
-        {/* Main Grid - 2 Columns */}
+        {/* Grid principal - 2 columnas */}
         <div className="grid grid-cols-2 gap-4">
           {renderSelect(
             "condition",
-            "Condition",
-            Object.values(ProductCondition),
+            "Condición",
+            Object.values(ProductCondition).map((val) => ({
+              value: val,
+              label: productConditionLabels[val],
+            })),
             true,
-            "Select the condition of the product (New, Used, Refurbished)"
+            "Selecciona la condición del producto"
           )}
+
           {renderInput(
             "brand",
-            "Brand",
+            "Marca",
             false,
-            "Enter the product brand, e.g., Dell, Apple, Lenovo"
+            "Ingresa la marca del producto, por ejemplo: Dell, Apple, Lenovo"
           )}
 
           {renderInput(
             "model",
-            "Model",
+            "Modelo",
             true,
-            "Enter the device model (e.g., Inspiron 3520)"
+            "Ingresa el modelo del dispositivo (p. ej., Inspiron 3520)"
           )}
           {renderInput(
             "processor",
-            "Processor",
+            "Procesador",
             true,
-            "Enter the CPU model and speed (e.g., Intel i5-1135G7)"
+            "Ingresa el modelo y velocidad del CPU (p. ej., Intel i5-1135G7)"
           )}
 
           {renderSelect(
@@ -398,98 +451,98 @@ export default function DonatePage() {
             "RAM",
             Object.values(RAMSize),
             true,
-            "Select the memory size (RAM) in GB"
+            "Selecciona la memoria RAM en GB"
           )}
           {renderSelect(
             "storageType",
-            "Storage Type",
+            "Tipo de almacenamiento",
             Object.values(StorageType),
             true,
-            "Select the type of storage (SSD, HDD)"
+            "Selecciona el tipo de almacenamiento (SSD, HDD)"
           )}
 
           {renderSelect(
             "storageCapacity",
-            "Storage Capacity",
+            "Capacidad de almacenamiento",
             Object.values(StorageCapacity),
             true,
-            "Select the storage size (e.g., 256GB, 1TB)"
+            "Selecciona el tamaño de almacenamiento (p. ej., 256GB, 1TB)"
           )}
           {renderInput(
             "stock",
-            "Stock",
+            "Cantidad disponible",
             true,
-            "Enter the number of items available (must be 1 or higher)",
+            "Ingresa la cantidad de unidades disponibles (mínimo 1)",
             "number",
             1
           )}
 
           {renderInput(
             "operatingSystem",
-            "Operating System",
+            "Sistema Operativo",
             true,
-            "Enter the OS installed (e.g., Windows 11), or 'Without' if none"
+            "Ingresa el SO instalado (p. ej., Windows 11), o 'Sin' si no tiene"
           )}
 
-          {/* Ethernet / WiFi / Bluetooth in one row */}
+          {/* Ethernet / WiFi / Bluetooth en una fila */}
           <div className="flex flex-row gap-4 items-center">
             {renderInput(
               "ethernetPort",
-              "Ethernet Port",
+              "Puerto Ethernet",
               true,
-              "Check if it has an Ethernet port",
+              "Marca si tiene puerto Ethernet",
               "checkbox"
             )}
             {renderInput(
               "wifi",
               "WiFi",
               true,
-              "Check if WiFi is available",
+              "Marca si tiene WiFi disponible",
               "checkbox"
             )}
             {renderInput(
               "bluetooth",
               "Bluetooth",
               true,
-              "Check if Bluetooth is available",
+              "Marca si tiene Bluetooth disponible",
               "checkbox"
             )}
           </div>
 
           {renderInput(
             "motherboard",
-            "Motherboard",
+            "Placa madre",
             false,
-            "Enter the motherboard model if known"
+            "Ingresa el modelo de la placa madre si lo conoces"
           )}
           {renderInput(
             "graphicsCard",
-            "Graphics Card",
+            "Tarjeta gráfica",
             false,
-            "Enter the GPU model if available"
+            "Ingresa el modelo de la GPU si está disponible"
           )}
 
           {renderInput(
             "usbPorts",
-            "USB Ports",
+            "Puertos USB",
             false,
-            "Enter the number of USB ports",
+            "Ingresa la cantidad de puertos USB",
             "number",
             0
           )}
           {renderInput(
             "hdmiPorts",
-            "HDMI Ports",
+            "Puertos HDMI",
             false,
-            "Enter the number of HDMI ports",
+            "Ingresa la cantidad de puertos HDMI",
             "number",
             0
           )}
           {renderInput(
             "audioPorts",
-            "Audio Ports",
+            "Puertos de audio",
             false,
-            "Enter the number of audio ports",
+            "Ingresa la cantidad de puertos de audio",
             "number",
             0
           )}
@@ -498,67 +551,65 @@ export default function DonatePage() {
             "color",
             "Color",
             false,
-            "Enter a color name or hex code (e.g., red or #FF0000)"
+            "Ingresa un color o código hexadecimal (p. ej., rojo o #FF0000)"
           )}
           {renderInput(
             "weight",
-            "Weight",
+            "Peso",
             false,
-            "Enter weight in kilograms (positive number)",
+            "Ingresa el peso en kilogramos (número positivo)",
             "number",
             0
           )}
           {renderInput(
             "dimensions",
-            "Dimensions",
+            "Dimensiones",
             false,
-            "Enter dimensions (e.g., 15x15x15 cm or 15x15x15 inches)"
+            "Ingresa las dimensiones (p. ej., 15x15x15 cm o 15x15x15 pulgadas)"
           )}
         </div>
 
-
-
         {renderInput(
           "notes",
-          "Notes",
+          "Notas",
           false,
-          "Any additional information about the product",
+          "Cualquier información adicional sobre el producto",
           "textarea"
         )}
 
-        {/* Dynamic Specs */}
+        {/* Especificaciones dinámicas */}
         {selectedCategory && (
           <div className="mt-6">
             <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
-              {selectedCategory} Specifications
+              Especificaciones de {selectedCategory}
             </h2>
             <div className="grid grid-cols-2 gap-4">
               {selectedCategory === "Laptop" && (
                 <>
                   {renderInput(
                     "webcam",
-                    "Webcam Included",
+                    "Incluye webcam",
                     true,
-                    "Check if the laptop includes a webcam",
+                    "Marca si la laptop incluye webcam",
                     "checkbox"
                   )}
                   {renderInput(
                     "screenSize",
-                    "Screen Size",
+                    "Tamaño de pantalla",
                     false,
-                    "Enter screen size with units (e.g., 15.6 inches or 39.6 cm)"
+                    "Ingresa el tamaño de pantalla con unidades (p. ej., 15.6 pulgadas o 39.6 cm)"
                   )}
                   {renderInput(
                     "batteryHealth",
-                    "Battery Health",
+                    "Salud de la batería",
                     false,
-                    "Enter battery health percentage (e.g., 90%)"
+                    "Ingresa el porcentaje de salud de la batería (p. ej., 90%)"
                   )}
                   {renderInput(
                     "keyboardType",
-                    "Keyboard Type",
+                    "Tipo de teclado",
                     false,
-                    "Enter keyboard type (e.g., QWERTY, Backlit)"
+                    "Ingresa el tipo de teclado (p. ej., QWERTY, retroiluminado)"
                   )}
                 </>
               )}
@@ -567,48 +618,48 @@ export default function DonatePage() {
                 <>
                   {renderInput(
                     "monitorIncluded",
-                    "Monitor Included",
+                    "Incluye monitor",
                     true,
-                    "Check if the PC includes a monitor",
+                    "Marca si la PC incluye monitor",
                     "checkbox"
                   )}
                   {renderInput(
                     "keyboardIncluded",
-                    "Keyboard Included",
+                    "Incluye teclado",
                     true,
-                    "Check if the PC includes a keyboard",
+                    "Marca si la PC incluye teclado",
                     "checkbox"
                   )}
                   {renderInput(
                     "mouseIncluded",
-                    "Mouse Included",
+                    "Incluye mouse",
                     true,
-                    "Check if the PC includes a mouse",
+                    "Marca si la PC incluye mouse",
                     "checkbox"
                   )}
                   {renderInput(
                     "caseType",
-                    "Case Type",
+                    "Tipo de torre",
                     false,
-                    "Enter case type (e.g., Mid Tower, Mini Tower)"
+                    "Ingresa el tipo de torre (p. ej., Mid Tower, Mini Tower)"
                   )}
                   {renderInput(
                     "powerSupply",
-                    "Power Supply",
+                    "Fuente de poder",
                     false,
-                    "Enter PSU wattage and type (e.g., 650W Bronze)"
+                    "Ingresa el wattaje y tipo de PSU (p. ej., 650W Bronze)"
                   )}
                   {renderInput(
                     "cpuCooler",
-                    "CPU Cooler",
+                    "Disipador CPU",
                     false,
-                    "Enter CPU cooler model"
+                    "Ingresa el modelo del disipador de CPU"
                   )}
                   {renderInput(
                     "fans",
-                    "Fans",
+                    "Ventiladores",
                     false,
-                    "Number of cooling fans",
+                    "Cantidad de ventiladores de enfriamiento",
                     "number",
                     0
                   )}
@@ -618,17 +669,17 @@ export default function DonatePage() {
           </div>
         )}
 
-        {/* Image Upload */}
+        {/* Subir imágenes */}
         <div className="mb-6 mt-6">
           <label className="block mb-1 text-sm font-semibold">
-            Upload Images <span className="text-red-500">*</span>
+            Subir imágenes <span className="text-red-500">*</span>
           </label>
           <div
             {...getRootProps()}
             className="border-2 border-dashed border-gray-400 p-4 rounded-md text-center cursor-pointer hover:border-primary transition-colors h-48 flex items-center justify-center"
           >
             <input {...getInputProps()} />
-            <p>Drag & drop images here, or click to select files</p>
+            <p>Arrastra y suelta imágenes aquí, o haz clic para seleccionar archivos</p>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-4">
@@ -650,11 +701,11 @@ export default function DonatePage() {
             ))}
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            You can upload multiple images (PNG, JPG)
+            Puedes subir múltiples imágenes (PNG, JPG)
           </p>
         </div>
 
-        {/* Submit */}
+        {/* Botón enviar */}
         <div className="flex justify-center gap-4 mt-6">
           <button
             type="submit"
@@ -662,18 +713,19 @@ export default function DonatePage() {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             className={`py-3 px-6 rounded-lg font-bold border border-black dark:border-white
-            transition-all duration-300 transform
-            ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
-            bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
-            text-black dark:text-white`}
+          transition-all duration-300 transform
+          ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
+          bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
+          text-black dark:text-white`}
             style={{ boxShadow: hovered ? `0 0 15px ${glow}` : undefined }}
           >
-            {loading ? "Submitting..." : "Submit Donation"}
+            {loading ? "Enviando..." : "Enviar Donación"}
           </button>
         </div>
       </form>
     </div>
   );
+
 
 
 }

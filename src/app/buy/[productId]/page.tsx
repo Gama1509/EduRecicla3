@@ -5,6 +5,74 @@ import Swal from "sweetalert2";
 import api from "@/utils/api";
 import { ProductDetailsWithStateDto, ProductUserState } from "@/types/product-details-with-state.dto";
 import { ProductCategory } from "@/types/product-details.dto";
+import { confirmDeliveryAction } from "@/app/notifications/views/NotificationViews";
+
+
+
+
+export const cancelInterestAction = async ({
+    transactionId,
+    setLoadingAction,
+}: {
+    transactionId: string | undefined;
+    setLoadingAction: (loading: boolean) => void;
+}) => {
+
+    // 🔹 Paso 1: Confirmación inicial
+    const confirm = await Swal.fire({
+        title: "¿Cancelar tu interés?",
+        text: "No recibirás la sanción habitual de 15 días sin poder interesarte por el producto por esta cancelación.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, continuar",
+        cancelButtonText: "No",
+    });
+
+    if (!confirm.isConfirmed) return; // El usuario canceló
+
+    // 🔹 Paso 2: Pedir la razón de cancelación
+    const { value: cancelReason, isConfirmed: reasonConfirmed } = await Swal.fire({
+        title: "Razón de cancelación",
+        text: "Por favor indica la razón de cancelación. Esto es obligatorio.",
+        icon: "question",
+        input: "text",
+        inputPlaceholder: "Escribe tu razón...",
+        inputValidator: (value) => {
+            if (!value) {
+                return "Debes escribir una razón para cancelar";
+            }
+            return null;
+        },
+        showCancelButton: true,
+        confirmButtonText: "Enviar",
+        cancelButtonText: "Cancelar",
+    });
+
+    if (!reasonConfirmed) return; // El usuario canceló en este paso
+
+    try {
+        setLoadingAction(true); // Bloquear todos los botones de acción
+
+        // Llamada a API con la razón proporcionada
+        await api.post(`/transactions/cancelInterest`, {
+            transactionId: transactionId,
+            cancelReason: cancelReason,
+        });
+
+        await Swal.fire(
+            "Interés cancelado",
+            "Tu interés fue cancelado correctamente.",
+            "success"
+        );
+
+        window.location.reload();
+    } catch (error) {
+        Swal.fire("Error", "No se pudo cancelar el interés.", "error");
+    } finally {
+        setLoadingAction(false);
+    }
+};
+
 
 export default function ProductPage() {
     const { productId } = useParams();
@@ -13,98 +81,6 @@ export default function ProductPage() {
     const [quantityInterest, setQuantityInterest] = useState(1);
     const [sendingInterest, setSendingInterest] = useState(false);
     const [loadingAction, setLoadingAction] = useState(false);
-
-
-
-    const handleCancelInterest = async () => {
-        // 🔹 Paso 1: Confirmación inicial
-        const confirm = await Swal.fire({
-            title: "¿Cancelar tu interés?",
-            text: "No recibirás la sanción habitual de 15 días sin poder interesarte por el producto por esta cancelación.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, continuar",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return; // El usuario canceló
-
-        // 🔹 Paso 2: Pedir la razón de cancelación
-        const { value: cancelReason, isConfirmed: reasonConfirmed } = await Swal.fire({
-            title: "Razón de cancelación",
-            text: "Por favor indica la razón de cancelación. Esto es obligatorio.",
-            icon: "question",
-            input: "text",
-            inputPlaceholder: "Escribe tu razón...",
-            inputValidator: (value) => {
-                if (!value) {
-                    return "Debes escribir una razón para cancelar";
-                }
-                return null;
-            },
-            showCancelButton: true,
-            confirmButtonText: "Enviar",
-            cancelButtonText: "Cancelar",
-        });
-
-        if (!reasonConfirmed) return; // El usuario canceló en este paso
-
-        try {
-            setLoadingAction(true); // Bloquear todos los botones de acción
-
-            // Llamada a API con la razón proporcionada
-            await api.post(`/transactions/cancelInterest`, {
-                transactionId: product?.transactionId,
-                cancelReason: cancelReason,
-            });
-
-            await Swal.fire(
-                "Interés cancelado",
-                "Tu interés fue cancelado correctamente.",
-                "success"
-            );
-
-            window.location.reload();
-        } catch (error) {
-            Swal.fire("Error", "No se pudo cancelar el interés.", "error");
-        } finally {
-            setLoadingAction(false);
-        }
-    };
-
-
-
-    const handleConfirmDelivery = async (transactionId: string) => {
-        const confirm = await Swal.fire({
-            title: "Confirmar entrega",
-            text: "¿Confirmas que recibiste el producto correctamente?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Sí, confirmar",
-            cancelButtonText: "No",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        try {
-            setLoadingAction(true); // Bloquear todos los botones de acción
-
-            // Llamada a API
-            await api.patch(`/transactions/${transactionId}/confirm-delivery`);
-
-            await Swal.fire(
-                "Entrega confirmada",
-                "Has confirmado la entrega correctamente.",
-                "success"
-            );
-
-            window.location.reload();
-        } catch (error) {
-            Swal.fire("Error", "No se pudo confirmar la entrega.", "error");
-        } finally {
-            setLoadingAction(false);
-        }
-    };
 
     // Función para mostrar cualquier valor
     const display = (value: any, fallback = "Sin información") =>
@@ -336,7 +312,12 @@ export default function ProductPage() {
                         <div>
                             <ActionButton
                                 label="Cancelar solicitud"
-                                onClick={() => handleCancelInterest()}
+                                onClick={() =>
+                                    cancelInterestAction({
+                                        transactionId: product.transactionId,
+                                        setLoadingAction,
+                                    })
+                                }
                                 color="yellow"
                             />
                         </div>
@@ -378,7 +359,13 @@ export default function ProductPage() {
                 return (
                     <div className="text-white font-semibold text-center">
                         El vendedor ha marcado tu pedido como entregado.
-                        <ActionButton label="Confirmar de recibido" onClick={() => handleConfirmDelivery(product.transactionId!)} color="green" />
+                        <ActionButton label="Confirmar de recibido"
+                            onClick={() =>
+                                confirmDeliveryAction({
+                                    transactionId: product.transactionId!,
+                                    setLoadingAction: setLoading,
+                                })
+                            } color="green" />
                     </div>
                 );
 
@@ -425,7 +412,7 @@ export default function ProductPage() {
             {/* Header */}
             <div className="text-center space-y-2">
                 <h1 className="text-4xl font-bold">{display(product.name)}</h1>
-                <p><strong>Owner:</strong> {display(product.owner_name)}</p>
+                <p><strong>Vendedor:</strong> {display(product.owner_name)}</p>
             </div>
 
             {/* Images */}

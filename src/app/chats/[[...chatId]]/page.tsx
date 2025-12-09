@@ -13,7 +13,7 @@ import { ChatWithMessagesDto } from "@/types/chat/chat-with-messages.dto";
 import { ChatMessageDto } from "@/types/chat/chat-message.dto";
 import { getSocket } from "@/utils/sockets";
 import { UserSummary } from "@/types/users/user-summary.dto";
-import { MarkAsDeliveredDto } from "@/types/transactions/MarkAsDelivered.dto";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 function ChatsPage() {
@@ -35,29 +35,69 @@ function ChatsPage() {
   const readMessages = useRef<Set<string>>(new Set());
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
   const currentUserRef = useRef<UserSummary | null>(null);
+  const router = useRouter();
   console.log("params:", params);
   console.log("chatIdFromUrl:", chatIdFromUrl);
-  const router = useRouter();
   // --- Socket ---
   const socket = getSocket();
+  const { user, logout } = useAuth();
+
 
 
   // --- Seleccionar chat automáticamente desde la URL ---
+  // --- Seleccionar chat automáticamente desde la URL ---
   useEffect(() => {
-    // Si no hay chats cargados, no hacer nada todavía
-    if (!chats.length) return;
+    if (!chats.length || !user) return;
 
-    const chatIdFromUrl = Array.isArray(params?.chatId) ? params.chatId[0] : params?.chatId;
+    const chatIdFromUrl = Array.isArray(params?.chatId)
+      ? params.chatId[0]
+      : params?.chatId;
+
     if (!chatIdFromUrl) return;
 
-    // Evitar re-seleccionar si ya está seleccionado
+    // Evitar re-seleccionar el mismo chat
     if (selectedChat?.id === chatIdFromUrl) return;
 
-    const foundChat = chats.find(c => c.id === chatIdFromUrl);
-    if (foundChat) {
-      handleSelect(foundChat);
+    // 👮‍♂️ Filtrar valores null o corruptos
+    const validChats = chats.filter(c => c && c.id);
+
+    // 🔍 Buscar el chat en la lista
+    const foundChat = validChats.find(c => c.id === chatIdFromUrl);
+
+    // ❌ Caso 1: El usuario escribió un ID inventado en la URL
+    if (!foundChat) {
+      Swal.fire({
+        icon: "error",
+        title: "Chat inexistente",
+        text: "No tienes permiso para acceder aquí. Tu sesión se cerrará.",
+      });
+
+      logout();
+      router.push("/");
+      return;
     }
-  }, [chats, params]);
+
+    // ❌ Caso 2: El chat existe pero NO pertenece al usuario
+    const belongsToUser =
+      foundChat.currentUser?.id === user.uuid ||
+      foundChat.otherUser?.id === user.uuid;
+
+    if (!belongsToUser) {
+      Swal.fire({
+        icon: "error",
+        title: "Acceso denegado",
+        text: "No tienes permiso para ver este chat. Cerrando sesión por seguridad.",
+      });
+
+      logout();
+      router.push("/");
+      return;
+    }
+
+    // ✔ Caso 3: Todo válido → seleccionar chat
+    handleSelect(foundChat);
+
+  }, [chats, params, user, selectedChat]);
 
 
 
@@ -165,12 +205,8 @@ function ChatsPage() {
     if (result.isConfirmed) {
       setLoading(true); // 🔒 desactiva botones
       try {
-        const dto: MarkAsDeliveredDto = {
-          transactionId: selectedChat.transactionId,   // id de la transacción
-          chatId: selectedChat.id       // id del chat asociado
-        };
 
-        const res = await api.post("/transactions/markAsDelivered", dto);
+        await api.post(`/transactions/markAsDelivered/${selectedChat.transactionId}`);
         await Swal.fire("¡Hecho!", "El producto ha sido marcado como entregado.", "success");
       } catch (error: any) {
         Swal.fire("Error", error.response?.data?.message || "Ocurrió un error", "error");

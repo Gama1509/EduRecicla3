@@ -3,20 +3,25 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
+interface CarouselItem {
+  id: string;
+  image: string;
+  alt?: string;
+  onClick?: () => void;
+}
+
 interface CarouselProps {
-  items: {
-    src: string;
-    alt: string;
-  }[];
+  items: CarouselItem[];
 }
 
 const Carousel = ({ items }: CarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    if (items.length === 0) return;
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % items.length);
-    }, 5000); // Auto-slide every 5 seconds
+    }, 5000);
     return () => clearInterval(interval);
   }, [items.length]);
 
@@ -28,20 +33,23 @@ const Carousel = ({ items }: CarouselProps) => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % items.length);
   };
 
+  if (items.length === 0) return null; // No render si no hay items
+
   return (
     <div className="relative w-full h-96 overflow-hidden rounded-lg shadow-lg">
       {items.map((item, index) => (
         <div
-          key={index}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
+          key={item.id}
+          onClick={item.onClick}
+          className={`absolute inset-0 transition-opacity duration-1000 cursor-pointer ${
             index === currentIndex ? 'opacity-100' : 'opacity-0'
           }`}
         >
           <Image
-            src={item.src}
-            alt={item.alt}
+            src={item.image}
+            alt={item.alt ?? `Carousel image ${index + 1}`}
             fill
-            style={{objectFit:"cover"}}
+            style={{ objectFit: "cover" }}
             className="w-full h-full"
           />
         </div>

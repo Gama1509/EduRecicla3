@@ -2,6 +2,7 @@
 
 import { connectSocket, disconnectSocket } from "@/utils/sockets";
 import { createContext, useContext, useState, ReactNode } from "react";
+import Swal from "sweetalert2";
 
 interface User {
   uuid: string;
@@ -62,6 +63,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Desconectar socket
     disconnectSocket();
+    Swal.fire({
+      icon: "success",
+      title: "Sesión cerrada",
+      text: "Has salido correctamente.",
+      timer: 1800,
+      showConfirmButton: false,
+    });
   };
 
   // 🟡 Si ya hay token guardado, conectar al iniciar (por recarga)

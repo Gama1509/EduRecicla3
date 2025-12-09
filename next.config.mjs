@@ -6,9 +6,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'picsum.photos',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com', // ⚡ agregamos Cloudinary
+        port: '', // opcional
+        pathname: '/**', // opcional, permite cualquier ruta
+      },
     ],
   },
-  // Permitir cualquier origen en desarrollo para recursos /_next/*
   allowedDevOrigins: [],
 };
 

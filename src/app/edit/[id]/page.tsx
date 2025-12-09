@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import {
     ProductCategory,
     ProductCondition,
+    ProductStatus,
     RAMSize,
     StorageCapacity,
     StorageType,
@@ -16,16 +17,21 @@ import {
 import { CreateProductDto } from "@/services/listingService";
 import { useDropzone } from "react-dropzone";
 import { useParams, useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/router";
 
 export interface EditProductDto extends CreateProductDto {
     id: string;
+    owner_id: string;
+    product_status: ProductStatus;
 }
 
 export default function EditProductPage() {
+    const { user, logout } = useAuth();
+    const router = useRouter();
+
     const params = useParams();
     const productId = params.id;
-    const searchParams = useSearchParams();
-    const fromRejected = searchParams.get("source") == "rejected";
     const formRef = useRef<HTMLFormElement>(null);
 
     const [product, setProduct] = useState<EditProductDto | null>(null);
@@ -45,20 +51,50 @@ export default function EditProductPage() {
             try {
                 const res = await api.get<EditProductDto>(`/products/edit/${productId}`);
                 const data = res.data;
+
+                // 🚨 Verificar que el producto pertenece al usuario
+                if (data.owner_id !== user?.uuid) {
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Acceso denegado',
+                        text: 'No tienes permiso para editar este producto. Tu sesión será cerrada.',
+                    });
+
+                    logout();
+                    router.push('/');
+                    return;
+                }
+
+                // 🚨 Verificar si el producto está pendiente
+                if (data.product_status === ProductStatus.PENDING) {
+                    await Swal.fire({
+                        icon: 'info',
+                        title: 'Producto pendiente',
+                        text: 'Este producto aún está pendiente y no puede ser editado. Serás redirigido a tu perfil.',
+                    });
+                    router.push('/profile');
+                    return;
+                }
+
+                // Si pasa las validaciones, continuar
                 setProduct(data);
                 setSelectedCategory(data.category);
+
                 if (data.imageUrls) {
                     const previewFiles = data.imageUrls.map(
                         (url: string) => ({ preview: url } as File & { preview: string })
                     );
                     setFiles(previewFiles);
                 }
+
             } catch (err) {
                 console.error("Error fetching product:", err);
             }
         };
-        fetchProduct();
-    }, [productId]);
+
+        if (user) fetchProduct();
+    }, [productId, user]);
+
 
     // --- Dropzone ---
     const { getRootProps, getInputProps } = useDropzone({
@@ -81,16 +117,16 @@ export default function EditProductPage() {
     };
 
     // --- Detectar cambios ---
-    const detectChanges = (formData: FormData, fromRejected: boolean) => {
-        if (!product) return { onlyStock: false, anyOtherChange: false, changedFields: [] };
+    const detectChanges = (formData: FormData) => {
+        if (!product) return { onlyStock: false, anyOtherChange: false, changedFields: [] as string[] };
 
-        // --- Detectar cambio de cantidad ---
+        // Detectar cambio de cantidad
         const stock = Number(formData.get("stock") || 0);
         const stockChanged = stock !== product.stock;
 
-        // --- Detectar cambios en otros campos ---
         const changedFields: string[] = [];
 
+        // Detectar cambios en otros campos
         const otherChanges = Array.from(formData.entries()).some(([key, value]) => {
             if (key === "stock") return false;
 
@@ -116,28 +152,31 @@ export default function EditProductPage() {
             return changed;
         });
 
-        // --- Detectar cambios en imágenes ---
+        // Detectar cambios en imágenes
         const oldUrls = product.imageUrls || [];
-        const currentUrls = files.map(f => f.preview); // incluye nuevas y existentes
+        const currentUrls = files.map(f => f.preview);
+
         const imagesChanged =
             currentUrls.length !== oldUrls.length ||
             !oldUrls.every(url => currentUrls.includes(url));
 
         if (imagesChanged) changedFields.push("images");
 
-        // --- Determinar flags ---
         let onlyStock = stockChanged && !otherChanges && !imagesChanged;
         let anyOtherChange = otherChanges || imagesChanged;
 
-        if (fromRejected && onlyStock) {
+        if (onlyStock) {
             onlyStock = false;
             anyOtherChange = false;
             changedFields.push("rejectedRequiresFullEdit");
         }
 
-        return { onlyStock, anyOtherChange, changedFields };
+        return {
+            onlyStock,
+            anyOtherChange,
+            changedFields: changedFields as string[]
+        };
     };
-
 
 
 
@@ -191,6 +230,21 @@ export default function EditProductPage() {
     );
 
 
+
+    const fieldNames: Record<string, string> = {
+        name: "Nombre",
+        price: "Precio",
+        category: "Categoría",
+        description: "Descripción",
+        model: "Modelo",
+        processor: "Procesador",
+        ram: "RAM",
+        storageType: "Tipo de almacenamiento",
+        storageCapacity: "Capacidad de almacenamiento",
+        stock: "Stock",
+        operatingSystem: "Sistema operativo",
+        condition: "Condición",
+    };
     const getRequiredFields = () => {
         const baseFields = [
             "name",
@@ -210,11 +264,20 @@ export default function EditProductPage() {
     };
 
     const checkRequiredFields = (formData: FormData) => {
-        const missingFields = getRequiredFields().filter(
-            (field) => !formData.get(field) || formData.get(field) === ""
-        );
+        const missingFields = getRequiredFields().filter((field) => {
+            const value = formData.get(field);
+            // Si no hay valor, está faltando
+            if (!value) return true;
+
+            // Si es string, verificamos que no esté vacío
+            if (typeof value === "string" && value.trim() === "") return true;
+
+            // Si es File, consideramos que no está faltando (ya hay archivo)
+            return false;
+        });
         return missingFields;
     };
+
 
     // --- Submit ---
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -247,39 +310,53 @@ export default function EditProductPage() {
             if (missingFields.length > 0) {
                 Swal.fire({
                     icon: "warning",
-                    title: "Missing required fields",
-                    text: `Please fill the following fields: ${missingFields.join(", ")}`,
+                    title: "Campos faltantes",
+                    text: `Por favor completa los siguientes campos: ${missingFields
+                        .map((field) => fieldNames[field as keyof typeof fieldNames])
+                        .join(", ")}`,
                 });
                 setLoading(false);
                 return;
             }
 
-            // --- Validar puertos ---
             const usb = Number(formData.get("usbPorts"));
             if (isNaN(usb) || usb < 0) {
-                Swal.fire({ icon: "warning", title: "Invalid USB Ports", text: "Please enter a valid non-negative number for USB Ports." });
+                Swal.fire({
+                    icon: "warning",
+                    title: "Puertos USB inválidos",
+                    text: "Por favor, ingresa un número válido y no negativo para los puertos USB.",
+                });
                 setLoading(false);
                 return;
             }
 
             const hdmi = Number(formData.get("hdmiPorts"));
             if (isNaN(hdmi) || hdmi < 0) {
-                Swal.fire({ icon: "warning", title: "Invalid HDMI Ports", text: "Please enter a valid non-negative number for HDMI Ports." });
+                Swal.fire({
+                    icon: "warning",
+                    title: "Puertos HDMI inválidos",
+                    text: "Por favor, ingresa un número válido y no negativo para los puertos HDMI.",
+                });
                 setLoading(false);
                 return;
             }
+
 
             const audio = Number(formData.get("audioPorts"));
             if (isNaN(audio) || audio < 0) {
-                Swal.fire({ icon: "warning", title: "Invalid Audio Ports", text: "Please enter a valid non-negative number for Audio Ports." });
+                Swal.fire({
+                    icon: "warning",
+                    title: "Puertos de audio inválidos",
+                    text: "Por favor, ingresa un número válido y no negativo para los puertos de audio.",
+                });
                 setLoading(false);
                 return;
             }
 
-            const { onlyStock, anyOtherChange, changedFields } = detectChanges(formData, fromRejected);
+            const { anyOtherChange, changedFields } = detectChanges(formData);
 
             // --- Caso producto rechazado y solo cambió cantidad ---
-            if (fromRejected && changedFields.includes("rejectedRequiresFullEdit")) {
+            if (changedFields.includes("rejectedRequiresFullEdit")) {
                 Swal.fire({
                     icon: "warning",
                     title: "Edición insuficiente",
@@ -289,42 +366,17 @@ export default function EditProductPage() {
                 return;
             }
 
-            // --- Solo cambia cantidad ---
-            if (onlyStock) {
-                const newStock = getOptionalNumber("stock") ?? 1;
-
-                if (newStock === product.stock) {
-                    Swal.fire({ icon: "info", title: "No change", text: "Stock is the same." });
-                    setLoading(false);
-                    return;
-                }
-
-                const result = await Swal.fire({
-                    icon: "question",
-                    title: `Update Stock?`,
-                    text: `Do you want to set the stock to ${newStock} units?`,
-                    showCancelButton: true,
-                    confirmButtonText: `Yes, update`,
-                    cancelButtonText: "Cancel",
-                });
-
-                if (!result.isConfirmed) return;
-
-                // Enviar directamente el nuevo stock
-                await api.patch(`/products/update-stock/${productId}`, { stock: newStock });
-                Swal.fire({ icon: "success", title: `Stock updated to ${newStock}!` });
-                window.location.href = "/";
-            }
             // --- Cambios en otros campos ---
-            else if (anyOtherChange) {
+            if (anyOtherChange) {
                 const result = await Swal.fire({
                     icon: "warning",
-                    title: "Send for Review?",
-                    text: "Editing these fields will send the product for review again. All active transactions will be cancelled. Continue?",
+                    title: "¿Enviar para revisión?",
+                    text: "Editar estos campos enviará el producto nuevamente a revisión. Todas las transacciones activas se cancelarán. ¿Deseas continuar?",
                     showCancelButton: true,
-                    confirmButtonText: "Yes, send for review",
-                    cancelButtonText: "Cancel",
+                    confirmButtonText: "Sí, enviar a revisión",
+                    cancelButtonText: "Cancelar",
                 });
+
                 if (!result.isConfirmed) return;
 
                 // --- Manejo de imágenes ---
@@ -389,18 +441,27 @@ export default function EditProductPage() {
                         mouseIncluded: !!formData.get("mouseIncluded"),
                     };
                 }
-
                 await api.put(`/products/edit/data`, updateData);
-                Swal.fire({ icon: "success", title: "Product updated! Sent for review." });
-                window.location.href = "/";
+                Swal.fire({
+                    icon: "success",
+                    title: "¡Producto actualizado! Enviado a revisión.",
+                });
+                window.location.href = "/profile";
             }
             // --- No hay cambios ---
             else {
-                Swal.fire({ icon: "info", title: "No changes detected" });
+                Swal.fire({
+                    icon: "info",
+                    title: "No se detectaron cambios",
+                });
             }
         } catch (error: any) {
             const msg = error.response?.data?.message || error.message || "Something went wrong.";
-            Swal.fire({ icon: "error", title: "Error", text: msg });
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: msg, // msg puede seguir mostrando detalles específicos
+            });
         }
         finally {
             setLoading(false);

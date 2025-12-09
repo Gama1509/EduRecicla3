@@ -5,11 +5,10 @@ import { Info } from "lucide-react";
 import { uploadImage } from "@/utils/uploadImage";
 import api from '../../utils/api';
 import Swal from "sweetalert2";
-import { ProductCategory, ProductCondition, RAMSize, StorageCapacity, StorageType } from "@/types/product-details.dto";
+import { ProductCategory, ProductCondition, ProductStatus, ProductType, RAMSize, StorageCapacity, StorageType } from "@/types/product-details.dto";
 import { CreateProductDto } from "@/services/listingService";
 import { useDropzone } from "react-dropzone";
-
-
+import { productConditionLabels } from "@/constants/productLabels";
 
 export default function SellPage() {
   const [loading, setLoading] = useState(false);
@@ -24,6 +23,8 @@ export default function SellPage() {
   type SelectOption = string | number | { value: string | number; label: string };
 
   const glow = glowColors[0];
+
+
 
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -68,6 +69,29 @@ export default function SellPage() {
     const formData = new FormData(e.currentTarget);
 
     try {
+      // --- Map de campos internos a nombres en español ---
+      const fieldNames: Record<string, string> = {
+        name: "Nombre",
+        description: "Descripción",
+        category: "Categoría",
+        condition: "Condición",
+        model: "Modelo",
+        processor: "Procesador",
+        ram: "RAM",
+        storageType: "Tipo de almacenamiento",
+        storageCapacity: "Capacidad de almacenamiento",
+        operatingSystem: "Sistema operativo",
+        price: "Precio",
+        fans: "Ventiladores",
+        stock: "Stock",
+        usbPorts: "Puertos USB",
+        hdmiPorts: "Puertos HDMI",
+        audioPorts: "Puertos de audio",
+        weight: "Peso",
+        dimensions: "Dimensiones",
+        color: "Color"
+      };
+
       // --- Campos requeridos ---
       const requiredFields = [
         "name",
@@ -86,7 +110,11 @@ export default function SellPage() {
       for (const field of requiredFields) {
         const value = formData.get(field);
         if (!value || (typeof value === "string" && value.trim() === "")) {
-          Swal.fire({ icon: "warning", title: "Missing Field", text: `Please fill the ${field} field.` });
+          Swal.fire({
+            icon: "warning",
+            title: "Campo requerido",
+            text: `Por favor completa el campo "${fieldNames[field]}"`
+          });
           setLoading(false);
           return;
         }
@@ -96,12 +124,20 @@ export default function SellPage() {
       const priceValue = formData.get("price");
       const priceNumber = Number(priceValue);
       if (isNaN(priceNumber) || priceNumber < 0) {
-        Swal.fire({ icon: "warning", title: "Invalid Price", text: "Price must be a positive number." });
+        Swal.fire({
+          icon: "warning",
+          title: "Precio inválido",
+          text: "El precio debe ser un número positivo."
+        });
         setLoading(false);
         return;
       }
       if (!/^\d+(\.\d{1,2})?$/.test(priceValue!.toString())) {
-        Swal.fire({ icon: "warning", title: "Invalid Price", text: "Price can have up to 2 decimal places." });
+        Swal.fire({
+          icon: "warning",
+          title: "Precio inválido",
+          text: "El precio puede tener hasta 2 decimales."
+        });
         setLoading(false);
         return;
       }
@@ -113,7 +149,11 @@ export default function SellPage() {
         if (value) {
           const num = Number(value);
           if (isNaN(num) || num < 0) {
-            Swal.fire({ icon: "warning", title: `Invalid ${field}`, text: `${field} must be a non-negative number.` });
+            Swal.fire({
+              icon: "warning",
+              title: `Valor inválido`,
+              text: `El campo "${fieldNames[field]}" debe ser un número mayor o igual a cero.`
+            });
             setLoading(false);
             return;
           }
@@ -128,8 +168,8 @@ export default function SellPage() {
       ) {
         Swal.fire({
           icon: "warning",
-          title: "Invalid Dimensions",
-          text: "Dimensions must be in LxWxH format with optional units (e.g., 15x15x15 cm, 15x15x15 inches).",
+          title: "Dimensiones inválidas",
+          text: `El campo "${fieldNames["dimensions"]}" debe estar en formato LxWxH con unidades opcionales (ej. 15x15x15 cm).`
         });
         setLoading(false);
         return;
@@ -142,14 +182,22 @@ export default function SellPage() {
         !/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(color) &&
         !/^[a-zA-Z]+$/.test(color)
       ) {
-        Swal.fire({ icon: "warning", title: "Invalid Color", text: "Enter a valid color name or hex code (e.g., 'red' or '#FF0000')." });
+        Swal.fire({
+          icon: "warning",
+          title: "Color inválido",
+          text: `El campo "${fieldNames["color"]}" debe ser un nombre de color válido o un código hexadecimal (ej. 'red' o '#FF0000').`
+        });
         setLoading(false);
         return;
       }
 
       // --- Validar imágenes ---
       if (files.length === 0) {
-        Swal.fire({ icon: "warning", title: "No Images", text: "Please upload at least one image of the product." });
+        Swal.fire({
+          icon: "warning",
+          title: "Sin imágenes",
+          text: "Por favor sube al menos una imagen del producto."
+        });
         setLoading(false);
         return;
       }
@@ -213,20 +261,25 @@ export default function SellPage() {
       const response = await api.post("/products/sell", data);
       Swal.fire({
         icon: "success",
-        title: "Sale Submitted for Review!",
-        text: "Thank you for choosing us!",
+        title: "Venta enviada para revisión",
+        text: "¡Gracias por contribuir con tu producto!"
       }).then(() => {
         setFiles([]);
         window.location.reload();
       });
 
     } catch (error: any) {
-      console.error("Error creating sale:", error);
-      Swal.fire({ icon: "error", title: "Error", text: error.message || "Something went wrong. Please try again." });
+      console.error("Error creando venta:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Ocurrió un error. Por favor intenta nuevamente."
+      });
     } finally {
       setLoading(false);
     }
   };
+
 
 
 
@@ -335,153 +388,157 @@ export default function SellPage() {
   return (
     <div
       className="max-w-5xl mx-auto p-8 rounded-lg shadow-md transition-colors duration-300
-      bg-background-light dark:bg-background-dark
-      border border-black dark:border-white mt-8"
+    bg-background-light dark:bg-background-dark
+    border border-black dark:border-white mt-8"
     >
       <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
-        Sell Your Tech
+        Vende Tu Tecnología
       </h1>
 
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-        Fields marked with <span className="text-red-500">*</span> are required.
+        Los campos marcados con <span className="text-red-500">*</span> son obligatorios.
       </p>
 
       <form
         ref={formRef}
         onSubmit={handleSubmit}
         className="p-8 rounded-lg shadow-lg transition-colors duration-300
-        bg-card-light dark:bg-card-dark border border-black dark:border-white"
+      bg-card-light dark:bg-card-dark border border-black dark:border-white"
       >
-        {/* Product Name */}
+        {/* Nombre del producto */}
         <div className="mb-4">
-          {renderInput("name", "Product Name", true, "", "text")}
+          {renderInput("name", "Nombre del Producto", true, "", "text")}
         </div>
 
-        {/* Price */}
+        {/* Precio */}
         <div className="mb-4">
           {renderInput(
             "price",
-            "Price",
+            "Precio",
             true,
-            "Enter the price in MXN (e.g., 50000)",
+            "Ingresa el precio en MXN (ej: 50000)",
             "number",
             0
           )}
         </div>
 
-        {/* Category */}
+        {/* Categoría */}
         <div className="mb-4">
           {renderSelect(
             "category",
-            "Category",
+            "Categoría",
             Object.values(ProductCategory),
             true,
-            "Select the type of product",
+            "Selecciona el tipo de producto",
             handleCategoryChange
           )}
         </div>
 
-        {/* Description */}
+        {/* Descripción */}
         <div className="mb-4">
           {renderInput(
             "description",
-            "Description",
+            "Descripción",
             true,
-            "Include brand, model, and condition.",
+            "Incluye marca, modelo y condición",
             "textarea"
           )}
         </div>
 
-        {/* Grid for 2-column fields */}
+        {/* Grid para campos de 2 columnas */}
         <div className="grid grid-cols-2 gap-4">
           {renderSelect(
             "condition",
-            "Condition",
-            Object.values(ProductCondition),
+            "Condición",
+            Object.values(ProductCondition).map((val) => ({
+              value: val,
+              label: productConditionLabels[val],
+            })),
             true,
-            "Select the condition of the product"
+            "Selecciona la condición del producto"
           )}
-          {renderInput("brand", "Brand", true, "", "text")}
 
-          {renderInput("model", "Model", true, "", "text")}
-          {renderInput("processor", "Processor", true, "", "text")}
+
+          {renderInput("brand", "Marca", true, "", "text")}
+
+          {renderInput("model", "Modelo", true, "", "text")}
+          {renderInput("processor", "Procesador", true, "", "text")}
 
           {renderSelect("ram", "RAM", Object.values(RAMSize), true, "", undefined)}
           {renderSelect(
             "storageType",
-            "Storage Type",
+            "Tipo de Almacenamiento",
             Object.values(StorageType),
             true
           )}
 
           {renderSelect(
             "storageCapacity",
-            "Storage Capacity",
+            "Capacidad de Almacenamiento",
             Object.values(StorageCapacity),
             true
           )}
-          {renderInput("stock", "Stock", true, "", "number", 1)}
+          {renderInput("stock", "Cantidad", true, "", "number", 1)}
 
-          {renderInput("operatingSystem", "Operating System", true, "", "text")}
+          {renderInput("operatingSystem", "Sistema Operativo", true, "", "text")}
 
-          {/* Ethernet / WiFi / Bluetooth checkboxes (1 row = 1 column) */}
+          {/* Ethernet / WiFi / Bluetooth */}
           <div className="flex flex-row gap-4 items-center">
             {renderInput(
               "ethernetPort",
-              "Ethernet Port",
+              "Puerto Ethernet",
               true,
-              "Check if the product has an Ethernet port",
+              "Marca si el producto tiene puerto Ethernet",
               "checkbox"
             )}
             {renderInput(
               "wifi",
               "WiFi",
               true,
-              "Check if the product has WiFi",
+              "Marca si el producto tiene WiFi",
               "checkbox"
             )}
             {renderInput(
               "bluetooth",
               "Bluetooth",
               true,
-              "Check if the product has Bluetooth",
+              "Marca si el producto tiene Bluetooth",
               "checkbox"
             )}
           </div>
 
-          {renderInput("usbPorts", "USB Ports", true, "", "number", 0)}
-          {renderInput("hdmiPorts", "HDMI Ports", true, "", "number", 0)}
-
-          {renderInput("audioPorts", "Audio Ports", true, "", "number", 0)}
-          {renderInput("motherboard", "Motherboard", false, "", "text")}
-          {renderInput("graphicsCard", "Graphics Card", false, "", "text")}
+          {renderInput("usbPorts", "Puertos USB", true, "", "number", 0)}
+          {renderInput("hdmiPorts", "Puertos HDMI", true, "", "number", 0)}
+          {renderInput("audioPorts", "Puertos de Audio", true, "", "number", 0)}
+          {renderInput("motherboard", "Placa Base", false, "", "text")}
+          {renderInput("graphicsCard", "Tarjeta Gráfica", false, "", "text")}
           {renderInput("color", "Color", false, "", "text")}
-          {renderInput("weight", "Weight", false, "", "text")}
-          {renderInput("dimensions", "Dimensions", false, "", "text")}
+          {renderInput("weight", "Peso", false, "", "text")}
+          {renderInput("dimensions", "Dimensiones", false, "", "text")}
         </div>
 
-        {/* Optional fields */}
+        {/* Campos opcionales */}
         <div className="grid grid-cols-1 gap-4 mt-4">
-          {renderInput("notes", "Notes", false, "", "textarea")}
+          {renderInput("notes", "Notas", false, "", "textarea")}
         </div>
 
-        {/* Dynamic Specs */}
+        {/* Especificaciones dinámicas */}
         {selectedCategory === "Laptop" && (
           <div className="mt-6">
             <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
-              Laptop Specifications
+              Especificaciones de la Laptop
             </h2>
             <div className="grid grid-cols-2 gap-4">
               {renderInput(
                 "webcam",
-                "Webcam Included",
+                "Incluye Webcam",
                 true,
-                "Check if the laptop includes a webcam",
+                "Marca si la laptop incluye webcam",
                 "checkbox"
               )}
-              {renderInput("screenSize", "Screen Size", false, "", "text")}
-              {renderInput("batteryHealth", "Battery Health", false, "", "text")}
-              {renderInput("keyboardType", "Keyboard Type", false, "", "text")}
+              {renderInput("screenSize", "Tamaño de Pantalla", false, "", "text")}
+              {renderInput("batteryHealth", "Salud de la Batería", false, "", "text")}
+              {renderInput("keyboardType", "Tipo de Teclado", false, "", "text")}
             </div>
           </div>
         )}
@@ -489,49 +546,49 @@ export default function SellPage() {
         {selectedCategory === "PC" && (
           <div className="mt-6">
             <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
-              PC Specifications
+              Especificaciones de la PC
             </h2>
             <div className="grid grid-cols-2 gap-4">
               {renderInput(
                 "monitorIncluded",
-                "Monitor Included",
+                "Incluye Monitor",
                 true,
-                "Check if the PC includes a monitor",
+                "Marca si la PC incluye monitor",
                 "checkbox"
               )}
               {renderInput(
                 "keyboardIncluded",
-                "Keyboard Included",
+                "Incluye Teclado",
                 true,
-                "Check if the PC includes a keyboard",
+                "Marca si la PC incluye teclado",
                 "checkbox"
               )}
               {renderInput(
                 "mouseIncluded",
-                "Mouse Included",
+                "Incluye Mouse",
                 true,
-                "Check if the PC includes a mouse",
+                "Marca si la PC incluye mouse",
                 "checkbox"
               )}
-              {renderInput("caseType", "Case Type", false, "", "text")}
-              {renderInput("powerSupply", "Power Supply", false, "", "text")}
-              {renderInput("cpuCooler", "CPU Cooler", false, "", "text")}
-              {renderInput("fans", "Fans", false, "", "number", 0)}
+              {renderInput("caseType", "Tipo de Caja", false, "", "text")}
+              {renderInput("powerSupply", "Fuente de Poder", false, "", "text")}
+              {renderInput("cpuCooler", "Disipador CPU", false, "", "text")}
+              {renderInput("fans", "Ventiladores", false, "", "number", 0)}
             </div>
           </div>
         )}
 
-        {/* Image Upload */}
+        {/* Subir imágenes */}
         <div className="mb-6 mt-6">
           <label className="block mb-1 text-sm font-semibold">
-            Upload Images <span className="text-red-500">*</span>
+            Subir Imágenes <span className="text-red-500">*</span>
           </label>
           <div
             {...getRootProps()}
             className="border-2 border-dashed border-gray-400 p-4 rounded-md text-center cursor-pointer hover:border-primary transition-colors h-48 flex items-center justify-center"
           >
             <input {...getInputProps()} />
-            <p>Drag & drop images here, or click to select files</p>
+            <p>Arrastra y suelta imágenes aquí, o haz clic para seleccionar archivos</p>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-4">
             {files.map((file, index) => (
@@ -552,11 +609,11 @@ export default function SellPage() {
             ))}
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            You can upload multiple images (PNG, JPG)
+            Puedes subir múltiples imágenes (PNG, JPG)
           </p>
         </div>
 
-        {/* Submit */}
+        {/* Botón de envío */}
         <div className="flex justify-center gap-4 mt-6">
           <button
             type="submit"
@@ -564,17 +621,18 @@ export default function SellPage() {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             className={`py-3 px-6 rounded-lg font-bold border border-black dark:border-white
-            transition-all duration-300 transform
-            ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
-            bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
-            text-black dark:text-white`}
+          transition-all duration-300 transform
+          ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
+          bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
+          text-black dark:text-white`}
             style={{ boxShadow: hovered ? `0 0 15px ${glow}` : undefined }}
           >
-            {loading ? "Submitting..." : "Submit Sale"}
+            {loading ? "Enviando..." : "Enviar Venta"}
           </button>
         </div>
       </form>
     </div>
   );
+
 
 }

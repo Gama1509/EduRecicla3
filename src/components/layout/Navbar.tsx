@@ -8,6 +8,7 @@ import { glowColors } from '@/constants/glowColors';
 import api from '@/utils/api';
 import { NotificationDto } from '@/types/notification.dto';
 import { getNotificationTitle } from '@/app/notifications/views/NotificationViews';
+import { getSocket } from '@/utils/sockets';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +21,7 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-
+  const socket = getSocket();
   function formatDate(dateString: string | null) {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -38,6 +39,72 @@ const Navbar = () => {
   }
 
   useEffect(() => {
+    if (!socket) return;
+
+    const handleNotificationRead = ({ id, seenAt }: { id: string; seenAt: string }) => {
+      setNotifications(prev =>
+        prev.map(n =>
+          n.id === id
+            ? { ...n, read: true, seenAt } // actualizamos read y seenAt
+            : n
+        )
+      );
+    };
+
+    socket.on("notification:markedAsRead", handleNotificationRead);
+
+    return () => {
+      socket.off("notification:markedAsRead", handleNotificationRead);
+    };
+  }, [socket]);
+
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNotificationHidden = (data: { id: string }) => {
+      setNotifications((prev) => prev.filter((n) => n.id !== data.id));
+    };
+
+    socket.on("notification:hidden", handleNotificationHidden);
+
+    return () => {
+      socket.off("notification:hidden", handleNotificationHidden);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNotificationAdd = (notification: NotificationDto) => {
+      setNotifications(prev => [notification, ...prev]);
+    };
+
+    socket.on("notification:add", handleNotificationAdd);
+
+    return () => {
+      socket.off("notification:add", handleNotificationAdd);
+    };
+  }, [socket]);
+
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUnreadMessage = (data: { hasUnreadMessages: boolean }) => {
+      setHasUnreadMessages(data.hasUnreadMessages);
+    };
+    console.log("Los mensajes no leídos son:", hasUnreadMessages);
+
+    socket.on("message:unread", handleUnreadMessage);
+
+    return () => {
+      socket.off("message:unread", handleUnreadMessage);
+    };
+  }, [socket]);
+
+
+  useEffect(() => {
     if (!token || !user) return;
 
     const checkUnread = async () => {
@@ -49,18 +116,11 @@ const Navbar = () => {
       }
     };
 
-    // Ejecutar al montar
     checkUnread();
-
-    // Repetir cada 30 segundos (por si llega algo nuevo)
-    const interval = setInterval(checkUnread, 5000);
-
-    return () => clearInterval(interval);
-  }, [token]);
+  }, [token, user]);
 
   useEffect(() => setMounted(true), []);
 
-  // Fetch notificaciones cada 1 minuto
   useEffect(() => {
     if (!token || !user) return;
 
@@ -74,9 +134,8 @@ const Navbar = () => {
     };
 
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 10000);
-    return () => clearInterval(interval);
   }, [token, user]);
+
 
   const handleLogout = () => {
     logout();
@@ -186,11 +245,12 @@ const Navbar = () => {
           {/* Enlaces principales */}
           {!isAdmin && (
             <div className="flex flex-col md:flex-row md:space-x-6 w-full md:w-auto">
-              {renderNavLink("/buy", "Buy", 0)}
-              {renderNavLink("/donate", "Donate", 1)}
-              {renderNavLink("/sell", "Sell", 2)}
+              {renderNavLink("/buy", "Comprar", 0)}
+              {renderNavLink("/donate", "Donar", 1)}
+              {renderNavLink("/sell", "Vender", 2)}
             </div>
           )}
+
 
           {/* Grupo de acciones pegado a la derecha */}
           <div className="flex items-center ml-auto gap-4 mt-4 md:mt-0">
@@ -270,7 +330,7 @@ const Navbar = () => {
                   className="text-lg font-medium text-text-primary-light dark:text-text-primary-dark transition-all duration-300 ease-in-out transform cursor-pointer"
                   style={{ textShadow: "0 0 0 transparent" }}
                 >
-                  Logout
+                  Cerrar sesión
                 </button>
 
                 {/* Avatar */}
@@ -291,8 +351,8 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                {renderNavLink("/login", "Login", 4)}
-                {renderNavLink("/register", "Register", 5)}
+                {renderNavLink("/login", "Iniciar sesión", 4)}
+                {renderNavLink("/register", "Registrate", 5)}
               </>
             )}
           </div>

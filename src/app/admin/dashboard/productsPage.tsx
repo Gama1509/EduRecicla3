@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
 import { useEffect, useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import api from "@/utils/api";
 import { DashboardProductsDto } from "@/types/dashboard-products.dto";
 import { ProductCategory, ProductCondition, ProductStatus, ProductType } from "@/types/product-details.dto";
+import { productTypeLabels, productConditionLabels, productStatusLabels } from "@/constants/productLabels";
 
 interface ProductsPageProps {
   onBack: () => void;
@@ -39,7 +40,7 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
     fetchProducts();
   }, []);
 
-  // Productos filtrados (solo tabla y cantidad)
+  // Productos filtrados
   const filteredProducts = useMemo(
     () =>
       products.filter(
@@ -52,7 +53,7 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
     [products, filterCategory, filterStatus, filterCondition, filterType]
   );
 
-  // Estadísticas generales (sin filtrar)
+  // Estadísticas generales
   const totalProducts = products.length;
   const totalInventory = products.reduce((acc, p) => acc + p.stock, 0);
   const avgPriceByCategory = (category: ProductCategory) => {
@@ -93,7 +94,8 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
   return (
     <div className="col-span-full p-8 space-y-8 rounded-lg transition-colors duration-300">
       <h2 className="text-3xl font-bold text-white text-center">Productos</h2>
-      {/* Botón Volver al Dashboard */}
+
+      {/* Botón Volver */}
       <div className="flex justify-center">
         <button
           onClick={onBack}
@@ -110,14 +112,11 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
           { title: "Inventario total", value: totalInventory },
           {
             title: "Precio promedio",
-            value: `Laptop: $${avgPriceByCategory(ProductCategory.LAPTOP).toFixed(
-              2
-            )} | PC: $${avgPriceByCategory(ProductCategory.PC).toFixed(2)}`,
+            value: `Laptop: $${avgPriceByCategory(ProductCategory.LAPTOP).toFixed(2)} | PC: $${avgPriceByCategory(ProductCategory.PC).toFixed(2)}`,
           },
           {
             title: "Total por tipo",
-            value: `Venta: ${typeData.find((d) => d.name === ProductType.SALE)?.count || 0
-              } | Donación: ${typeData.find((d) => d.name === ProductType.DONATION)?.count || 0}`,
+            value: `Venta: ${typeData.find((d) => d.name === ProductType.SALE)?.count || 0} | Donación: ${typeData.find((d) => d.name === ProductType.DONATION)?.count || 0}`,
           },
         ].map((item, idx) => (
           <div
@@ -131,53 +130,158 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          { title: "Por Categoría", type: "bar", data: categoryData, fill: "#8884d8" },
-          { title: "Por Estado", type: "pie", data: statusData },
-          { title: "Por Condición", type: "bar", data: conditionData, fill: "#82ca9d" },
-          { title: "Por Tipo", type: "bar", data: typeData, fill: "#FFBB28" },
-        ].map((chart, idx) => (
-          <div
-            key={idx}
-            className="bg-black/80 rounded shadow p-4 text-white border border-white hover:shadow-[0_0_15px_white] transition-all"
-          >
-            <p className="text-center font-medium mb-4">{chart.title}</p>
-            <ResponsiveContainer width="100%" height={200}>
-              {chart.type === "bar" ? (
-                <BarChart data={chart.data}>
-                  <XAxis dataKey="name" stroke="white" />
-                  <YAxis allowDecimals={false} stroke="white" />
-                  <Tooltip />
-                  <Bar dataKey="count" fill={chart.fill} />
-                </BarChart>
-              ) : (
-                <PieChart>
-                  <Pie
-                    data={chart.data}
-                    dataKey="count"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={60}
-                    label
-                  >
-                    {chart.data.map((entry, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={36}
-                    wrapperStyle={{ color: "white" }}
-                  />
-                </PieChart>
-              )}
-            </ResponsiveContainer>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {[0, 1].map((idx) => {
+          const chart = [
+            { title: "Por Categoría", type: "bar", data: categoryData, fill: "#8884d8" },
+            { title: "Por Estado", type: "pie", data: statusData },
+            { title: "Por Condición", type: "bar", data: conditionData, fill: "#82ca9d" },
+            { title: "Por Tipo", type: "bar", data: typeData, fill: "#FFBB28" },
+          ][idx];
+
+          return (
+            <div
+              key={idx}
+              className="bg-black/80 rounded shadow p-4 text-white border border-white hover:shadow-[0_0_15px_white] transition-all"
+            >
+              <p className="text-center font-medium mb-4">{chart.title}</p>
+              <ResponsiveContainer width="100%" height={200}>
+                {chart.type === "bar" ? (
+                  <BarChart data={chart.data}>
+                    <XAxis
+                      dataKey="name"
+                      stroke="white"
+                      tickFormatter={(val) => {
+                        if (chart.title === "Por Estado") return productStatusLabels[val as ProductStatus];
+                        if (chart.title === "Por Condición") return productConditionLabels[val as ProductCondition];
+                        if (chart.title === "Por Tipo") return productTypeLabels[val as ProductType];
+                        return val;
+                      }}
+                    />
+                    <YAxis allowDecimals={false} stroke="white" />
+                    <Tooltip
+                      formatter={(value, name) => {
+                        if (chart.title === "Por Estado") return [value, productStatusLabels[name as ProductStatus]];
+                        if (chart.title === "Por Condición") return [value, productConditionLabels[name as ProductCondition]];
+                        if (chart.title === "Por Tipo") return [value, productTypeLabels[name as ProductType]];
+                        return [value, name];
+                      }}
+                    />
+                    <Bar dataKey="count" fill={chart.fill} />
+                  </BarChart>
+                ) : (
+                  <PieChart>
+                    <Pie
+                      data={chart.data}
+                      dataKey="count"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={60}
+                      label={(entry) => {
+                        if (chart.title === "Por Estado") return productStatusLabels[entry.name as ProductStatus];
+                        if (chart.title === "Por Condición") return productConditionLabels[entry.name as ProductCondition];
+                        if (chart.title === "Por Tipo") return productTypeLabels[entry.name as ProductType];
+                        return entry.name;
+                      }}
+                    >
+                      {chart.data.map((entry, i) => (
+                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value, name) => {
+                        if (chart.title === "Por Estado") return [value, productStatusLabels[name as ProductStatus]];
+                        if (chart.title === "Por Condición") return [value, productConditionLabels[name as ProductCondition]];
+                        if (chart.title === "Por Tipo") return [value, productTypeLabels[name as ProductType]];
+                        return [value, name];
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="bottom"
+                      height={36}
+                      wrapperStyle={{ color: "white" }}
+                      formatter={(value) => {
+                        if (chart.title === "Por Estado") return productStatusLabels[value as ProductStatus];
+                        if (chart.title === "Por Condición") return productConditionLabels[value as ProductCondition];
+                        if (chart.title === "Por Tipo") return productTypeLabels[value as ProductType];
+                        return value;
+                      }}
+                    />
+                  </PieChart>
+
+                )}
+              </ResponsiveContainer>
+
+            </div>
+          );
+        })}
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[2, 3].map((idx) => {
+          const chart = [
+            { title: "Por Categoría", type: "bar", data: categoryData, fill: "#8884d8" },
+            { title: "Por Estado", type: "pie", data: statusData },
+            { title: "Por Condición", type: "bar", data: conditionData, fill: "#82ca9d" },
+            { title: "Por Tipo", type: "bar", data: typeData, fill: "#FFBB28" },
+          ][idx];
+
+          return (
+            <div
+              key={idx}
+              className="bg-black/80 rounded shadow p-4 text-white border border-white hover:shadow-[0_0_15px_white] transition-all"
+            >
+              <p className="text-center font-medium mb-4">{chart.title}</p>
+              <ResponsiveContainer width="100%" height={200}>
+                {chart.type === "bar" ? (
+                  <BarChart data={chart.data}>
+                    <XAxis
+                      dataKey="name"
+                      stroke="white"
+                      tickFormatter={(val) => {
+                        if (chart.title === "Por Estado") return productStatusLabels[val as ProductStatus];
+                        if (chart.title === "Por Condición") return productConditionLabels[val as ProductCondition];
+                        if (chart.title === "Por Tipo") return productTypeLabels[val as ProductType];
+                        return val;
+                      }}
+                    />
+                    <YAxis allowDecimals={false} stroke="white" />
+                    <Tooltip
+                      formatter={(value, name) => {
+                        if (chart.title === "Por Estado") return [value, productStatusLabels[name as ProductStatus]];
+                        if (chart.title === "Por Condición") return [value, productConditionLabels[name as ProductCondition]];
+                        if (chart.title === "Por Tipo") return [value, productTypeLabels[name as ProductType]];
+                        return [value, name];
+                      }}
+                    />
+                    <Bar dataKey="count" fill={chart.fill} />
+                  </BarChart>
+                ) : (
+                  <PieChart>
+                    <Pie
+                      data={chart.data}
+                      dataKey="count"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={60}
+                      label={(entry) => productStatusLabels[entry.name as ProductStatus] || entry.name}
+                    >
+                      {chart.data.map((entry, i) => (
+                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value, name) => [value, productStatusLabels[name as ProductStatus]]} />
+                    <Legend verticalAlign="bottom" height={36} wrapperStyle={{ color: "white" }} />
+                  </PieChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+          );
+        })}
+      </div>
+
 
       {/* Últimos productos */}
       <div className="p-6 bg-black/80 rounded shadow text-white border border-white hover:shadow-[0_0_15px_white] transition-all">
@@ -193,63 +297,36 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
 
       {/* Filtros arriba de la tabla */}
       <div className="flex flex-wrap justify-center gap-4 mt-4 mb-2">
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value as any)}
-          className="px-4 py-2 rounded bg-black/80 border border-white text-white"
-        >
-          <option value="All">Todas las categorías</option>
-          {Object.values(ProductCategory).map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value as any)}
-          className="px-4 py-2 rounded bg-black/80 border border-white text-white"
-        >
-          <option value="All">Todos los estados</option>
-          {Object.values(ProductStatus).map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filterCondition}
-          onChange={(e) => setFilterCondition(e.target.value as any)}
-          className="px-4 py-2 rounded bg-black/80 border border-white text-white"
-        >
-          <option value="All">Todas las condiciones</option>
-          {Object.values(ProductCondition).map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value as any)}
-          className="px-4 py-2 rounded bg-black/80 border border-white text-white"
-        >
-          <option value="All">Todos los tipos</option>
-          {Object.values(ProductType).map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+        <SelectFilter value={filterCategory} onChange={setFilterCategory} options={ProductCategory} label="Todas las categorías" />
+        <SelectFilter value={filterStatus} onChange={setFilterStatus} options={ProductStatus} label="Todos los estados" labelsMap={productStatusLabels} />
+        <SelectFilter value={filterCondition} onChange={setFilterCondition} options={ProductCondition} label="Todas las condiciones" labelsMap={productConditionLabels} />
+        <SelectFilter value={filterType} onChange={setFilterType} options={ProductType} label="Todos los tipos" labelsMap={productTypeLabels} />
       </div>
+      {/* Filtros arriba de la tabla */}
+      <div className="flex flex-wrap justify-center gap-4 mt-4 mb-2 items-center">
+        <SelectFilter value={filterCategory} onChange={setFilterCategory} options={ProductCategory} label="Todas las categorías" />
+        <SelectFilter value={filterStatus} onChange={setFilterStatus} options={ProductStatus} label="Todos los estados" labelsMap={productStatusLabels} />
+        <SelectFilter value={filterCondition} onChange={setFilterCondition} options={ProductCondition} label="Todas las condiciones" labelsMap={productConditionLabels} />
+        <SelectFilter value={filterType} onChange={setFilterType} options={ProductType} label="Todos los tipos" labelsMap={productTypeLabels} />
+
+        {/* Botón Limpiar filtros */}
+        <button
+          onClick={() => {
+            setFilterCategory("All");
+            setFilterStatus("All");
+            setFilterCondition("All");
+            setFilterType("All");
+          }}
+          className="px-4 py-2 rounded bg-red-600 text-white font-semibold hover:bg-red-700 transition-all"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+
 
       {/* Texto de cantidad filtrada */}
       <p className="text-white text-center mb-4">
-        {filteredProducts.length} producto{filteredProducts.length !== 1 ? "s" : ""} encontrado
-        {filteredProducts.length !== 1 ? "s" : ""}
+        {filteredProducts.length} producto{filteredProducts.length !== 1 ? "s" : ""} encontrado{filteredProducts.length !== 1 ? "s" : ""}
       </p>
 
       {/* Tabla */}
@@ -261,16 +338,19 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
                 "Nombre",
                 "Marca",
                 "Categoría",
+                "Tipo",
                 "Condición",
                 "Estado",
-                "Tipo",
                 "Precio",
                 "Stock",
                 "Cantidad Disponible",
                 "Cantidad Reservada",
                 "Propietario",
               ].map((th) => (
-                <th key={th} className="py-2 px-4 text-left border-b border-white">
+                <th
+                  key={th}
+                  className="py-2 px-4 text-center border-b border-white"
+                >
                   {th}
                 </th>
               ))}
@@ -292,22 +372,53 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
                   el.style.transform = "";
                 }}
               >
-                <td className="py-2 px-4 border-b border-white">{p.name}</td>
-                <td className="py-2 px-4 border-b border-white">{p.brand}</td>
-                <td className="py-2 px-4 border-b border-white">{p.category}</td>
-                <td className="py-2 px-4 border-b border-white">{p.condition}</td>
-                <td className="py-2 px-4 border-b border-white">{p.status}</td>
-                <td className="py-2 px-4 border-b border-white">{p.type}</td>
-                <td className="py-2 px-4 border-b border-white">${p.price}</td>
-                <td className="py-2 px-4 border-b border-white">{p.stock}</td>
-                <td className="py-2 px-4 border-b border-white">{p.availableQuantity}</td>
-                <td className="py-2 px-4 border-b border-white">{p.reservedQuantity}</td>
-                <td className="py-2 px-4 border-b border-white">{p.owner}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{p.name}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{p.brand}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{p.category}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{productTypeLabels[p.type]}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{productConditionLabels[p.condition]}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{productStatusLabels[p.status]}</td>
+                <td className="py-2 px-4 border-b border-white text-center">${p.price}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{p.stock}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{p.availableQuantity}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{p.reservedQuantity}</td>
+                <td className="py-2 px-4 border-b border-white text-center">{p.owner}</td>
               </tr>
             ))}
           </tbody>
         </table>
+
       </div>
     </div>
+  );
+}
+
+// Componente SelectFilter reutilizable
+function SelectFilter<T extends string>({
+  value,
+  onChange,
+  options,
+  label,
+  labelsMap,
+}: {
+  value: T | "All";
+  onChange: (v: T | "All") => void;
+  options: Record<string, T>;
+  label: string;
+  labelsMap?: Record<string, string>;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as T | "All")}
+      className="px-4 py-2 rounded bg-black/80 border border-white text-white"
+    >
+      <option value="All">{label}</option>
+      {Object.values(options).map((opt) => (
+        <option key={opt} value={opt}>
+          {labelsMap ? labelsMap[opt] : opt}
+        </option>
+      ))}
+    </select>
   );
 }

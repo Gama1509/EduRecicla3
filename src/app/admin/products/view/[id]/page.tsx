@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import api from "@/utils/api";
 import { Product, ProductCategory, ProductStatus } from "@/types/product-details.dto";
 import Swal from "sweetalert2";
+import { productConditionLabels, productStatusLabels, productTypeLabels } from "@/constants/productLabels";
 
 export default function ProductViewPage() {
     const { id } = useParams();
@@ -124,6 +125,7 @@ export default function ProductViewPage() {
     return (
         <div className="p-8 space-y-10">
 
+            {/* Botón Regresar */}
             <div className="flex justify-center">
                 <button
                     onClick={() => window.history.back()}
@@ -133,26 +135,24 @@ export default function ProductViewPage() {
                 </button>
             </div>
 
-            {/* Header */}
+            {/* Encabezado */}
             <div className="text-center space-y-2">
                 <h1 className="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark">
                     {display(product.name)}
                 </h1>
                 <p className="text-lg text-text-secondary-light dark:text-text-secondary-dark">
-                    <strong>Owner:</strong> {display(product.owner_name)}
+                    <strong>Propietario:</strong> {display(product.owner_name)}
                 </p>
-
-
             </div>
 
-            {/* Images */}
+            {/* Imágenes */}
             {product.imageUrls?.length ? (
                 <div className="flex justify-center flex-wrap gap-6 mb-6">
                     {product.imageUrls.map((url, index) => (
                         <img
                             key={index}
                             src={url}
-                            alt={`Image ${index + 1}`}
+                            alt={`Imagen ${index + 1}`}
                             className="w-72 h-72 md:w-96 md:h-96 object-cover rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
                         />
                     ))}
@@ -161,7 +161,7 @@ export default function ProductViewPage() {
                 <p className="text-center text-gray-500">Sin imágenes disponibles</p>
             )}
 
-            {/* General Information */}
+            {/* Información General */}
             <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark">
                 <h2 className="text-2xl font-semibold mb-4 text-text-primary-light dark:text-text-primary-dark">
                     Información General
@@ -171,9 +171,9 @@ export default function ProductViewPage() {
                         <li><strong>ID:</strong> {display(product.id)}</li>
                         <li><strong>Marca:</strong> {display(product.brand)}</li>
                         <li><strong>Modelo:</strong> {display(product.model)}</li>
-                        <li><strong>Condición:</strong> {display(product.condition)}</li>
-                        <li><strong>Tipo:</strong> {display(product.type)}</li>
-                        <li><strong>Status:</strong> {display(product.status)}</li>
+                        <li><strong>Condición:</strong> {productConditionLabels[product.condition]}</li>
+                        <li><strong>Tipo:</strong> {productTypeLabels[product.type]}</li>
+                        <li><strong>Status:</strong> {productStatusLabels[product.status]}</li>
                         <li><strong>Precio:</strong> {display(product.price)}</li>
                         <li><strong>Stock:</strong> {display(product.stock)}</li>
                         <li><strong>Cantidad Disponible:</strong> {display(product.availableQuantity)}</li>
@@ -188,12 +188,11 @@ export default function ProductViewPage() {
                         <li><strong>Peso:</strong> {display(product.weight)}</li>
                         <li><strong>Dimensiones:</strong> {display(product.dimensions)}</li>
                         <li><strong>Sistema Operativo:</strong> {display(product.operatingSystem)}</li>
-
                     </ul>
                 </div>
             </div>
 
-            {/* Technical Specifications */}
+            {/* Especificaciones Técnicas */}
             <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark">
                 <h2 className="text-2xl font-semibold mb-4 text-text-primary-light dark:text-text-primary-dark">
                     Especificaciones Técnicas
@@ -233,7 +232,7 @@ export default function ProductViewPage() {
                 </div>
             </div>
 
-            {/* Notes */}
+            {/* Notas */}
             <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark">
                 <h2 className="text-2xl font-semibold mb-2 text-text-primary-light dark:text-text-primary-dark">
                     Notas
@@ -243,16 +242,17 @@ export default function ProductViewPage() {
                 </p>
             </div>
 
-            {/* Description */}
+            {/* Descripción */}
             <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark">
                 <h2 className="text-2xl font-semibold mb-2 text-text-primary-light dark:text-text-primary-dark">
                     Descripción
                 </h2>
                 <p className="text-text-secondary-light dark:text-text-secondary-dark">{display(product.description)}</p>
             </div>
-            {/* Status / Acciones */}
+
+            {/* Acciones según Status */}
             <div className="flex justify-center mt-8">
-                {product.status === 'Pending' && (
+                {product.status === ProductStatus.PENDING && (
                     <div className="flex justify-center gap-12">
                         <button
                             className="px-8 py-3 text-lg rounded-lg bg-black/70 border border-lime-500 text-white font-semibold transition-all duration-300 hover:text-green-400 hover:shadow-[0_0_15px_limegreen] hover:scale-110"
@@ -271,6 +271,6 @@ export default function ProductViewPage() {
             </div>
 
         </div>
-
     );
+
 }
