@@ -5,8 +5,10 @@ import api from "@/utils/api";
 import { Product, ProductCategory, ProductStatus } from "@/types/product-details.dto";
 import Swal from "sweetalert2";
 import { productConditionLabels, productStatusLabels, productTypeLabels } from "@/constants/productLabels";
+import withAuth from "@/components/auth/withAuth";
+import { handleApiError } from "@/utils/handleApiError";
 
-export default function ProductViewPage() {
+function ProductViewPage() {
     const { id } = useParams();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
@@ -94,8 +96,7 @@ export default function ProductViewPage() {
             window.history.back();
 
         } catch (err) {
-            console.error('Error updating status:', err);
-            Swal.fire('Error', 'No se pudo actualizar el status del producto.', 'error');
+            handleApiError(err, "No se pudo actualizar el estado del producto.");
         }
     };
 
@@ -111,7 +112,8 @@ export default function ProductViewPage() {
                 const res = await api.get<Product>(`/products/${id}`);
                 setProduct(res.data);
             } catch (error) {
-                console.error('Error fetching product:', error);
+                handleApiError(error, "No se pudo obtener el producto.");
+
             } finally {
                 setLoading(false);
             }
@@ -274,3 +276,4 @@ export default function ProductViewPage() {
     );
 
 }
+export default withAuth(ProductViewPage, true, true);

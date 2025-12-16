@@ -1,4 +1,5 @@
 "use client";
+import withAuth from "@/components/auth/withAuth";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface AdminAction {
@@ -23,7 +24,7 @@ const actions: AdminAction[] = [
 const COLORS = ["#00C49F", "#FF8042"];
 const glowColors = ["rgba(255,255,255,0.3)", "rgba(255,255,255,0.2)", "rgba(255,255,255,0.15)"];
 
-export default function AdminActionsPage({ onBack }: AdminActionsPageProps) {
+function AdminActionsPage({ onBack }: AdminActionsPageProps) {
   const totalActions = actions.length;
   const approvedCount = actions.filter(a => a.action === "Approved").length;
   const rejectedCount = actions.filter(a => a.action === "Rejected").length;
@@ -130,3 +131,5 @@ export default function AdminActionsPage({ onBack }: AdminActionsPageProps) {
     </div>
   );
 }
+
+export default withAuth(AdminActionsPage, true, true);

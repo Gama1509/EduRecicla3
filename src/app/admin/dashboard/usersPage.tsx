@@ -1,7 +1,9 @@
 "use client";
 
+import withAuth from "@/components/auth/withAuth";
 import User from "@/types/user";
 import api from "@/utils/api";
+import { handleApiError } from "@/utils/handleApiError";
 import { useEffect, useState } from "react";
 interface UsersPageProps {
   onBack: () => void;
@@ -13,7 +15,7 @@ export const roleLabels: Record<string, string> = {
 
 const glowColors = ["rgba(255,255,255,0.3)", "rgba(255,255,255,0.2)", "rgba(255,255,255,0.15)"];
 
-export default function UsersPage({ onBack }: UsersPageProps) {
+function UsersPage({ onBack }: UsersPageProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,7 +26,7 @@ export default function UsersPage({ onBack }: UsersPageProps) {
         const res = await api.get("/users"); // api es instancia de axios
         setUsers(res.data); // los datos están en res.data
       } catch (error) {
-        console.error("Error fetching users:", error);
+        handleApiError(error, "Error al obtener los usuarios.");
       } finally {
         setLoading(false);
       }
@@ -111,3 +113,4 @@ export default function UsersPage({ onBack }: UsersPageProps) {
     </div>
   );
 }
+export default withAuth(UsersPage, true, true);

@@ -6,6 +6,8 @@ import api from "@/utils/api";
 import { DashboardProductsDto } from "@/types/dashboard-products.dto";
 import { ProductCategory, ProductCondition, ProductStatus, ProductType } from "@/types/product-details.dto";
 import { productTypeLabels, productConditionLabels, productStatusLabels } from "@/constants/productLabels";
+import withAuth from "@/components/auth/withAuth";
+import { handleApiError } from "@/utils/handleApiError";
 
 interface ProductsPageProps {
   onBack: () => void;
@@ -14,7 +16,7 @@ interface ProductsPageProps {
 const COLORS = ["#FFBB28", "#00C49F", "#FF8042"];
 const glowColors = ["rgba(255,255,255,0.3)", "rgba(255,255,255,0.2)", "rgba(255,255,255,0.15)"];
 
-export default function ProductsPage({ onBack }: ProductsPageProps) {
+function ProductsPage({ onBack }: ProductsPageProps) {
   const [products, setProducts] = useState<DashboardProductsDto[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,7 +34,7 @@ export default function ProductsPage({ onBack }: ProductsPageProps) {
         const res = await api.get<DashboardProductsDto[]>("/products");
         setProducts(res.data);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        handleApiError(error,"Error al obtener los productos.");
       } finally {
         setLoading(false);
       }
@@ -422,3 +424,4 @@ function SelectFilter<T extends string>({
     </select>
   );
 }
+export default withAuth(ProductsPage, true, true);

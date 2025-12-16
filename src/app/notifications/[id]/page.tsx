@@ -32,8 +32,10 @@ import { getGlowColor } from "@/utils/getGlowColor";
 import { getSocket } from "@/utils/sockets";
 import { useAuth } from "@/contexts/AuthContext";
 import Swal from "sweetalert2";
+import { handleApiError } from "@/utils/handleApiError";
+import withAuth from "@/components/auth/withAuth";
 
-export default function NotificationsPage() {
+function NotificationsPage() {
   const router = useRouter();
   const params = useParams();
   const selectedId = params.id;
@@ -117,7 +119,7 @@ export default function NotificationsPage() {
       const res = await api.get<AnyNotification[]>("/notification/getNotifications");
       setNotifications(res.data);
     } catch (error) {
-      console.error("Error al obtener notificaciones:", error);
+      handleApiError(error, "Error al obtener notificaciones.");
     }
   };
 
@@ -397,3 +399,4 @@ function NotificationContent({ notification }: { notification: AnyNotification }
       return <div>Tipo de notificación no soportado</div>;
   }
 }
+export default withAuth(NotificationsPage, true, false);

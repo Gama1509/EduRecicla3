@@ -1,17 +1,15 @@
 'use client';
 import { SelectFilter } from "@/app/profile/my-products/page";
-import { handleAcceptInterest, handleRejectInterest } from "@/app/notifications/views/NotificationViews";
+import withAuth from "@/components/auth/withAuth";
 import { notificationTypeLabels, productTypeLabels, statusLabels } from "@/constants/productLabels";
 import { TransactionStatus, TransactionType } from "@/types/dashboard-transactions.dto";
 import { TransactionProfileRejectedDto } from "@/types/transactions/transaction-profile-rejected.dto";
-import { TransactionsProfileInProgressDto } from "@/types/transactions/transactions-profile-in-progress.dto";
-import { TransactionsProfileDto } from "@/types/transactions/transactions-profile.dto";
 import api from "@/utils/api";
-import { Link } from "lucide-react";
+import { handleApiError } from "@/utils/handleApiError";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function ProductViewPage() {
+function ProductViewPage() {
     const [transactions, setTransactions] = useState<TransactionProfileRejectedDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchName, setSearchName] = useState('');
@@ -63,7 +61,7 @@ export default function ProductViewPage() {
                 const res = await api.get<TransactionProfileRejectedDto[]>(`/transactions/getRejectedTransactionsBySeller`);
                 setTransactions(res.data);
             } catch (error) {
-                console.error('Error fetching product:', error);
+                handleApiError(error, "Error al obtener las transacciones.");
             } finally {
                 setLoading(false);
             }
@@ -253,3 +251,4 @@ export default function ProductViewPage() {
         </div>
     );
 };
+export default withAuth(ProductViewPage, true, false);

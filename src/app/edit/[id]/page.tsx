@@ -19,6 +19,8 @@ import { useDropzone } from "react-dropzone";
 import { useParams, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/router";
+import { handleApiError } from "@/utils/handleApiError";
+import withAuth from "@/components/auth/withAuth";
 
 export interface EditProductDto extends CreateProductDto {
     id: string;
@@ -26,7 +28,7 @@ export interface EditProductDto extends CreateProductDto {
     product_status: ProductStatus;
 }
 
-export default function EditProductPage() {
+function EditProductPage() {
     const { user, logout } = useAuth();
     const router = useRouter();
 
@@ -88,7 +90,9 @@ export default function EditProductPage() {
                 }
 
             } catch (err) {
-                console.error("Error fetching product:", err);
+
+                handleApiError(err, "Error al obtener el producto.");
+                router.push('/');
             }
         };
 
@@ -456,12 +460,7 @@ export default function EditProductPage() {
                 });
             }
         } catch (error: any) {
-            const msg = error.response?.data?.message || error.message || "Something went wrong.";
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: msg, // msg puede seguir mostrando detalles específicos
-            });
+            handleApiError(error,"Error al editar el producto.");
         }
         finally {
             setLoading(false);
@@ -724,3 +723,4 @@ export default function EditProductPage() {
 
 
 }
+export default withAuth(EditProductPage, true, false);

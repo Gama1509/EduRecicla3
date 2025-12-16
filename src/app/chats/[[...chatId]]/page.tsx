@@ -14,6 +14,8 @@ import { ChatMessageDto } from "@/types/chat/chat-message.dto";
 import { getSocket } from "@/utils/sockets";
 import { UserSummary } from "@/types/users/user-summary.dto";
 import { useAuth } from "@/contexts/AuthContext";
+import withAuth from "@/components/auth/withAuth";
+import { handleApiError } from "@/utils/handleApiError";
 
 
 function ChatsPage() {
@@ -113,7 +115,7 @@ function ChatsPage() {
         const res = await api.get<ChatDto[]>("/chat");
         setChats(res.data);
       } catch (error) {
-        console.error("Error al obtener chats:", error);
+        handleApiError(error, "Error al obtener chats.");
       }
     };
     fetchChats();
@@ -207,7 +209,7 @@ function ChatsPage() {
         await api.post(`/transactions/markAsDelivered/${selectedChat.transactionId}`);
         await Swal.fire("¡Hecho!", "El producto ha sido marcado como entregado.", "success");
       } catch (error: any) {
-        Swal.fire("Error", error.response?.data?.message || "Ocurrió un error", "error");
+        handleApiError(error, "Error al marcar como entregado.");
       } finally {
         setLoading(false); // 🔓 reactiva botones
       }
@@ -227,7 +229,7 @@ function ChatsPage() {
 
       setSelectedChat({ ...res.data, currentUser, otherUser });
     } catch (error) {
-      console.error("Error al obtener mensajes:", error);
+      handleApiError(error, "Error al obtener mensajes.");
     }
   };
 
@@ -449,7 +451,7 @@ function ChatsPage() {
           });
           await Swal.fire("Cancelado", "La transacción se ha cancelado correctamente.", "success");
         } catch (error: any) {
-          Swal.fire("Error", error.response?.data?.message || "Ocurrió un error", "error");
+          handleApiError(error,"Error al cancelar la transacción.");
         } finally {
           setLoading(false);
         }
@@ -727,4 +729,4 @@ function ChatsPage() {
 
 };
 
-export default ChatsPage;
+export default withAuth(ChatsPage,true,false);

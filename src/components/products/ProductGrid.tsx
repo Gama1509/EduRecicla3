@@ -5,6 +5,7 @@ import { getProducts, ProductFilters } from '@/services/productService';
 import { Product } from '@/types/product';
 import ProductCard from './ProductCard';
 import { glowColors } from '@/constants/glowColors';
+import { handleApiError } from '@/utils/handleApiError';
 
 interface ProductGridProps {
   filters: ProductFilters;
@@ -21,7 +22,7 @@ const ProductGrid = ({ filters }: ProductGridProps) => {
         const data = await getProducts(filters);
         setProducts(data);
       } catch (error) {
-        console.error('Failed to fetch products:', error);
+        handleApiError(error, "Error al obtener los productos.");
       } finally {
         setLoading(false);
       }

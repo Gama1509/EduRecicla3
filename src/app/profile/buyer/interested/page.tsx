@@ -10,8 +10,10 @@ import api from "@/utils/api";
 import { Link } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { handleApiError } from "@/utils/handleApiError";
+import withAuth from "@/components/auth/withAuth";
 
-export default function ProductViewPage() {
+function ProductViewPage() {
     const [transactions, setTransactions] = useState<TransactionProfileInterestedDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchName, setSearchName] = useState('');
@@ -38,7 +40,7 @@ export default function ProductViewPage() {
             case TransactionStatus.NOTIFY_AVAILABLE_ANY:
             case TransactionStatus.NOTIFY_AVAILABLE_FULL:
                 return 'yellow';
-            
+
             default:
                 return 'gray'; // color por defecto si hay un status inesperado
         }
@@ -77,7 +79,7 @@ export default function ProductViewPage() {
                 const res = await api.get<TransactionProfileInterestedDto[]>(`/transactions/getProductsImInterestedIn`);
                 setTransactions(res.data);
             } catch (error) {
-                console.error('Error fetching product:', error);
+                handleApiError(error, "Error al obtener las transacciones.");
             } finally {
                 setLoading(false);
             }
@@ -508,3 +510,4 @@ export default function ProductViewPage() {
     );
 }
 //                    Transaccciones completadas conmigo como vendedor (el comprador ya marco de recibido)
+export default withAuth(ProductViewPage, true, false);

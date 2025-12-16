@@ -2,6 +2,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import withAuth from '@/components/auth/withAuth';
 
 const UserProfilePage = () => {
   const { user } = useAuth();
@@ -301,4 +302,4 @@ const UserProfilePage = () => {
   );
 };
 
-export default UserProfilePage;
+export default withAuth(UserProfilePage,true,false);

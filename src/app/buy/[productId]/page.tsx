@@ -1,11 +1,13 @@
 'use client';
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import api from "@/utils/api";
 import { ProductDetailsWithStateDto, ProductUserState } from "@/types/product-details-with-state.dto";
 import { ProductCategory } from "@/types/product-details.dto";
 import { confirmDeliveryAction } from "@/app/notifications/views/NotificationViews";
+import withAuth from "@/components/auth/withAuth";
+import { handleApiError } from "@/utils/handleApiError";
 
 
 
@@ -67,21 +69,21 @@ export const cancelInterestAction = async ({
 
         window.location.reload();
     } catch (error) {
-        Swal.fire("Error", "No se pudo cancelar el interés.", "error");
+        handleApiError(error, "Error al cancelar el interés.");
     } finally {
         setLoadingAction(false);
     }
 };
 
 
-export default function ProductPage() {
+function ProductPage() {
     const { productId } = useParams();
     const [product, setProduct] = useState<ProductDetailsWithStateDto | null>(null);
     const [loading, setLoading] = useState(true);
     const [quantityInterest, setQuantityInterest] = useState(1);
     const [sendingInterest, setSendingInterest] = useState(false);
     const [loadingAction, setLoadingAction] = useState(false);
-
+    const router = useRouter();
     // Función para mostrar cualquier valor
     const display = (value: any, fallback = "Sin información") =>
         value !== null && value !== undefined ? value : fallback;
@@ -162,8 +164,7 @@ export default function ProductPage() {
 
                     window.location.reload();
                 } catch (err) {
-                    console.error(err);
-                    Swal.fire("Error", "No se pudo registrar tu interés.", "error");
+                    handleApiError(err, "Error al enviar el interés.");
                 } finally {
                     setSendingInterest(false);
                 }
@@ -186,8 +187,7 @@ export default function ProductPage() {
                     Swal.fire("Cancelado", "Tu solicitud ha sido cancelada.", "success");
                     setProduct({ ...product, userState: ProductUserState.MostrarInteres });
                 } catch (err) {
-                    console.error(err);
-                    Swal.fire("Error", "No se pudo cancelar la solicitud.", "error");
+                    handleApiError(err, "Error al cancelar la solicitud.");
                 }
             }
         }
@@ -207,8 +207,7 @@ export default function ProductPage() {
                     Swal.fire("Cancelado", "La transacción ha sido cancelada.", "success");
                     setProduct({ ...product, userState: ProductUserState.Cancelled, daysLeft: 15 });
                 } catch (err) {
-                    console.error(err);
-                    Swal.fire("Error", "No se pudo cancelar la transacción.", "error");
+                    handleApiError(err, "Error al cancelar la transacción.");
                 }
             }
         }
@@ -222,7 +221,8 @@ export default function ProductPage() {
                 const res = await api.get<ProductDetailsWithStateDto>(`/products/with-state/${productId}`);
                 setProduct(res.data);
             } catch (error) {
-                console.error('Error fetching product:', error);
+                handleApiError(error, "No se pudo obtener el producto.");
+                router.push("/buy");
             } finally {
                 setLoading(false);
             }
@@ -523,3 +523,5 @@ export default function ProductPage() {
         </div>
     );
 }
+
+export default withAuth(ProductPage,false,false);

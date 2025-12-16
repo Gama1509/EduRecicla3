@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import api from '@/utils/api';
+import Swal from 'sweetalert2';
+import { handleApiError } from '@/utils/handleApiError';
+import withAuth from '@/components/auth/withAuth';
 
 // ✅ Fuerza renderizado estático para evitar diferencias SSR/CSR
 export const dynamic = "force-static";
@@ -13,9 +16,10 @@ export const dynamic = "force-static";
 interface TopProduct {
   id: string;
   imageUrl: string;
+  productName: string;
 }
 
-export default function HomePage() {
+function HomePage() {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
   const [carouselItems, setCarouselItems] = useState<TopProduct[]>([]);
@@ -44,7 +48,7 @@ export default function HomePage() {
         const res = await api.get<{ data: TopProduct[] }>("/products/top-selling");
         setCarouselItems(res.data.data); // actualizamos el state
       } catch (err) {
-        console.error("Error fetching top products:", err);
+        handleApiError(err,"Error al obtener los productos top vendidos.");
       }
     };
 
@@ -55,6 +59,7 @@ export default function HomePage() {
   const formattedCarouselItems = carouselItems.map(p => ({
     id: p.id,
     image: p.imageUrl,
+    caption: p.productName,
     onClick: () => router.push(`/buy/${p.id}`),
   }));
 
@@ -213,3 +218,4 @@ export default function HomePage() {
   );
 
 }
+export default withAuth(HomePage,false,false);

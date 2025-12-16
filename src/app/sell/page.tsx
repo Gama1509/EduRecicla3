@@ -9,8 +9,11 @@ import { ProductCategory, ProductCondition, ProductStatus, ProductType, RAMSize,
 import { CreateProductDto } from "@/services/listingService";
 import { useDropzone } from "react-dropzone";
 import { productConditionLabels } from "@/constants/productLabels";
+import { useAuth } from "@/contexts/AuthContext";
+import { handleApiError } from "@/utils/handleApiError";
+import withAuth from "@/components/auth/withAuth";
 
-export default function SellPage() {
+function SellPage() {
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [files, setFiles] = useState<(File & { preview: string })[]>([]);
@@ -24,9 +27,13 @@ export default function SellPage() {
 
   const glow = glowColors[0];
 
+  const { isLoggedIn } = useAuth();
 
+  const [mounted, setMounted] = useState(false);
 
-
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/png": [],
@@ -169,11 +176,27 @@ export default function SellPage() {
         Swal.fire({
           icon: "warning",
           title: "Dimensiones inválidas",
-          text: `El campo "${fieldNames["dimensions"]}" debe estar en formato LxWxH con unidades opcionales (ej. 15x15x15 cm).`
+          text: "Las dimensiones deben estar en formato LxAxH con unidades opcionales (por ejemplo: 15x15x15 cm, 15x15x15 inch).",
         });
         setLoading(false);
         return;
       }
+
+      const screenSize = formData.get("screenSize") as string;
+
+      if (
+        screenSize &&
+        !/^\d+(\.\d+)?\s*("|in|inch|inches|pulgadas)?$/i.test(screenSize.trim())
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "Formato inválido",
+          text: "El tamaño de pantalla debe ser un número en pulgadas (ej. 15, 15.6, 24\", 27 inch).",
+        });
+        setLoading(false);
+        return;
+      }
+
 
       // --- Validar color ---
       const color = formData.get("color") as string;
@@ -190,6 +213,22 @@ export default function SellPage() {
         setLoading(false);
         return;
       }
+
+      const batteryHealth = formData.get("batteryHealth") as string;
+
+      if (
+        batteryHealth &&
+        !/^(100|[1-9]?\d)%$/.test(batteryHealth.trim())
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "Formato inválido",
+          text: "La salud de la batería debe ser un porcentaje entre 0% y 100% (ej. 85%).",
+        });
+        setLoading(false);
+        return;
+      }
+
 
       // --- Validar imágenes ---
       if (files.length === 0) {
@@ -269,12 +308,7 @@ export default function SellPage() {
       });
 
     } catch (error: any) {
-      console.error("Error creando venta:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Ocurrió un error. Por favor intenta nuevamente."
-      });
+      handleApiError(error, "No se pudo enviar la venta.");
     } finally {
       setLoading(false);
     }
@@ -383,7 +417,13 @@ export default function SellPage() {
     </div>
   );
 
-
+  if (!mounted) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Cargando...
+      </div>
+    );
+  }
 
   return (
     <div
@@ -398,7 +438,24 @@ export default function SellPage() {
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
         Los campos marcados con <span className="text-red-500">*</span> son obligatorios.
       </p>
-
+      {!isLoggedIn && (
+        <div
+          className="mb-6 text-center p-4 rounded-lg
+    bg-yellow-100 dark:bg-yellow-900/30
+    border border-yellow-400 dark:border-yellow-600"
+        >
+          <p className="text-sm sm:text-base font-semibold text-yellow-800 dark:text-yellow-300">
+            Para vender primero debes{" "}
+            <a
+              href="/login"
+              className="font-bold underline transition-transform duration-300 hover:scale-110"
+            >
+              iniciar sesión
+            </a>
+            .
+          </p>
+        </div>
+      )}
       <form
         ref={formRef}
         onSubmit={handleSubmit}
@@ -459,28 +516,66 @@ export default function SellPage() {
           )}
 
 
-          {renderInput("brand", "Marca", true, "", "text")}
+          {renderInput(
+            "brand",
+            "Marca",
+            true,
+            "Ingresa la marca del producto, por ejemplo: Dell, Apple, Lenovo"
+          )}
 
-          {renderInput("model", "Modelo", true, "", "text")}
-          {renderInput("processor", "Procesador", true, "", "text")}
+          {renderInput(
+            "model",
+            "Modelo",
+            true,
+            "Ingresa el modelo del dispositivo (p. ej., Inspiron 3520)"
+          )}
+          {renderInput(
+            "processor",
+            "Procesador",
+            true,
+            "Ingresa el modelo y velocidad del CPU (p. ej., Intel i5-1135G7)"
+          )}
 
-          {renderSelect("ram", "RAM", Object.values(RAMSize), true, "", undefined)}
+
+          {renderSelect(
+            "ram",
+            "RAM",
+            Object.values(RAMSize),
+            true,
+            "Selecciona la memoria RAM en GB"
+          )}
+
           {renderSelect(
             "storageType",
-            "Tipo de Almacenamiento",
+            "Tipo de almacenamiento",
             Object.values(StorageType),
-            true
+            true,
+            "Selecciona el tipo de almacenamiento (SSD, HDD)"
           )}
+
 
           {renderSelect(
             "storageCapacity",
-            "Capacidad de Almacenamiento",
+            "Capacidad de almacenamiento",
             Object.values(StorageCapacity),
-            true
+            true,
+            "Selecciona el tamaño de almacenamiento (p. ej., 256GB, 1TB)"
           )}
-          {renderInput("stock", "Cantidad", true, "", "number", 1)}
+          {renderInput(
+            "stock",
+            "Cantidad disponible",
+            true,
+            "Ingresa la cantidad de unidades disponibles (mínimo 1)",
+            "number",
+            1
+          )}
 
-          {renderInput("operatingSystem", "Sistema Operativo", true, "", "text")}
+          {renderInput(
+            "operatingSystem",
+            "Sistema Operativo",
+            true,
+            "Ingresa el SO instalado (p. ej., Windows 11), o 'Sin' si no tiene"
+          )}
 
           {/* Ethernet / WiFi / Bluetooth */}
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -506,74 +601,161 @@ export default function SellPage() {
               "checkbox"
             )}
           </div>
+          {renderInput(
+            "motherboard",
+            "Placa madre",
+            false,
+            "Ingresa el modelo de la placa madre si lo conoces"
+          )}
+          {renderInput(
+            "graphicsCard",
+            "Tarjeta gráfica",
+            false,
+            "Ingresa el modelo de la GPU si está disponible"
+          )}
 
-          {renderInput("usbPorts", "Puertos USB", true, "", "number", 0)}
-          {renderInput("hdmiPorts", "Puertos HDMI", true, "", "number", 0)}
-          {renderInput("audioPorts", "Puertos de Audio", true, "", "number", 0)}
-          {renderInput("motherboard", "Placa Base", false, "", "text")}
-          {renderInput("graphicsCard", "Tarjeta Gráfica", false, "", "text")}
-          {renderInput("color", "Color", false, "", "text")}
-          {renderInput("weight", "Peso", false, "", "text")}
-          {renderInput("dimensions", "Dimensiones", false, "", "text")}
+          {renderInput(
+            "usbPorts",
+            "Puertos USB",
+            true,
+            "Ingresa la cantidad de puertos USB",
+            "number",
+            0
+          )}
+          {renderInput(
+            "hdmiPorts",
+            "Puertos HDMI",
+            true,
+            "Ingresa la cantidad de puertos HDMI",
+            "number",
+            0
+          )}
+          {renderInput(
+            "audioPorts",
+            "Puertos de audio",
+            true,
+            "Ingresa la cantidad de puertos de audio",
+            "number",
+            0
+          )}
+          {renderInput(
+            "color",
+            "Color",
+            false,
+            "Ingresa un color o código hexadecimal (p. ej., rojo o #FF0000)"
+          )}
+          {renderInput(
+            "weight",
+            "Peso",
+            false,
+            "Ingresa el peso en kilogramos (solo el número positivo)",
+            "number",
+            0
+          )}
+          {renderInput(
+            "dimensions",
+            "Dimensiones",
+            false,
+            "Ingresa las dimensiones (p. ej., 15x15x15 cm o 15x15x15 inch)"
+          )}
         </div>
 
         {/* Campos opcionales */}
-        <div className="grid grid-cols-1 gap-4 mt-4">
-          {renderInput("notes", "Notas", false, "", "textarea")}
-        </div>
-
-        {/* Especificaciones dinámicas */}
-        {selectedCategory === "Laptop" && (
-          <div className="mt-6">
-            <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
-              Especificaciones de la Laptop
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {renderInput(
-                "webcam",
-                "Incluye Webcam",
-                true,
-                "Marca si la laptop incluye webcam",
-                "checkbox"
-              )}
-              {renderInput("screenSize", "Tamaño de Pantalla", false, "", "text")}
-              {renderInput("batteryHealth", "Salud de la Batería", false, "", "text")}
-              {renderInput("keyboardType", "Tipo de Teclado", false, "", "text")}
-            </div>
-          </div>
+        {renderInput(
+          "notes",
+          "Notas",
+          false,
+          "Cualquier información adicional sobre el producto",
+          "textarea"
         )}
 
-        {selectedCategory === "PC" && (
+        {selectedCategory && (
           <div className="mt-6">
             <h2 className="font-bold mb-2 text-lg text-text-primary-light dark:text-text-primary-dark">
-              Especificaciones de la PC
+              Especificaciones de {selectedCategory}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {renderInput(
-                "monitorIncluded",
-                "Incluye Monitor",
-                true,
-                "Marca si la PC incluye monitor",
-                "checkbox"
+              {selectedCategory === "Laptop" && (
+                <>
+                  {renderInput(
+                    "webcam",
+                    "Incluye webcam",
+                    true,
+                    "Marca si la laptop incluye webcam",
+                    "checkbox"
+                  )}
+                  {renderInput(
+                    "screenSize",
+                    "Tamaño de pantalla",
+                    false,
+                    "Ingresa el tamaño de pantalla con unidades (p. ej., 15.6 inch)"
+                  )}
+                  {renderInput(
+                    "batteryHealth",
+                    "Salud de la batería",
+                    false,
+                    "Ingresa el porcentaje de salud de la batería (p. ej., 90%)"
+                  )}
+                  {renderInput(
+                    "keyboardType",
+                    "Tipo de teclado",
+                    false,
+                    "Ingresa el tipo de teclado (p. ej., QWERTY, retroiluminado)"
+                  )}
+                </>
               )}
-              {renderInput(
-                "keyboardIncluded",
-                "Incluye Teclado",
-                true,
-                "Marca si la PC incluye teclado",
-                "checkbox"
+
+              {selectedCategory === "PC" && (
+                <>
+                  {renderInput(
+                    "monitorIncluded",
+                    "Incluye monitor",
+                    true,
+                    "Marca si la PC incluye monitor",
+                    "checkbox"
+                  )}
+                  {renderInput(
+                    "keyboardIncluded",
+                    "Incluye teclado",
+                    true,
+                    "Marca si la PC incluye teclado",
+                    "checkbox"
+                  )}
+                  {renderInput(
+                    "mouseIncluded",
+                    "Incluye mouse",
+                    true,
+                    "Marca si la PC incluye mouse",
+                    "checkbox"
+                  )}
+                  {renderInput(
+                    "caseType",
+                    "Tipo de torre",
+                    false,
+                    "Ingresa el tipo de torre (p. ej., Mid Tower, Mini Tower)"
+                  )}
+                  {renderInput(
+                    "powerSupply",
+                    "Fuente de poder",
+                    false,
+                    "Ingresa el wattaje y tipo de PSU (p. ej., 650W Bronze)"
+                  )}
+                  {renderInput(
+                    "cpuCooler",
+                    "Disipador CPU",
+                    false,
+                    "Ingresa el modelo del disipador de CPU"
+                  )}
+                  {renderInput(
+                    "fans",
+                    "Ventiladores",
+                    false,
+                    "Cantidad de ventiladores de enfriamiento",
+                    "number",
+                    0
+                  )}
+                </>
               )}
-              {renderInput(
-                "mouseIncluded",
-                "Incluye Mouse",
-                true,
-                "Marca si la PC incluye mouse",
-                "checkbox"
-              )}
-              {renderInput("caseType", "Tipo de Caja", false, "", "text")}
-              {renderInput("powerSupply", "Fuente de Poder", false, "", "text")}
-              {renderInput("cpuCooler", "Disipador CPU", false, "", "text")}
-              {renderInput("fans", "Ventiladores", false, "", "number", 0)}
             </div>
           </div>
         )}
@@ -617,18 +799,25 @@ export default function SellPage() {
         <div className="flex justify-center gap-4 mt-6">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isLoggedIn}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             className={`py-3 px-6 rounded-lg font-bold border border-black dark:border-white
-          transition-all duration-300 transform
-          ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
-          bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
-          text-black dark:text-white`}
-            style={{ boxShadow: hovered ? `0 0 15px ${glow}` : undefined }}
+    transition-all duration-300 transform
+    ${loading || !isLoggedIn
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:scale-105"}
+    bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
+    text-black dark:text-white`}
+            style={{ boxShadow: hovered && isLoggedIn ? `0 0 15px ${glow}` : undefined }}
           >
-            {loading ? "Enviando..." : "Enviar Venta"}
+            {!isLoggedIn
+              ? "Inicia sesión para vender"
+              : loading
+                ? "Enviando..."
+                : "Enviar Venta"}
           </button>
+
         </div>
       </form>
     </div>
@@ -636,3 +825,4 @@ export default function SellPage() {
 
 
 }
+export default withAuth(SellPage, false, false);

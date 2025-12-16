@@ -5,8 +5,10 @@ import api from '@/utils/api';
 import { ProductsTableDto } from '@/types/products-table.dto';
 import { ProductCategory, ProductCondition, ProductStatus, ProductType, RAMSize, StorageCapacity, StorageType } from '@/types/product-details.dto';
 import { productTypeLabels, productConditionLabels, productStatusLabels } from '@/constants/productLabels';
+import withAuth from '@/components/auth/withAuth';
+import { handleApiError } from '@/utils/handleApiError';
 
-export default function AdminProducts() {
+function AdminProducts() {
     const [products, setProducts] = useState<ProductsTableDto[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -27,7 +29,7 @@ export default function AdminProducts() {
                 const res = await api.get<ProductsTableDto[]>('/products/table');
                 setProducts(res.data);
             } catch (err) {
-                console.error('Error fetching products:', err);
+                handleApiError(err, "Error al obtener los productos.");
             } finally {
                 setLoading(false);
             }
@@ -255,3 +257,5 @@ export function SelectFilter({ value, onChange, options, label, labelsMap }: { v
         </select>
     );
 }
+
+export default withAuth(AdminProducts, true, true);

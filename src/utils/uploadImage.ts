@@ -1,3 +1,5 @@
+import { handleApiError } from "./handleApiError";
+
 export async function uploadImage(file: File): Promise<string | null> {
   try {
     const formData = new FormData();
@@ -15,14 +17,13 @@ export async function uploadImage(file: File): Promise<string | null> {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Cloudinary upload failed:", errorText);
       return null;
     }
 
     const data = await response.json();
     return data.secure_url;
   } catch (error) {
-    console.error("Error uploading image:", error);
+    handleApiError(error, "Error al subir la imagen.");
     return null;
   }
 }

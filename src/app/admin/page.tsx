@@ -6,8 +6,11 @@ import UsersPage from "./dashboard/usersPage";
 import ProductsPage from "./dashboard/productsPage";
 import TransactionsPage from "./dashboard/transactionsPage";
 import { AdminDashboardDto } from "@/types/admin-dashboard";
+import withAuth from "@/components/auth/withAuth";
+import Swal from "sweetalert2";
+import { handleApiError } from "@/utils/handleApiError";
 
-export default function AdminDashboardPage() {
+function AdminDashboardPage() {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<AdminDashboardDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +22,7 @@ export default function AdminDashboardPage() {
         const res = await api.get<AdminDashboardDto>("/admin/dashboard");
         setDashboardData(res.data);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        handleApiError(error,"No se pudo cargar la información.");
       } finally {
         setLoading(false);
       }
@@ -91,3 +94,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+export default withAuth(AdminDashboardPage, true, true);

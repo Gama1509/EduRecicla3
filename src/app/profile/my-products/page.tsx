@@ -7,8 +7,10 @@ import { ProductCategory, ProductCondition, ProductStatus, ProductType, RAMSize,
 import { productTypeLabels, productConditionLabels, productStatusLabels } from '@/constants/productLabels';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
+import { handleApiError } from '@/utils/handleApiError';
+import withAuth from '@/components/auth/withAuth';
 
-export default function MyProducts() {
+function MyProducts() {
     const [products, setProducts] = useState<ProductsTableDto[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
@@ -29,7 +31,7 @@ export default function MyProducts() {
                 const res = await api.get<ProductsTableDto[]>('/products/my-products');
                 setProducts(res.data);
             } catch (err) {
-                console.error('Error fetching products:', err);
+                handleApiError(err, "Error al obtener los productos.");
             } finally {
                 setLoading(false);
             }
@@ -83,12 +85,7 @@ export default function MyProducts() {
             router.push(`/edit/${product.id}`);
 
         } catch (error: any) {
-            console.error("Ocurrio un error al editar el producto:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: error.response?.data?.message || error.message || "Algo salió mal.",
-            });
+            handleApiError(error, "No se pudo editar el producto");
         } finally {
             setLoading(false);
         }
@@ -192,11 +189,7 @@ export default function MyProducts() {
                 return;
             }
         } catch (error: any) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: error.response?.data?.message || error.message || "Algo salió mal.",
-            });
+            handleApiError(error, "No se pudo editar el stock");
         } finally {
             setLoading(false);
         }
@@ -429,3 +422,4 @@ export function SelectFilter({ value, onChange, options, label, labelsMap }: { v
         </select>
     );
 }
+export default withAuth(MyProducts, true, false);

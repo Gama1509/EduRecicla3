@@ -9,6 +9,7 @@ import api from '@/utils/api';
 import { NotificationDto } from '@/types/notification.dto';
 import { getNotificationTitle } from '@/app/notifications/views/NotificationViews';
 import { getSocket } from '@/utils/sockets';
+import { handleApiError } from '@/utils/handleApiError';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -111,7 +112,7 @@ const Navbar = () => {
         const res = await api.get("/chat/unread");
         setHasUnreadMessages(res.data);
       } catch (error) {
-        console.error("Error verificando mensajes no leídos:", error);
+        handleApiError(error, "Error verificando mensajes no leídos.");
       }
     };
 
@@ -128,7 +129,7 @@ const Navbar = () => {
         const res = await api.get<NotificationDto[]>('/notification/getByUserId');
         setNotifications(res.data);
       } catch (error) {
-        console.error('Error fetching notifications:', error);
+        handleApiError(error, "Error al obtener notificaciones.");
       }
     };
 

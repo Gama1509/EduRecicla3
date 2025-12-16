@@ -7,8 +7,10 @@ import { glowColors } from '@/constants/glowColors';
 import Link from 'next/link';
 import { ProductCategory, ProductCondition, ProductType } from '@/types/product-details.dto';
 import { productConditionLabels, productTypeLabels } from '@/constants/productLabels';
+import withAuth from '@/components/auth/withAuth';
+import { handleApiError } from '@/utils/handleApiError';
 
-export default function BuyPage() {
+function BuyPage() {
   const [products, setProducts] = useState<ProductCardDto[]>([]);
   const [filtered, setFiltered] = useState<ProductCardDto[]>([]);
   const [search, setSearch] = useState('');
@@ -24,7 +26,7 @@ export default function BuyPage() {
         const res = await api.get<ProductCardDto[]>('/products/getAllApproved');
         setProducts(res.data);
       } catch (error) {
-        console.error(error);
+        handleApiError(error, "Error al obtener los productos.");
       }
     };
     fetchProducts();
@@ -191,3 +193,4 @@ export default function BuyPage() {
     </div>
   );
 }
+export default withAuth(BuyPage,false,false);

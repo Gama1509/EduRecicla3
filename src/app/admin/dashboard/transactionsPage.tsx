@@ -4,6 +4,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { DashboardTransactionsDto, TransactionStatus, TransactionType } from "@/types/dashboard-transactions.dto";
 import api from "@/utils/api";
 import { notificationTypeLabels, statusLabels, typeLabels } from "@/constants/productLabels";
+import withAuth from "@/components/auth/withAuth";
+import { handleApiError } from "@/utils/handleApiError";
 
 interface TransactionsPageProps {
     onBack: () => void;
@@ -13,7 +15,7 @@ const glowColors = ["rgba(255,255,255,0.3)", "rgba(255,255,255,0.2)", "rgba(255,
 
 const typeList: TransactionType[] = [TransactionType.SALE, TransactionType.DONATION];
 
-export default function TransactionsPage({ onBack }: TransactionsPageProps) {
+function TransactionsPage({ onBack }: TransactionsPageProps) {
     const [transactions, setTransactions] = useState<DashboardTransactionsDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterStatus, setFilterStatus] = useState<string | "All">("All");
@@ -33,7 +35,7 @@ export default function TransactionsPage({ onBack }: TransactionsPageProps) {
                 const res = await api.get<DashboardTransactionsDto[]>("/transactions/dashboard");
                 setTransactions(res.data);
             } catch (error) {
-                console.error("Error cargando transacciones:", error);
+                handleApiError(error, "Error al obtener los productos.");
             } finally {
                 setLoading(false);
             }
@@ -313,3 +315,4 @@ export default function TransactionsPage({ onBack }: TransactionsPageProps) {
         </div>
     );
 }
+export default withAuth(TransactionsPage, true, true);

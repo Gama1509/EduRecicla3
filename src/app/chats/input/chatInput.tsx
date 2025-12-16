@@ -4,6 +4,8 @@ import { uploadImage } from "@/utils/uploadImage";
 import { getSocket } from "@/utils/sockets";
 import { FaSpinner } from "react-icons/fa"
 import { useRef } from "react";
+import { handleApiError } from "@/utils/handleApiError";
+import withAuth from "@/components/auth/withAuth";
 
 interface ChatInputProps {
   chatId: string;
@@ -58,7 +60,7 @@ function ChatInput({ chatId }: ChatInputProps) {
           await Promise.all(imageFiles.map(file => uploadImage(file)))
         ).filter((url): url is string => url !== null);
       } catch (err) {
-        console.error("Error al subir imágenes", err);
+        handleApiError(err, "Error al subir imágenes.");
       } finally {
         setUploading(false);
       }
@@ -191,5 +193,5 @@ function ChatInput({ chatId }: ChatInputProps) {
   );
 }
 
-export default ChatInput;
+export default withAuth(ChatInput, true, false);
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import api from '../../utils/api';
 import { glowColors } from '@/constants/glowColors';
+import { handleApiError } from '@/utils/handleApiError';
 
 interface AuthFormProps {
   isRegister?: boolean;
@@ -31,13 +32,7 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
           const res = await api.get('/avatar'); // endpoint que retorna [{id, image}]
           setAvatars(res.data);
         } catch (err) {
-          console.error('Error al cargar avatares:', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudieron cargar los avatares. Intenta de nuevo más tarde.',
-            confirmButtonColor: '#2563eb',
-          });
+          handleApiError(err, 'Error al cargar avatares.');
         }
       };
       fetchAvatars();
@@ -113,8 +108,11 @@ const AuthForm = ({ isRegister = false }: AuthFormProps) => {
         await Swal.fire({
           icon: 'success',
           title: 'Inicio de sesión exitoso',
-          confirmButtonColor: '#2563eb',
+          timer: 2000, // ⏱️ 2 segundos
+          showConfirmButton: false,
+          timerProgressBar: true,
         });
+
 
         router.push(data.role === 'admin' ? '/admin' : '/');
         setLoading(false);

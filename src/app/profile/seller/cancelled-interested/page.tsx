@@ -8,8 +8,10 @@ import api from "@/utils/api";
 import { Link } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { handleApiError } from "@/utils/handleApiError";
+import withAuth from "@/components/auth/withAuth";
 
-export default function ProductViewPage() {
+function ProductViewPage() {
     const [transactions, setTransactions] = useState<TransactionsProfileDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchName, setSearchName] = useState('');
@@ -69,7 +71,7 @@ export default function ProductViewPage() {
                 const res = await api.get<TransactionsProfileDto[]>(`/transactions/getInterestCancelledTransactionsBySeller`);
                 setTransactions(res.data);
             } catch (error) {
-                console.error('Error fetching product:', error);
+                handleApiError(error, "Error al obtener las transacciones.");
             } finally {
                 setLoading(false);
             }
@@ -288,3 +290,4 @@ export default function ProductViewPage() {
     );
 }
 //                    Transaccciones completadas conmigo como vendedor (el comprador ya marco de recibido)
+export default withAuth(ProductViewPage, true, false);

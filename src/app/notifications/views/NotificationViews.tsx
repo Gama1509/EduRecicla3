@@ -10,6 +10,8 @@ import { RejectInterestDto } from "@/types/notifications/reject-interest.dto";
 import { AcceptInterestDto } from "@/types/notifications/accept-interest.dto";
 import { useState } from "react";
 import { cancelInterestAction } from "@/app/buy/[productId]/page";
+import { handleApiError } from "@/utils/handleApiError";
+import withAuth from "@/components/auth/withAuth";
 
 type UserInfoCardProps = {
     user_name: string;
@@ -52,7 +54,7 @@ export const confirmDeliveryAction = async ({
         window.location.reload();
 
     } catch (error) {
-        Swal.fire("Error", "No se pudo confirmar la entrega.", "error");
+        handleApiError(error, "No se pudo confirmar la entrega.");
     } finally {
         setLoadingAction(false);
     }
@@ -94,8 +96,7 @@ export const confirmAndContinueAction = async ({
         ).then(() => window.location.reload());
 
     } catch (error) {
-        console.error(error);
-        Swal.fire("Error", "No se pudo completar la acción.", "error");
+        handleApiError(error, "No se pudo confirmar y continuar.");
     } finally {
         setLoadingAction(false);
     }
@@ -157,7 +158,7 @@ export const adjustQuantityRequestedAction = async ({
         ).then(() => window.location.reload());
 
     } catch (e) {
-        Swal.fire("Error", "No se pudo ajustar la cantidad.", "error");
+        handleApiError(e, "No se pudo ajustar la cantidad.");
     } finally {
         setLoadingAction(false);
     }
@@ -193,7 +194,7 @@ export const notifyAnyIncreaseAction = async ({
         ).then(() => window.location.reload());
 
     } catch (error) {
-        Swal.fire("Error", "No se pudo registrar la notificación.", "error");
+        handleApiError(error, "No se pudo registrar la notificación.");
     } finally {
         setLoadingAction(false);
     }
@@ -229,7 +230,7 @@ export const notifyUntilFullAction = async ({
         ).then(() => window.location.reload());
 
     } catch (error) {
-        Swal.fire("Error", "No se pudo registrar la notificación.", "error");
+        handleApiError(error, "No se pudo registrar la notificación.");
     } finally {
         setLoadingAction(false);
     }
@@ -258,7 +259,7 @@ export const handleCancelInterestSoldOut = async (
         Swal.fire("Interés cancelado", "Tu interés fue cancelado correctamente.", "success")
             .then(() => window.location.reload());
     } catch (error) {
-        Swal.fire("Error", "No se pudo cancelar el interés.", "error");
+        handleApiError(error, "No se pudo cancelar el interés.");
     } finally {
         setLoadingAction(false);
     }
@@ -321,8 +322,7 @@ export const handleRejectInterest = async (
         }
 
     } catch (error) {
-        console.error(error);
-        Swal.fire('Error', 'No se pudo rechazar el interés', 'error');
+        handleApiError(error, "No se pudo rechazar el interés.");
     } finally {
         setLoadingAction(false); // ⏳ Desactivar loading
     }
@@ -368,8 +368,7 @@ export const handleAcceptInterest = async (
         window.location.reload();
 
     } catch (err) {
-        console.error(err);
-        Swal.fire("Error", "No se pudo aceptar el interés.", "error");
+        handleApiError(err, "No se pudo aceptar el interés.");
     } finally {
         setLoadingAction(false); // 🔵 Siempre desbloquea
     }
@@ -483,13 +482,15 @@ export function getNotificationTitle(type: NotificationType): string {
 function ProductTable({ product }: { product: ProductSummaryForNotification }) {
     return (
         <div className="mt-4 p-4 bg-white dark:bg-white/10 rounded-lg shadow-md transition-all duration-300">
-            <div className="grid grid-cols-2 gap-4 mb-4">
+
+            {/* Imágenes */}
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] justify-items-center gap-4 mb-4">
                 {product.imageUrls.map((url, i) => (
                     <img
                         key={i}
                         src={url}
                         alt={`Producto ${product.name}`}
-                        className="w-full h-40 object-cover rounded-lg border border-gray-300 dark:border-white/30"
+                        className="w-full max-w-[300px] h-40 object-cover rounded-lg border border-gray-300 dark:border-white/30"
                     />
                 ))}
             </div>
@@ -601,7 +602,7 @@ export function ProductRejectedView({
             setLoading(true);
             router.push(`/edit/${notification.product.id}`);
         } catch (e) {
-            Swal.fire("Error", "No se pudo editar el producto", "error");
+            handleApiError(e, "No se pudo editar el producto");
         } finally {
             setLoading(false); // SIEMPRE se ejecuta
         }
@@ -909,7 +910,7 @@ export function DeliveryMarkedView({ notification }: { notification: DeliveryMar
                 window.location.reload();
             });
         } catch (error) {
-            Swal.fire("Error", "No se pudo confirmar la entrega.", "error");
+            handleApiError(error, "No se pudo confirmar la entrega.");
         } finally {
             // Desbloquear
             setLoading(false);

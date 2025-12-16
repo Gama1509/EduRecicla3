@@ -7,6 +7,8 @@ interface CarouselItem {
   id: string;
   image: string;
   alt?: string;
+  caption?: string; // 👈 nuevo
+
   onClick?: () => void;
 }
 
@@ -41,9 +43,8 @@ const Carousel = ({ items }: CarouselProps) => {
         <div
           key={item.id}
           onClick={item.onClick}
-          className={`absolute inset-0 transition-opacity duration-1000 cursor-pointer ${
-            index === currentIndex ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`group absolute inset-0 transition-opacity duration-1000 cursor-pointer ${index === currentIndex ? 'opacity-100' : 'opacity-0'
+            }`}
         >
           <Image
             src={item.image}
@@ -52,8 +53,22 @@ const Carousel = ({ items }: CarouselProps) => {
             style={{ objectFit: "cover" }}
             className="w-full h-full"
           />
+
+          {/* 🖼️ Caption en hover */}
+          {item.caption && (
+            <div
+              className="absolute bottom-0 left-0 w-full
+        bg-black/60 text-white text-sm sm:text-base
+        px-4 py-2
+        opacity-0 group-hover:opacity-100
+        transition-opacity duration-300"
+            >
+              {item.caption}
+            </div>
+          )}
         </div>
       ))}
+
 
       {/* Navigation Arrows */}
       <button
@@ -75,11 +90,10 @@ const Carousel = ({ items }: CarouselProps) => {
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`w-3 h-3 rounded-full ${
-              index === currentIndex
-                ? 'bg-primary dark:bg-primary-dark'
-                : 'bg-primary/50 dark:bg-primary-dark/50'
-            }`}
+            className={`w-3 h-3 rounded-full ${index === currentIndex
+              ? 'bg-primary dark:bg-primary-dark'
+              : 'bg-primary/50 dark:bg-primary-dark/50'
+              }`}
           ></button>
         ))}
       </div>

@@ -9,8 +9,11 @@ import { ProductCategory, ProductCondition, RAMSize, StorageCapacity, StorageTyp
 import { CreateProductDto } from "@/services/listingService";
 import { useDropzone } from "react-dropzone";
 import { productConditionLabels } from "@/constants/productLabels";
+import { useAuth } from "@/contexts/AuthContext";
+import { handleApiError } from "@/utils/handleApiError";
+import withAuth from "@/components/auth/withAuth";
 
-export default function DonatePage() {
+function DonatePage() {
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [files, setFiles] = useState<(File & { preview: string })[]>([]);
@@ -23,6 +26,14 @@ export default function DonatePage() {
   type SelectOption = string | number | { value: string | number; label: string };
 
   const glow = glowColors[0];
+
+  const { isLoggedIn } = useAuth();
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -147,14 +158,28 @@ export default function DonatePage() {
         Swal.fire({
           icon: "warning",
           title: "Formato inválido",
-          text: "Las dimensiones deben estar en formato LxAxH con unidades opcionales (por ejemplo: 15x15x15 cm, 15x15x15 inches).",
+          text: "Las dimensiones deben estar en formato LxAxH con unidades opcionales (por ejemplo: 15x15x15 cm, 15x15x15 inch).",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const screenSize = formData.get("screenSize") as string;
+
+      if (
+        screenSize &&
+        !/^\d+(\.\d+)?\s*("|in|inch|inches|pulgadas)?$/i.test(screenSize.trim())
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "Formato inválido",
+          text: "El tamaño de pantalla debe ser un número en pulgadas (ej. 15, 15.6, 24\", 27 inch).",
         });
         setLoading(false);
         return;
       }
 
 
-      // --- Validar color ---
       // --- Validar color ---
       const color = formData.get("color") as string;
       if (
@@ -170,6 +195,21 @@ export default function DonatePage() {
         setLoading(false);
         return;
       }
+      const batteryHealth = formData.get("batteryHealth") as string;
+
+      if (
+        batteryHealth &&
+        !/^(100|[1-9]?\d)%$/.test(batteryHealth.trim())
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "Formato inválido",
+          text: "La salud de la batería debe ser un porcentaje entre 0% y 100% (ej. 85%).",
+        });
+        setLoading(false);
+        return;
+      }
+
 
       if (files.length === 0) {
         Swal.fire({
@@ -249,12 +289,7 @@ export default function DonatePage() {
 
 
     } catch (error: any) {
-      console.error("Error creating donation:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Algo salió mal. Por favor, intenta de nuevo.",
-      });
+      handleApiError(error, "Error al enviar la donación.");
     } finally {
       setLoading(false);
     }
@@ -363,6 +398,13 @@ export default function DonatePage() {
     </div>
   );
 
+  if (!mounted) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Cargando...
+      </div>
+    );
+  }
 
 
   return (
@@ -377,6 +419,24 @@ export default function DonatePage() {
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
         Los campos marcados con <span className="text-red-500">*</span> son obligatorios.
       </p>
+      {!isLoggedIn && (
+        <div
+          className="mb-6 text-center p-4 rounded-lg
+    bg-yellow-100 dark:bg-yellow-900/30
+    border border-yellow-400 dark:border-yellow-600"
+        >
+          <p className="text-sm sm:text-base font-semibold text-yellow-800 dark:text-yellow-300">
+            Para donar primero debes{" "}
+            <a
+              href="/login"
+              className="font-bold underline transition-transform duration-300 hover:scale-110"
+            >
+              iniciar sesión
+            </a>
+            .
+          </p>
+        </div>
+      )}
 
       <form
         ref={formRef}
@@ -557,7 +617,7 @@ export default function DonatePage() {
             "weight",
             "Peso",
             false,
-            "Ingresa el peso en kilogramos (número positivo)",
+            "Ingresa el peso en kilogramos (solo el número positivo)",
             "number",
             0
           )}
@@ -565,7 +625,7 @@ export default function DonatePage() {
             "dimensions",
             "Dimensiones",
             false,
-            "Ingresa las dimensiones (p. ej., 15x15x15 cm o 15x15x15 pulgadas)"
+            "Ingresa las dimensiones (p. ej., 15x15x15 cm o 15x15x15 inch)"
           )}
         </div>
 
@@ -597,7 +657,7 @@ export default function DonatePage() {
                     "screenSize",
                     "Tamaño de pantalla",
                     false,
-                    "Ingresa el tamaño de pantalla con unidades (p. ej., 15.6 pulgadas o 39.6 cm)"
+                    "Ingresa el tamaño de pantalla con unidades (p. ej., 15.6 inch)"
                   )}
                   {renderInput(
                     "batteryHealth",
@@ -709,23 +769,28 @@ export default function DonatePage() {
         <div className="flex justify-center gap-4 mt-6">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isLoggedIn}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             className={`py-3 px-6 rounded-lg font-bold border border-black dark:border-white
-          transition-all duration-300 transform
-          ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
-          bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
-          text-black dark:text-white`}
-            style={{ boxShadow: hovered ? `0 0 15px ${glow}` : undefined }}
+    transition-all duration-300 transform
+    ${loading || !isLoggedIn
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:scale-105"}
+    bg-primary hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover
+    text-black dark:text-white`}
+            style={{ boxShadow: hovered && isLoggedIn ? `0 0 15px ${glow}` : undefined }}
           >
-            {loading ? "Enviando..." : "Enviar Donación"}
+            {!isLoggedIn
+              ? "Inicia sesión para donar"
+              : loading
+                ? "Enviando..."
+                : "Enviar Donación"}
           </button>
+
         </div>
       </form>
     </div>
   );
-
-
-
 }
+export default withAuth(DonatePage, false, false);

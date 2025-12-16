@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export const useApiInterceptor = () => {
     const router = useRouter();
-    const { logout } = useAuth(); // ⬅️ usamos logout
+    const { logout, isLoggedIn } = useAuth();
 
     useEffect(() => {
         const interceptor = api.interceptors.response.use(
@@ -16,17 +16,42 @@ export const useApiInterceptor = () => {
             async (error) => {
                 const status = error?.response?.status;
 
-                // 🔴 Si es error 401 o 500 => cerrar sesión
-                if (status === 401 || status === 500) {
+                if ([401, 403, 500].includes(status)) {
+                    let title = "Error";
+                    let text = "Ocurrió un problema inesperado.";
+
+                    if (status === 401) {
+                        if (isLoggedIn) {
+                            title = "Sesión finalizada";
+                            text = "Tu sesión ha caducado, vuelve a iniciar sesión.";
+                        } else {
+                            title = "No autorizado";
+                            text = "Debes iniciar sesión para continuar.";
+                        }
+                    } else if (status === 403) {
+                        if (isLoggedIn) {
+                            title = "Sesión finalizada";
+                            text = "No tienes permisos, vuelve a iniciar sesión.";
+                        } else {
+                            title = "Acceso denegado";
+                            text = "No tienes permisos para acceder, inicia sesión.";
+                        }
+                    } else if (status === 500) {
+                        title = "Error del servidor";
+                        text = "Estamos teniendo problemas internos, intenta más tarde.";
+                    }
+
                     Swal.fire({
-                        icon: 'warning',
-                        title: 'Sesión finalizada',
-                        text: 'Por seguridad, vuelve a iniciar sesión.',
+                        icon: "warning",
+                        title,
+                        text,
                         timer: 2000,
                         showConfirmButton: false,
                     }).then(() => {
-                        logout();        // limpia todo
-                        router.push('/');
+                        if (isLoggedIn) {
+                            logout(); // 👈 solo si estaba logueado
+                        }
+                        router.push("/"); // 👈 siempre redirige a raíz
                     });
 
                     return Promise.reject(error);
@@ -39,5 +64,5 @@ export const useApiInterceptor = () => {
         return () => {
             api.interceptors.response.eject(interceptor);
         };
-    }, [router, logout]);
+    }, [router, logout, isLoggedIn]);
 };

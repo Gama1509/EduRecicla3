@@ -1,8 +1,9 @@
 "use client";
 import Link from 'next/link';
 import { glowColors } from '@/constants/glowColors';
+import withAuth from '@/components/auth/withAuth';
 
-export default function AdminLayout({
+function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -56,3 +57,5 @@ export default function AdminLayout({
     </div>
   );
 }
+
+export default AdminLayout;
