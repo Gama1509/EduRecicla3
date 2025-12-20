@@ -355,6 +355,7 @@ function SellPage() {
             type={type}   // puede ser "text", "number", etc.
             min={min}     // opcional
             max={max}     // opcional
+            step="any"
             className="w-full px-2 py-1 border rounded-md"
           />
         )}
